@@ -3,7 +3,7 @@ import { UnauthorizedUserError } from "../utils/exceptions";
 import { User } from "../entities/User";
 import { JWT_SECRET } from "../secrets";
 import * as jwt from "jsonwebtoken";
-import { ApiError } from "../utils/api-errors";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
 import userRepository from "../repositories/usersRepository"; // Importa o repositório
 
 type jwtPayload = {
@@ -13,8 +13,9 @@ type jwtPayload = {
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     const { authorization } = req.headers;
-    if (!authorization) {
-      throw new UnauthorizedUserError("Não autorizado");
+
+    if (!authorization || !authorization.startsWith("Bearer ")) {
+      throw new ApiError("Token não informado", ErrorsCode.UNAUTHORIZED);
     }
 
     const token = authorization.split(" ")[1];
@@ -25,32 +26,35 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
     if (!user) {
       // Adicionado um check para caso o usuário não exista mais
-      throw new UnauthorizedUserError("Usuário não encontrado.");
+      throw new ApiError("Usuário não encontrado", ErrorsCode.UNAUTHORIZED);
     }
 
     if (!user.confirmed) {
-      throw new UnauthorizedUserError("Confirme o seu Email");
+      throw new ApiError("Confirme o seu email para acessar", ErrorsCode.UNAUTHORIZED);
     }
 
     const { senha: _, ...loggedUser } = user;
-
-    (req as any).user = loggedUser;
+    req.user = loggedUser;
 
     next();
-  } catch (error: any) {
-    if (error instanceof ApiError)
-      return res
-        .status(error.statusCode)
-        .json({ message: error.message, statusCode: error.statusCode });
-    else if (error instanceof jwt.TokenExpiredError)
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({ message: "Token expirado", statusCode: 401 });
+    }
 
-    console.error("Erro em acesso: ", error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: "Token inválido", statusCode: 401 });
+    }
 
-    return res.status(500).json({ message: "Erro interno no servidor" });
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
+    }
+
+    console.error("Erro em acesso:", error);
+    return res.status(500).json({ message: "Erro interno no servidor", statusCode: 500 });
   }
-
 }
+
 export async function isAdmin(req: Request, res: Response, next: NextFunction) {
   const user = (req as any).user as Omit<User, 'senha'>; 
 

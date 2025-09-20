@@ -65,6 +65,44 @@ routes.post("/login", usersController.login);
 
 /**
  * @swagger
+ * /me:
+ *   get:
+ *     summary: Retorna o usuário autenticado
+ *     description: Obtém as informações do usuário atualmente autenticado com base no token JWT enviado no header de autorização.
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: Usuário autenticado retornado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "uuid-usuario-123"
+ *                 nome:
+ *                   type: string
+ *                   example: "Fulano da Silva"
+ *                 email:
+ *                   type: string
+ *                   example: "fulano@example.com"
+ *                 tipo:
+ *                   type: string
+ *                   example: "USER"
+ *                 confirmed:
+ *                   type: boolean
+ *                   example: true
+ *       401:
+ *         description: Não autorizado (token ausente ou inválido)
+ */
+routes.get("/me", authMiddleware, usersController.getAuthenticatedUser);
+
+/**
+ * @swagger
  * /getProfile:
  *   get:
  *     summary: Get user profile

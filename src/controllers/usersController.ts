@@ -18,6 +18,22 @@ export default {
     return response.json(request.user);
   },
 
+  async getAuthenticatedUser(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Usuário não autenticado" });
+      }
+
+      const user = await usersService.getUserById(userId);
+
+      return res.json(user);
+    } catch (error) {
+      console.error("Erro em getProfile:", error);
+      return res.status(500).json({ message: "Erro interno no servidor" });
+    }
+  },
+
   async confirmEmail(request: Request, response: Response) {
     try {
       const data = await usersService.confirmUser(request.params.token);
@@ -104,18 +120,20 @@ export default {
 
     return response.status(200).json(updatedUser);
   },
+
   async getUserActivitiesCount(request: Request, response: Response) {
     const { id } = request.params;
     const count = await usersService.countUserActivities(id);
 
     return response.status(200).json({ totalActivities: count });
   },
+
   async getUserDetails(request: Request, response: Response) {
         const userId = request.params.id;
         const userDetails = await usersService.getUserDetails(userId);
         
         response.status(200).json(userDetails);
-    },
+  },
 
   async registerPushToken(req: Request, res: Response) {
     try {
