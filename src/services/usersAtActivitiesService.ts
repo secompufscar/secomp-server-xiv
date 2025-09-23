@@ -101,15 +101,20 @@ export default {
 
     await usersAtActivitiesRepository.delete(userAtActivity.id);
 
-    const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(userAtActivity.activityId);
+    const isFull = await activitiesRepository.isActivityFull(activityId);
 
-    if (nextInLine) {
-      await usersAtActivitiesRepository.update(nextInLine.id, {
-        listaEspera: false,
-        inscricaoPrevia: true,
-        presente: false,
-      });
+    if (!isFull) {
+      const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(activityId);
+
+      if (nextInLine) {
+        await usersAtActivitiesRepository.update(nextInLine.id, {
+          listaEspera: false,
+          inscricaoPrevia: true,
+          presente: false,
+        });
+      }
     }
+
     return userAtActivity;
   },
 };
