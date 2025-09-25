@@ -32,7 +32,10 @@ export default {
     }
 
     const countUsersAtActivity = await prisma.userAtActivity.count({
-      where: { activityId },
+      where: {
+        activityId,
+        listaEspera: false,
+      },
     });
 
     return countUsersAtActivity >= activity.vagas;
