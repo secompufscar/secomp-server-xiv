@@ -99,11 +99,11 @@ export default {
       await usersRepository.removePoints(userId, points);
     }
 
-    const wasFull = await activitiesRepository.isActivityFull(activityId);
-
     await usersAtActivitiesRepository.delete(userAtActivity.id);
+    
+    const isFull = await activitiesRepository.isActivityFull(activityId);
 
-    if (wasFull) {
+    if (!isFull) {
       const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(activityId);
 
       if (nextInLine) {
