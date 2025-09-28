@@ -24,13 +24,13 @@ export default {
       throw new ApiError("Este usuário já realizou o check-in nesta atividade", ErrorsCode.CONFLICT);
     }
 
-    if (userAtActivity?.listaEspera === true) {
-      throw new ApiError("Usuário está na lista de espera e não pode realizar o check-in", ErrorsCode.FORBIDDEN);
-    }
-
     if (activity.categoriaId === "1") {
       if (!userAtActivity) {
         throw new ApiError("Usuário não está cadastrado na atividade", ErrorsCode.BAD_REQUEST);
+      }
+
+      if (userAtActivity?.listaEspera === true) {
+        throw new ApiError("Usuário está na lista de espera e não pode realizar o check-in", ErrorsCode.FORBIDDEN);
       }
 
       const pointsToAdd = activity.points;
