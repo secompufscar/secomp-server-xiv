@@ -1,5 +1,6 @@
 ## Testando criação de usuário
-POST http://localhost:3333/api/v1/users/signup
+
+POST https://secomp-server-xiv-production.up.railway.app/api/v1/users/signup
 Content-Type: application/json
 
 {

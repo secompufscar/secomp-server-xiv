@@ -24,6 +24,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cors({
   origin: [
+    "https://secomp-server-xiv-production.up.railway.app/api/v1",
     "http://localhost:8081",      
     "https://secompufscar.com.br", 
     "https://app.secompufscar.com.br" // Front End Expo Web App
@@ -53,7 +54,7 @@ app.get("/email-confirmado", (req, res) => {
 });
 
 // Catch-all route for API root
-app.get("/*", (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XIII" }));
+app.get("/*", (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XIV" }));
 
 // Error handling middleware
 app.use(errorHandler);
