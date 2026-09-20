@@ -12,6 +12,11 @@ import { promises as fs } from "fs";
 import path from "path";
 import usersRepository from "../repositories/usersRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
+import { BrevoClient } from "@getbrevo/brevo";
+
+const brevo = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY || "",
+});
 
 const port = Number(process.env.SMTP_PORT) || 587;
 const secure = port === 465;
@@ -113,26 +118,31 @@ export default {
   async sendConfirmationEmail(user: User): Promise<boolean> {
     try {
       const emailToken = jwt.sign({ userId: user.id }, email.email_secret, { expiresIn: "1d" });
-
       const BASE_URL = process.env.NODE_ENV === "production" ? process.env.BASE_URL_PROD : process.env.BASE_URL_DEV;
-
       const url = `${BASE_URL}/users/confirmation/${emailToken}`;
 
-      const html = await loadTemplate("email-confirmation.html", {
-        url,
+      const htmlContent = await loadTemplate("email-confirmation.html", { url });
+
+      const result = await brevo.transactionalEmails.sendTransacEmail({
+        subject: "SECOMP UFSCar - Confirmação de e-mail",
+        htmlContent: htmlContent,
+        sender: {
+          name: "SECOMP UFSCar",
+          email: "secomp.ti@secompufscar.com.br",
+        },
+        to: [
+          {
+            email: user.email,
+            name: user.nome,
+          },
+        ],
       });
 
-      await transporter.sendMail({
-        to: user.email,
-        subject: "SECOMP UFSCar - Confirmação de email",
-        html,
-      });
-
-      console.log("Email enviado com sucesso");
+      console.log("E-mail enviado com sucesso via Brevo! MessageID:", result.messageId);
       return true;
     } catch (err) {
-      console.error("FALHA DETALHADA NO SMTP DO NODEMAILER:", err);
-      throw new ApiError(`Erro ao enviar email`, ErrorsCode.INTERNAL_ERROR);
+      console.error("FALHA DETALHADA NO BREVO:", err);
+      throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR);
     }
   },
 
