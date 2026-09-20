@@ -3,7 +3,7 @@ import _ from "lodash";
 import { compare, hash } from "bcrypt";
 import { auth } from "../config/auth";
 import { email } from "../config/sendEmail";
-import { User } from "../entities/User";
+import { RankingUser, User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { generateQRCode } from "../utils/qrCode";
 import { CreateUserDTOS, UpdateProfileDTO } from "../dtos/usersDtos";
@@ -251,7 +251,7 @@ export default {
     }
   },
 
-  async getTop50Ranking(): Promise<User[]> {
+  async getTop50Ranking(): Promise<RankingUser[]> {
     try {
       const topUsers = await usersRepository.getTop50RankingUsers();
       if (!topUsers || topUsers.length === 0) {
