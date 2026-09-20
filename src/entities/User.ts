@@ -16,3 +16,5 @@ export interface User {
   rank?: number;
 }
 
+// correção para o vazando de dados sensíveis encontrado no repositories/userRepository.ts
+export type RankingUser = Omit<User, 'email' | 'senha' | 'qrCode' | 'updatedAt' | 'registrationStatus' | 'currentEdition' | 'pushToken'>;

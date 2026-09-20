@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { User as PrismaUser, Prisma } from "@prisma/client";
-import { User, RegistrationStatus } from "../entities/User";
+import { User, RegistrationStatus, RankingUser } from "../entities/User";
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
 
 function toUserEntity(prismaUser: PrismaUser): User {
@@ -168,7 +168,7 @@ export default {
     return Number(result[0].rank);
   },
 
-  async getTop50RankingUsers(): Promise<User[]> {
+  async getTop50RankingUsers(): Promise<RankingUser[]> {
     const result = await prisma.$queryRaw<User[]>(Prisma.sql`
       SELECT
         sub.*,
@@ -190,17 +190,10 @@ export default {
     return result.map(user => ({
       id: user.id,
       nome: user.nome,
-      email: user.email,
-      senha: user.senha,
       tipo: user.tipo,
-      qrCode: user.qrCode,
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
       confirmed: user.confirmed,
-      registrationStatus: user.registrationStatus,
-      currentEdition: user.currentEdition,
       points: Number(user.points),
-      pushToken: user.pushToken,
       rank: Number((user as any).ranking),
     }));
   },
