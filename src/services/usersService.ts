@@ -132,6 +132,7 @@ export default {
       console.log("Email enviado com sucesso");
       return true;
     } catch (err) {
+      console.error("FALHA DETALHADA NO SMTP DO NODEMAILER:", err);
       throw new ApiError(`Erro ao enviar email`, ErrorsCode.INTERNAL_ERROR);
     }
   },
