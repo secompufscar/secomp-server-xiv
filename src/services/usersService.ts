@@ -1,5 +1,4 @@
 import * as jwt from "jsonwebtoken";
-import * as nodemailer from "nodemailer";
 import _ from "lodash";
 import { compare, hash } from "bcrypt";
 import { auth } from "../config/auth";
@@ -16,21 +15,6 @@ import { BrevoClient } from "@getbrevo/brevo";
 
 const brevo = new BrevoClient({
   apiKey: process.env.BREVO_API_KEY || "",
-});
-
-const port = Number(process.env.SMTP_PORT) || 587;
-const secure = port === 465;
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, 
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  connectionTimeout: 15000, 
-  greetingTimeout: 15000,
 });
 
 // Carrega o html do email
@@ -189,10 +173,19 @@ export default {
         url,
       });
 
-      await transporter.sendMail({
-        to: user.email,
+      await brevo.transactionalEmails.sendTransacEmail({
         subject: "SECOMP UFSCar - Solicitação de alteração de senha",
-        html,
+        htmlContent: html,
+        sender: {
+          name: "SECOMP UFSCar",
+          email: "secomp.ti@secompufscar.com.br",
+        },
+        to: [
+          {
+            email: user.email,
+            name: user.nome,
+          },
+        ],
       });
     } catch (err) {
       console.log("Erro no serviço de recuperação de senha", err);

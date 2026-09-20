@@ -4,7 +4,7 @@ POST https://secomp-server-xiv-production.up.railway.app/api/v1/users/signup
 Content-Type: application/json
 
 {
-    "email": "hadrian@estudante.ufscar.br",
+    "email": "teste@teste.com.br",
     "nome": "teste jr",
     "senha": "senha1"
 }
