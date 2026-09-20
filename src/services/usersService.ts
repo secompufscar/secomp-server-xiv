@@ -6,7 +6,7 @@ import { email } from "../config/sendEmail";
 import { RankingUser, User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { generateQRCode } from "../utils/qrCode";
-import { CreateUserDTOS, UpdateProfileDTO } from "../dtos/usersDtos";
+import { SignupUserDTO, UpdateProfileDTO } from "../dtos/usersDtos";
 import { promises as fs } from "fs";
 import path from "path";
 import usersRepository from "../repositories/usersRepository";
@@ -62,7 +62,7 @@ export default {
     };
   },
 
-  async signup({ nome, email, senha, tipo = "USER" }: CreateUserDTOS) {
+  async signup({ nome, email, senha }: SignupUserDTO) {
     const userExists = await usersRepository.findByEmail(email);
 
     if (userExists) {
@@ -74,7 +74,7 @@ export default {
       nome,
       email,
       senha: hashedPassword,
-      tipo,
+      tipo: "USER",
     });
 
     const qrCode = await generateQRCode(user.id);
