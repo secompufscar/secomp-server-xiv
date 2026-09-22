@@ -17,7 +17,7 @@ model User {
   id              String        @id @default(uuid())
   nome            String
   email           String        @unique
-  senha           String 
+  senha           String
   tipo            String        @default("USER")
   qrCode          String?       @db.Text
   pushToken       String?
@@ -26,17 +26,17 @@ model User {
   confirmed       Boolean       @default(false)
   userAtActivity  UserAtActivity[]
   points           Int          @default(0)
-  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado 
+  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado
   currentEdition     String?             // ano da ediçao
-  
+
   userEvents      UserEvent[]    // Relação com eventos
 
   // Relação com notificações enviadas
   sentNotifications NotificationHistory[] @relation("NotificationSender")
-  
+
   // Relação com notificações recebidas
   receivedNotifications NotificationHistory[] @relation("NotificationRecipients")
-  
+
   @@map("users")
 }
 
@@ -101,6 +101,7 @@ model UserAtActivity {
   activityId String
   activity   Activity @relation(fields: [activityId], references: [id])
 
+  @@unique([userId, activityId])
   @@map("userAtActivity")
 }
 
@@ -119,7 +120,7 @@ model NotificationHistory {
 
   // Relação muitos-para-muitos com recipients
   recipients  User[]    @relation("NotificationRecipients")
-  
+
   @@index([sentAt])
   @@index([status])
 }

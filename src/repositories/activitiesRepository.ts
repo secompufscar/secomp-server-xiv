@@ -21,26 +21,6 @@ export default {
     return response;
   },
 
-  async isActivityFull(activityId: string): Promise<boolean> {
-    const activity = await prisma.activity.findUnique({
-      where: { id: activityId },
-      select: { vagas: true },
-    });
-
-    if (!activity || activity.vagas === null) {
-      throw new Error("Atividade não encontrada ou número de vagas não definido.");
-    }
-
-    const countUsersAtActivity = await prisma.userAtActivity.count({
-      where: {
-        activityId,
-        listaEspera: false,
-      },
-    });
-
-    return countUsersAtActivity >= activity.vagas;
-  },
-
   async create(data: CreateActivityDTOS): Promise<ActivityDTOS> { 
     const response = await prisma.activity.create({ data });
     return response;
