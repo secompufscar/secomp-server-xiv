@@ -92,12 +92,16 @@ routes.get("/:id", categoriesController.findById);
  *             properties:
  *               nome:
  *                 type: string
+ *               requiresEnrollment:
+ *                 type: boolean
+ *                 description: Exige inscrição prévia para realizar check-in.
+ *                 default: false
  *     responses:
  *       201:
  *         description: Categoria criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
-routes.post("/", authMiddleware, adminMiddleware, categoriesController.create);
+routes.post("/", authMiddleware, adminMiddleware, validate(createCategorySchema), categoriesController.create);
 
 /**
  * @swagger
@@ -122,6 +126,9 @@ routes.post("/", authMiddleware, adminMiddleware, categoriesController.create);
  *             properties:
  *               nome:
  *                 type: string
+ *               requiresEnrollment:
+ *                 type: boolean
+ *                 description: Exige inscrição prévia para realizar check-in.
  *     responses:
  *       200:
  *         description: Categoria atualizada com sucesso.

@@ -56,11 +56,12 @@ model Event {
 }
 
 model Category {
-  id         String     @id @default(uuid())
-  nome       String     @db.VarChar(255)
-  createdAt  DateTime   @default(now()) @db.DateTime(6)
-  updatedAt  DateTime   @updatedAt @db.Timestamp
-  atividades Activity[]
+  id                 String     @id @default(uuid())
+  nome               String     @db.VarChar(255)
+  requiresEnrollment Boolean    @default(false)
+  createdAt          DateTime   @default(now()) @db.DateTime(6)
+  updatedAt          DateTime   @updatedAt @db.Timestamp
+  atividades         Activity[]
 
   @@map("category")
 }

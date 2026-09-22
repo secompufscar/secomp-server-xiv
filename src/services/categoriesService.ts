@@ -19,20 +19,21 @@ export default {
     return categories;
   },
 
-  async create({ nome }: CreateCategoryrDTOS) {
+  async create({ nome, requiresEnrollment }: CreateCategoryrDTOS) {
     const category = await categoriesRepository.create({
       nome,
+      requiresEnrollment,
     });
     return category;
   },
 
-  async update(id: string, { nome }: UpdateCategoryrDTOS) {
+  async update(id: string, data: UpdateCategoryrDTOS) {
     const previousCategory = await categoriesRepository.findById(id);
 
     if (!previousCategory) {
       throw new ApiError("Category was not found by this id", ErrorsCode.NOT_FOUND);
     }
-    const updatedCategory = await categoriesRepository.update(id, { nome });
+    const updatedCategory = await categoriesRepository.update(id, data);
     return updatedCategory;
   },
 
