@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authMiddleware, authorizeSelfOrAdmin, isAdmin } from "../middlewares/authMiddleware";
 import usersAtActivitiesController from "../controllers/usersAtActivitiesController";
 
 const routes = Router();
 
-routes.get("/user-activity/:userId/:activityId", usersAtActivitiesController.findByUserIdActivityId);
+routes.get("/user-activity/:userId/:activityId", authMiddleware, authorizeSelfOrAdmin(), usersAtActivitiesController.findByUserIdActivityId);
 
 /**
  * @swagger
@@ -13,6 +13,8 @@ routes.get("/user-activity/:userId/:activityId", usersAtActivitiesController.fin
  *     summary: Obtém todas as inscrições de usuários para uma atividade específica.
  *     tags:
  *       - UserAtActivities
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: activityId
@@ -50,8 +52,10 @@ routes.get("/user-activity/:userId/:activityId", usersAtActivitiesController.fin
  *                     format: date-time
  *       404:
  *         description: Atividade não encontrada.
+ *       403:
+ *         description: Operação restrita a administradores.
  */
-routes.get("/:activityId", authMiddleware, usersAtActivitiesController.findById);
+routes.get("/:activityId", authMiddleware, isAdmin, usersAtActivitiesController.findById);
 /**
  * @swagger
  * /userAtActivities/all-activities/{userId}:
@@ -59,6 +63,8 @@ routes.get("/:activityId", authMiddleware, usersAtActivitiesController.findById)
  *     summary: Obtém todas as atividades de um usuário.
  *     tags:
  *       - UserAtActivities
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
@@ -69,8 +75,10 @@ routes.get("/:activityId", authMiddleware, usersAtActivitiesController.findById)
  *     responses:
  *       200:
  *         description: Lista de atividades retornada com sucesso.
+ *       403:
+ *         description: O usuário só pode consultar as próprias atividades.
  */
-routes.get("/all-activities/:userId", authMiddleware, usersAtActivitiesController.findByUserId);
+routes.get("/all-activities/:userId", authMiddleware, authorizeSelfOrAdmin(), usersAtActivitiesController.findByUserId);
 /**
  * @swagger
  * /userAtActivities:
@@ -78,6 +86,8 @@ routes.get("/all-activities/:userId", authMiddleware, usersAtActivitiesControlle
  *     summary: Cria uma nova inscrição para o usuário em uma atividade.
  *     tags:
  *       - UserAtActivities
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -97,11 +107,13 @@ routes.post("/", authMiddleware, usersAtActivitiesController.create);
 
 /**
  * @swagger
- * /userAtActivities/{id}:
+ * /userAtActivities/{userId}/{activityId}:
  *   put:
  *     summary: Atualiza uma inscrição de um usuário em uma atividade.
  *     tags:
  *       - UserAtActivities
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: activityId
@@ -131,8 +143,10 @@ routes.post("/", authMiddleware, usersAtActivitiesController.create);
  *     responses:
  *       200:
  *         description: Inscrição atualizada com sucesso.
+ *       403:
+ *         description: Operação restrita a administradores.
  */
-routes.put("/:id", authMiddleware, usersAtActivitiesController.update);
+routes.put("/:id", authMiddleware, isAdmin, usersAtActivitiesController.update);
 /**
  * @swagger
  * /userAtActivities/{id}:
@@ -140,11 +154,19 @@ routes.put("/:id", authMiddleware, usersAtActivitiesController.update);
  *     summary: Deleta uma inscrição de um usuário em uma atividade.
  *     tags:
  *       - UserAtActivities
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
  *         required: true
- *         description: ID da inscrição do usuário na atividade.
+ *         description: ID do usuário.
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: activityId
+ *         required: true
+ *         description: ID da atividade.
  *         schema:
  *           type: string
  *     responses:
@@ -152,7 +174,9 @@ routes.put("/:id", authMiddleware, usersAtActivitiesController.update);
  *         description: Inscrição deletada com sucesso.
  *       404:
  *         description: Registro não encontrado.
+ *       403:
+ *         description: O usuário só pode remover a própria inscrição.
  */
-routes.delete("/:userId/:activityId", authMiddleware, usersAtActivitiesController.delete);
+routes.delete("/:userId/:activityId", authMiddleware, authorizeSelfOrAdmin(), usersAtActivitiesController.delete);
 
 export default routes;

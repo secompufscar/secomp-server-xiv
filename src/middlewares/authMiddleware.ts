@@ -65,3 +65,20 @@ export async function isAdmin(req: Request, res: Response, next: NextFunction) {
     return res.status(403).json({ message: "Acesso negado: Somente administradores podem acessar este recurso." });
   }
 }
+
+export function authorizeSelfOrAdmin(userIdParam = "userId") {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const authenticatedUserId = req.user?.id;
+    const requestedUserId = req.params[userIdParam];
+
+    if (!authenticatedUserId) {
+      return res.status(401).json({ message: "Usuário não autenticado" });
+    }
+
+    if (req.user.tipo?.toUpperCase() !== "ADMIN" && authenticatedUserId !== requestedUserId) {
+      return res.status(403).json({ message: "Acesso permitido apenas ao próprio usuário ou a administradores." });
+    }
+
+    next();
+  };
+}

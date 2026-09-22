@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
+import { authMiddleware, authorizeSelfOrAdmin, isAdmin } from "../middlewares/authMiddleware";
 import userEventController from "../controllers/userEventController";
 
 const routes = Router();
@@ -53,8 +53,10 @@ routes.get("/event/:eventId", authMiddleware, isAdmin, userEventController.findB
  *         description: Lista de inscrições do usuário
  *       401:
  *         description: Não autorizado
+ *       403:
+ *         description: O usuário só pode consultar as próprias inscrições
  */
-routes.get("/user/:userId", authMiddleware, userEventController.findByUserId);
+routes.get("/user/:userId", authMiddleware, authorizeSelfOrAdmin(), userEventController.findByUserId);
 
 /**
  * @swagger
@@ -84,10 +86,12 @@ routes.get("/user/:userId", authMiddleware, userEventController.findByUserId);
  *               $ref: '#/components/schemas/UserEventDTO'
  *       401:
  *         description: Não autorizado
+ *       403:
+ *         description: O usuário só pode consultar a própria inscrição
  *       404:
  *         description: Inscrição não encontrada
  */
-routes.get("/user/:userId/event/:eventId", authMiddleware, userEventController.findByUserIdEventId);
+routes.get("/user/:userId/event/:eventId", authMiddleware, authorizeSelfOrAdmin(), userEventController.findByUserIdEventId);
 
 /**
  * @swagger
