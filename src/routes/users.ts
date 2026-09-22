@@ -318,7 +318,7 @@ routes.get("/getUserRanking/:id", authMiddleware, usersController.getUserRanking
  * /ranking/top50:
  *   get:
  *     summary: Retorna o Top 50 do ranking
- *     description: Retorna os 50 melhores usuários do ranking da SECOMP, incluindo a posição de cada usuário (rank), pontuação e demais informações.
+ *     description: Retorna os 50 melhores usuários do ranking da SECOMP, incluindo a posição de cada usuário (rank), pontuação, ID e nome.
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -343,21 +343,9 @@ routes.get("/getUserRanking/:id", authMiddleware, usersController.getUserRanking
  *                       nome:
  *                         type: string
  *                         example: "Fulano de Tal"
- *                       email:
- *                         type: string
- *                         example: "fulano@example.com"
- *                       tipo:
- *                         type: string
- *                         example: "USER"
- *                       confirmed:
- *                         type: boolean
- *                         example: true
  *                       points:
  *                         type: number
  *                         example: 150
- *                       currentEdition:
- *                         type: string
- *                         example: "2025"
  *                       rank:
  *                         type: integer
  *                         example: 1

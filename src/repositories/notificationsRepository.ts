@@ -1,10 +1,15 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from "../lib/prisma";
 import { CreateNotificationDTO } from "../dtos/notificationsDtos";
-import { Notification } from "../entities/Notification";
+import { userIdentitySelect } from "../dtos/userResponses";
+
+const notificationSelect = {
+  id: true, title: true, message: true, data: true, status: true, sentAt: true,
+  sender: { select: userIdentitySelect },
+} satisfies Prisma.NotificationHistorySelect;
 
 export default {
-  async create(data: CreateNotificationDTO): Promise<Notification> {
+  async create(data: CreateNotificationDTO) {
     return prisma.notificationHistory.create({
       data: {
         title: data.title,
@@ -17,54 +22,43 @@ export default {
           connect: data.recipientIds.map(id => ({ id }))
         }
       },
-      include: {
-        sender: true,
-        recipients: true
-      }
-    }) as unknown as Notification; 
+      select: notificationSelect
+    });
   },
 
-  async updateStatus(id: string, status: 'SENT' | 'FAILED', error?: string): Promise<Notification> {
+  async updateStatus(id: string, status: 'SENT' | 'FAILED', error?: string) {
     return prisma.notificationHistory.update({
       where: { id },
+      select: notificationSelect,
       data: {
         status,
         error: error || null,
       },
-    }) as unknown as Notification;
+    });
   },
 
-  async findById(id: string): Promise<Notification | null> {
+  async findById(id: string) {
     return prisma.notificationHistory.findUnique({
       where: { id },
-      include: {
-        sender: true,
-        recipients: true
-      }
-    }) as unknown as Notification | null;
+      select: notificationSelect
+    });
   },
 
-  async findManyByIds(ids: string[]): Promise<Notification[]> {
+  async findManyByIds(ids: string[]) {
     return prisma.notificationHistory.findMany({
       where: { id: { in: ids } },
-      include: {
-        sender: true,
-        recipients: true
-      }
-    }) as unknown as Notification[];
+      select: notificationSelect
+    });
   },
 
-  async findByUserId(userId: string): Promise<Notification[]> {
+  async findByUserId(userId: string) {
     return prisma.notificationHistory.findMany({
       where: {
         recipients: {
           some: { id: userId }
         }
       },
-      include: {
-        sender: true,
-        recipients: true
-      }
-    }) as unknown as Notification[];
+      select: notificationSelect
+    });
   },
 };

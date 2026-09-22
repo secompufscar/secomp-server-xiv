@@ -1,3 +1,4 @@
+import { userIdentitySelect } from "../dtos/userResponses";
 // IMPORTANTE: Usar a instância única do Prisma.
 import { prisma } from "../lib/prisma";
 import { UserAtActivity } from "../entities/UserAtActivity";
@@ -19,7 +20,7 @@ export default {
   async findManyByActivityId(activityId: string): Promise<UserAtActivity[]> {
     const response = await prisma.userAtActivity.findMany({
       where: { activityId },
-      include: { user: true },
+      include: { user: { select: userIdentitySelect } },
     });
     return response;
   },
@@ -28,7 +29,7 @@ export default {
     const response = await prisma.userAtActivity.findMany({
       where: { userId },
       include: {
-        user: true,
+        user: { select: userIdentitySelect },
         activity: true,
       },
     });

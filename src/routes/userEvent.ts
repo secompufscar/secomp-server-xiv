@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 import userEventController from "../controllers/userEventController";
 
 const routes = Router();
@@ -9,7 +9,9 @@ const routes = Router();
  * /userEvent/event/{eventId}:
  *   get:
  *     tags: [UserEvents]
- *     summary: Lista inscrições de um evento
+ *     summary: Lista inscrições de um evento (somente administradores)
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: eventId
@@ -18,15 +20,19 @@ const routes = Router();
  *           type: string
  *     responses:
  *       200:
- *         description: Lista de inscrições
+ *         description: Lista de inscrições com identidade mínima (id e nome)
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/UserEventDTO'
+ *       401:
+ *         description: Token ausente ou inválido
+ *       403:
+ *         description: Requer administrador
  */
-routes.get("/event/:eventId", userEventController.findByEventId);
+routes.get("/event/:eventId", authMiddleware, isAdmin, userEventController.findByEventId);
 
 /**
  * @swagger

@@ -2,7 +2,6 @@ import { Expo, ExpoPushMessage, ExpoPushTicket } from "expo-server-sdk";
 import notificationsRepository from "../repositories/notificationsRepository";
 import usersRepository from "../repositories/usersRepository";
 import { CreateNotificationDTO } from "../dtos/notificationsDtos";
-import { Notification } from "../entities/Notification";
 
 export default {
   async sendPushNotification(notificationData: CreateNotificationDTO) {
@@ -69,7 +68,7 @@ export default {
     return tickets;
   },
 
-  async getNotificationHistoryByUserId(userId: string): Promise<Notification[]> {
+  async getNotificationHistoryByUserId(userId: string) {
     return notificationsRepository.findByUserId(userId);
   },
 };

@@ -1,3 +1,4 @@
+import { profileResponse } from "../dtos/userResponses";
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedUserError } from "../utils/exceptions";
 import { User } from "../entities/User";
@@ -33,7 +34,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
       throw new ApiError("Confirme o seu email para acessar", ErrorsCode.UNAUTHORIZED);
     }
 
-    const { senha: _, ...loggedUser } = user;
+    const loggedUser = profileResponse(user);
     req.user = loggedUser;
 
     next();

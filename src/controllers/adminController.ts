@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { prisma as prismaClient } from "../lib/prisma";
+import { adminUserResponse } from "../dtos/userResponses";
 import { hashSync } from "bcrypt";
 import { auth } from "../config/auth";
 import {
@@ -9,7 +10,7 @@ import {
 } from "../utils/exceptions";
 
 const secret_token = auth.secret_token;
-const prismaClient = new PrismaClient();
+
 
 export default {
   async create(req: Request, res: Response) {
@@ -39,7 +40,7 @@ export default {
         },
       });
 
-      res.status(201).json(user);
+      res.status(201).json(adminUserResponse({ ...user, registrationStatus: user.registrationStatus as 0 | 1 | 2 }));
     } catch (error: any) {
       console.error("Erro criando usuário: ", error.message);
       res.status(error.statusCode).json({ error: error.message, statusCode: error.statusCode });
@@ -68,7 +69,7 @@ export default {
         },
       });
 
-      res.status(201).json(user);
+      res.status(201).json(adminUserResponse({ ...user, registrationStatus: user.registrationStatus as 0 | 1 | 2 }));
     } catch (error: any) {
       console.log("Erro em update de usuário: ", error.message);
       res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
@@ -87,7 +88,7 @@ export default {
 
       user = await prismaClient.user.delete({ where: { email } });
 
-      res.status(201).json(user);
+      res.status(201).json(adminUserResponse({ ...user, registrationStatus: user.registrationStatus as 0 | 1 | 2 }));
     } catch (error: any) {
       console.log("Erro deletando usuário: ", error.message);
       res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });

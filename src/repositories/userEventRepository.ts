@@ -1,3 +1,4 @@
+import { userIdentitySelect } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 
@@ -52,7 +53,7 @@ export default {
   async findByEvent(eventId: string): Promise<UserEventDTOS[]> {
     const response = await prisma.userEvent.findMany({
       where: { eventId },
-      include: { user: true },
+      include: { user: { select: userIdentitySelect } },
     });
     return response.map(toUserEventDTO);
   },
@@ -60,7 +61,7 @@ export default {
   async findActiveByEvent(eventId: string): Promise<UserEventDTOS[]> {
     const response = await prisma.userEvent.findMany({
       where: { eventId, status: 1, user: { registrationStatus: 1 } },
-      include: { user: true },
+      include: { user: { select: userIdentitySelect } },
     });
     return response.map(toUserEventDTO);
   },
