@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { prisma as prismaClient } from "../lib/prisma";
 import { adminUserResponse } from "../dtos/userResponses";
-import { hashSync } from "bcrypt";
+import { hash, hashSync } from "bcrypt";
 import { auth } from "../config/auth";
 import {
   BadRequestsException,
@@ -48,7 +48,7 @@ export default {
   },
 
   async update(req: Request, res: Response) {
-    const { email, updatedEmail, nome, senha, tipo } = req.body;
+    const { email, updatedEmail, nome, senha } = req.body;
     const { authorization } = req.headers;
 
     try {
@@ -60,13 +60,14 @@ export default {
 
       if (!user) throw new BadRequestsException("Email não existe");
 
+      const updateData: { email?: string; nome?: string; senha?: string } = {};
+      if (updatedEmail !== undefined) updateData.email = updatedEmail;
+      if (nome !== undefined) updateData.nome = nome;
+      if (senha !== undefined) updateData.senha = await hash(senha, 10);
+
       user = await prismaClient.user.update({
         where: { email },
-        data: {
-          email: updatedEmail ?? updatedEmail,
-          nome: nome ?? nome,
-          senha: senha ?? hashSync(senha, 10),
-        },
+        data: updateData,
       });
 
       res.status(201).json(adminUserResponse({ ...user, registrationStatus: user.registrationStatus as 0 | 1 | 2 }));
