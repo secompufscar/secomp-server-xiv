@@ -24,10 +24,12 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cors({
   origin: [
-    "https://secomp-server-xiv-production.up.railway.app/api/v1",
     "http://localhost:8081",      
     "https://secompufscar.com.br", 
-    "https://app.secompufscar.com.br" // Front End Expo Web App
+    "https://app.secompufscar.com.br", 
+    "https://secomp-app-xiv.vercel.app", // Front End Expo Web App
+    "https://secomp-app-xiv-git-main-secomp-tis-projects.vercel.app",
+    "http://localhost:3000" 
   ],
   methods: ["GET","POST","PUT", "PATCH", "DELETE","OPTIONS"],
   credentials: true 
