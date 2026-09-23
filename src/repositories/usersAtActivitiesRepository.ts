@@ -131,9 +131,9 @@ export default {
     });
   },
 
-  async deleteByUserId(userId: string): Promise<void> {
+  async deleteByUserIdAndEventId(userId: string, eventId: string): Promise<void> {
     await prisma.userAtActivity.deleteMany({
-      where: { userId },
+      where: { userId, activity: { eventId } },
     });
   },
 

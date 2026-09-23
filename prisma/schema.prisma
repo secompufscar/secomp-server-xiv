@@ -51,6 +51,7 @@ model Event {
 
   // Relações
   userEvents UserEvent[]
+  activities Activity[]
 
   @@map("events")
 }
@@ -74,6 +75,7 @@ model Activity {
   detalhes        String?          @db.VarChar(500)
   palestranteNome String           @db.VarChar(255)
   categoriaId     String
+  eventId         String?
   createdAt       DateTime         @default(now()) @db.DateTime(6)
   updatedAt       DateTime         @updatedAt @db.Timestamp
   local           String           @db.VarChar(255)
@@ -82,9 +84,11 @@ model Activity {
 
   // Relacionamentos
   categoria Category @relation(fields: [categoriaId], references: [id])
+  event     Event?   @relation(fields: [eventId], references: [id])
 
   activityImage activityImage[]
 
+  @@index([eventId])
   @@map("atividades")
 }
 

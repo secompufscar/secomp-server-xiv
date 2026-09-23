@@ -26,7 +26,7 @@ export default {
     return response;
   },
 
-  async update(id: string, data: UpdateActivityDTOS): Promise<UpdateActivityDTOS> {
+  async update(id: string, data: UpdateActivityDTOS): Promise<ActivityDTOS> {
     const response = await prisma.activity.update({
       data,
       where: { id },

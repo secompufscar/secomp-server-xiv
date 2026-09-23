@@ -39,6 +39,8 @@ const routes = Router();
  *                     type: string
  *                   categoriaId:
  *                     type: string
+ *                   eventId:
+ *                     type: string
  *                   createdAt:
  *                     type: string
  *                     format: date-time
@@ -86,6 +88,8 @@ routes.get("/", activitiesController.list);
  *                   type: string
  *                 categoriaId:
  *                   type: string
+ *                 eventId:
+ *                   type: string
  *                 createdAt:
  *                   type: string
  *                   format: date-time
@@ -124,6 +128,9 @@ routes.get("/:id", activitiesController.findById);
  *                 type: string
  *               categoriaId:
  *                 type: string
+ *               eventId:
+ *                 type: string
+ *                 description: Edição do evento; usa a edição atual quando omitido.
  *     responses:
  *       201:
  *         description: Atividade criada com sucesso.
@@ -164,6 +171,8 @@ routes.post("/", authMiddleware, adminMiddleware, activitiesController.create);
  *               palestranteNome:
  *                 type: string
  *               categoriaId:
+ *                 type: string
+ *               eventId:
  *                 type: string
  *     responses:
  *       200:
