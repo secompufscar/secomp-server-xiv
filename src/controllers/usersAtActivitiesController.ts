@@ -3,6 +3,18 @@ import { Request, Response } from "express";
 import usersAtActivities from "../services/usersAtActivitiesService";
 
 export default {
+  async getEnrollmentSummary(request: Request, response: Response) {
+    const { activityId } = request.params;
+    const userId = request.user.id;
+    if (!userId) {
+      return response.status(401).json({ error: "Usuário não autenticado" });
+    }
+
+    const data = await usersAtActivities.getActivityEnrollmentSummary(activityId, userId);
+
+    response.status(200).json(data);
+  },
+
   async findById(request: Request, response: Response) {
     const { activityId } = request.params;
 

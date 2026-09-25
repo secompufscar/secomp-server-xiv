@@ -8,6 +8,29 @@ routes.get("/user-activity/:userId/:activityId", authMiddleware, authorizeSelfOr
 
 /**
  * @swagger
+ * /userAtActivities/activity/{activityId}/summary:
+ *   get:
+ *     summary: Retorna totais de ocupação e a posição do usuário autenticado na fila.
+ *     tags:
+ *       - UserAtActivities
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: activityId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Resumo sem dados pessoais de outros participantes.
+ *       404:
+ *         description: Atividade não encontrada.
+ */
+routes.get("/activity/:activityId/summary", authMiddleware, usersAtActivitiesController.getEnrollmentSummary);
+
+/**
+ * @swagger
  * /userAtActivities/{activityId}:
  *   get:
  *     summary: Obtém todas as inscrições de usuários para uma atividade específica.

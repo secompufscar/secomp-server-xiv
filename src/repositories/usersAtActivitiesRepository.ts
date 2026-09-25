@@ -99,6 +99,26 @@ export default {
     }
   },
 
+  async getActivityEnrollmentSummary(activityId: string, userId: string) {
+    const enrollments = await prisma.userAtActivity.findMany({
+      where: { activityId },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      select: {
+        userId: true,
+        listaEspera: true,
+      },
+    });
+
+    const waitlist = enrollments.filter(enrollment => enrollment.listaEspera);
+    const waitlistIndex = waitlist.findIndex(enrollment => enrollment.userId === userId);
+
+    return {
+      occupiedCount: enrollments.filter(enrollment => !enrollment.listaEspera).length,
+      waitlistCount: waitlist.length,
+      waitlistPosition: waitlistIndex >= 0 ? waitlistIndex + 1 : null,
+    };
+  },
+
   async update(id: string, data: UpdateUserAtActivityDTOS): Promise<UpdateUserAtActivityDTOS> {
     const response = await prisma.userAtActivity.update({
       where: { id },

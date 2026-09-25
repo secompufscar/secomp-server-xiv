@@ -32,4 +32,9 @@ export interface ActivityDTOS {
   categoriaId: string;
   eventId: string | null;
   points: number;
+  categoria?: {
+    id: string;
+    nome: string;
+    requiresEnrollment: boolean;
+  };
 }

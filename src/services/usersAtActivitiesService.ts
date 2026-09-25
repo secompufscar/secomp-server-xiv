@@ -27,6 +27,15 @@ export default {
     return usersAtActivities;
   },
 
+  async getActivityEnrollmentSummary(activityId: string, userId: string) {
+    const activity = await activitiesRepository.findById(activityId);
+    if (!activity) {
+      throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
+    }
+
+    return usersAtActivitiesRepository.getActivityEnrollmentSummary(activityId, userId);
+  },
+
   async findUserAtActivity(userId: string, activityId: string) {
     const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 

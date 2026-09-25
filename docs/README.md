@@ -19,4 +19,8 @@ A análise completa original está disponível localmente em `output/pdf/analise
 | 13 | Endurecimento de autenticação, validação e reset de senha | Pendente | — |
 | 14 | Build, documentação e testes | Parcial: testes e CI adicionados | PR 45 e documentação deste diretório |
 
+## Compatibilidade com o aplicativo
+
+Os bloqueadores P0 identificados na análise do aplicativo têm um plano de publicação próprio em [app-p0-compatibility.md](app-p0-compatibility.md). A exigência de versão permanece desativada por padrão para permitir a publicação coordenada entre API e lojas.
+
 Os PRs 47 a 49 estão encadeados para manter cada revisão pequena. Depois que a base anterior for incorporada, o PR seguinte deve ser redirecionado para `main`; nesse momento o CI configurado para PRs destinados à `main` será executado.

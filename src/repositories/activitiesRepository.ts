@@ -3,13 +3,14 @@ import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/ac
 
 export default {
   async list(): Promise<ActivityDTOS[]> {
-    const response = await prisma.activity.findMany();
+    const response = await prisma.activity.findMany({ include: { categoria: true } });
     return response;
   },
 
   async findById(id: string): Promise<ActivityDTOS | null> {
     const response = await prisma.activity.findUnique({
       where: { id },
+      include: { categoria: true },
     });
     return response;
   },
@@ -17,6 +18,7 @@ export default {
   async findManyByCategoryId(categoriaId: string): Promise<ActivityDTOS[]> {
     const response = await prisma.activity.findMany({
       where: { categoriaId },
+      include: { categoria: true },
     });
     return response;
   },
