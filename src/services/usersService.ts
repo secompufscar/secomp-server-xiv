@@ -168,7 +168,7 @@ export default {
       const emailToken = jwt.sign({ userId: user.id }, process.env.JWT_RESET_SECRET, { expiresIn: "1h" });
 
       // Link com protocolo personalizado que é interpretado pelo app mobile
-      const url = `https://app.secompufscar.com.br/SetNewPassword?token=${emailToken}`;
+      const url = `https://secomp-app-xiv.vercel.app/SetNewPassword?token=${emailToken}`;
       const html = await loadTemplate("email-passwordreset.html", {
         url,
       });
@@ -188,7 +188,7 @@ export default {
         ],
       });
     } catch (err) {
-      console.log("Erro no serviço de recuperação de senha", err);
+      console.log("Erro no serviço de recuperação de senha", err);    // FIXME: botão "esqueci minha senha" do app retorna 404 por causa dessa linha
       throw new ApiError("Erro ao enviar email de recuperação de senha!", ErrorsCode.INTERNAL_ERROR);
     }
   },
