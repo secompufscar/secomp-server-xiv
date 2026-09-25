@@ -37,3 +37,11 @@ O endpoint de política informa `updateRequired` para indicar defasagem e `force
 ## Verificação
 
 O teste `tests/app-p0-compatibility.test.cjs` cobre comparação numérica, consulta pública da política, bloqueio HTTP 426 e o contrato do resumo sem dados pessoais.
+
+## Dependências de segurança
+
+As dependências diretamente expostas pela API foram atualizadas para Express 4.22.3, Multer 2.4.0 e bcrypt 6.0.0. `lodash` e `sharp` foram removidos porque não eram usados. O envio transacional por Brevo, específico da edição XIV, foi preservado.
+
+Após `npm audit fix`, `npm audit --omit=dev` não informa vulnerabilidades altas ou críticas. Permanecem duas moderadas transitivas em `uuid`, trazidas pelo Bull 4; a correção automática sugerida pelo npm faria downgrade incompatível do Bull e não foi aplicada.
+
+A validação executa Prisma, TypeScript e 38 testes: 37 aprovados e uma integração MySQL opcional ignorada quando não habilitada.

@@ -1,7 +1,7 @@
 import { RankingUserResponse } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
 import { User as PrismaUser, Prisma } from "@prisma/client";
-import { User, RegistrationStatus, RankingUser } from "../entities/User";
+import { User, RegistrationStatus } from "../entities/User";
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
 
 function toUserEntity(prismaUser: PrismaUser): User {

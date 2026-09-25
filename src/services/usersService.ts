@@ -2,7 +2,7 @@ import * as jwt from "jsonwebtoken";
 import { adminUserResponse, profileResponse, RankingUserResponse } from "../dtos/userResponses";
 import { compare, hash } from "bcrypt";
 import { email } from "../config/sendEmail";
-import { RankingUser, User } from "../entities/User";
+import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { generateQRCode } from "../utils/qrCode";
 import { SignupUserDTO, UpdateProfileDTO } from "../dtos/usersDtos";
