@@ -13,6 +13,9 @@ const usersRepository = require('../src/repositories/usersRepository').default;
 const usersAtActivitiesService = require('../src/services/usersAtActivitiesService').default;
 const errorHandler = require('../src/middlewares/errorHandler').default;
 const { compareVersions } = require('../src/config/appVersion');
+const refreshSessionsRepository = require('../src/repositories/refreshSessionsRepository').default;
+const { createSession, rotateSession } = require('../src/services/authSessionsService');
+const { createCategorySlug } = require('../src/utils/categorySlug');
 
 async function listen(t, app) {
   const server = app.listen(0, '127.0.0.1');
@@ -26,6 +29,37 @@ test('comparação de versões é numérica e rejeita formatos inválidos', () =
   assert.equal(compareVersions('1.0', '1.0.0'), 0);
   assert.equal(compareVersions('1.0.0', '1.0.1'), -1);
   assert.equal(compareVersions('v1.0.0', '1.0.0'), null);
+});
+
+test('slug de categoria é semântico, estável e independente do ID', () => {
+  assert.equal(createCategorySlug('Minicursos'), 'minicurso');
+  assert.equal(createCategorySlug('Competições'), 'competicao');
+  assert.equal(createCategorySlug('Sessão de Carreiras'), 'sessao-de-carreiras');
+});
+
+test('sessão usa access token curto e rotaciona refresh token opaco', async (t) => {
+  const userId = '11111111-1111-4111-8111-111111111111';
+  let storedHash;
+  t.mock.method(refreshSessionsRepository, 'create', async (_, tokenHash) => { storedHash = tokenHash; });
+
+  const initial = await createSession(userId);
+  assert.notEqual(initial.refreshToken, storedHash);
+  assert.match(storedHash, /^[a-f0-9]{64}$/);
+  const decoded = jwt.verify(initial.token, process.env.JWT_SECRET);
+  assert.equal(decoded.userId, userId);
+  assert.ok(decoded.exp - decoded.iat <= 15 * 60);
+
+  t.mock.method(refreshSessionsRepository, 'findByHash', async () => ({
+    id: 'session-id', userId, tokenHash: storedHash,
+    expiresAt: new Date(Date.now() + 60_000), revokedAt: null,
+  }));
+  t.mock.method(usersRepository, 'findById', async () => ({ id: userId, confirmed: true }));
+  const rotate = t.mock.method(refreshSessionsRepository, 'rotate', async () => true);
+
+  const renewed = await rotateSession(initial.refreshToken);
+  assert.notEqual(renewed.refreshToken, initial.refreshToken);
+  assert.equal(jwt.verify(renewed.token, process.env.JWT_SECRET).userId, userId);
+  assert.equal(rotate.mock.callCount(), 1);
 });
 
 test('endpoint público informa atualização e middleware aplica 426 quando ativado', async (t) => {

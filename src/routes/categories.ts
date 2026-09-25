@@ -28,6 +28,10 @@ const routes = Router();
  *                     type: string
  *                   nome:
  *                     type: string
+ *                   slug:
+ *                     type: string
+ *                   requiresEnrollment:
+ *                     type: boolean
  *                   createdAt:
  *                     type: string
  *                     format: date-time
@@ -64,6 +68,10 @@ routes.get("/", categoriesController.list);
  *                   type: string
  *                 nome:
  *                   type: string
+ *                 slug:
+ *                   type: string
+ *                 requiresEnrollment:
+ *                   type: boolean
  *                 createdAt:
  *                   type: string
  *                   format: date-time
@@ -92,6 +100,9 @@ routes.get("/:id", categoriesController.findById);
  *             properties:
  *               nome:
  *                 type: string
+ *               slug:
+ *                 type: string
+ *                 description: Identificador semântico estável; gerado a partir do nome quando omitido.
  *               requiresEnrollment:
  *                 type: boolean
  *                 description: Exige inscrição prévia para realizar check-in.
@@ -125,6 +136,8 @@ routes.post("/", authMiddleware, adminMiddleware, validate(createCategorySchema)
  *             type: object
  *             properties:
  *               nome:
+ *                 type: string
+ *               slug:
  *                 type: string
  *               requiresEnrollment:
  *                 type: boolean

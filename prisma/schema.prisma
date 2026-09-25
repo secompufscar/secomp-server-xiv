@@ -36,8 +36,24 @@ model User {
 
   // Relação com notificações recebidas
   receivedNotifications NotificationHistory[] @relation("NotificationRecipients")
+  refreshSessions       RefreshSession[]
 
   @@map("users")
+}
+
+model RefreshSession {
+  id           String    @id @default(uuid())
+  userId       String
+  tokenHash    String    @unique @db.Char(64)
+  expiresAt    DateTime  @db.DateTime(6)
+  revokedAt    DateTime? @db.DateTime(6)
+  replacedById String?
+  createdAt    DateTime  @default(now()) @db.DateTime(6)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refreshSessions")
 }
 
 // Nova tabela para evento
@@ -59,6 +75,7 @@ model Event {
 model Category {
   id                 String     @id @default(uuid())
   nome               String     @db.VarChar(255)
+  slug               String     @unique @db.VarChar(80)
   requiresEnrollment Boolean    @default(false)
   createdAt          DateTime   @default(now()) @db.DateTime(6)
   updatedAt          DateTime   @updatedAt @db.Timestamp

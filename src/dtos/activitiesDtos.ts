@@ -35,6 +35,7 @@ export interface ActivityDTOS {
   categoria?: {
     id: string;
     nome: string;
+    slug: string;
     requiresEnrollment: boolean;
   };
 }

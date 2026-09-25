@@ -65,6 +65,32 @@ routes.post("/login", usersController.login);
 
 /**
  * @swagger
+ * /refresh:
+ *   post:
+ *     summary: Rotaciona o refresh token e emite um access token curto.
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Sessão renovada e token anterior revogado.
+ *       401:
+ *         description: Sessão ausente, expirada, revogada ou reutilizada.
+ */
+routes.post("/refresh", usersController.refresh);
+
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     summary: Revoga a sessão de refresh do dispositivo.
+ *     tags: [Users]
+ *     responses:
+ *       204:
+ *         description: Sessão encerrada ou já inexistente.
+ */
+routes.post("/logout", usersController.logout);
+
+/**
+ * @swagger
  * /me:
  *   get:
  *     summary: Retorna o usuário autenticado

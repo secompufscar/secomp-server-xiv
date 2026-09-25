@@ -14,7 +14,7 @@ export default {
     return response;
   },
 
-  async create(data: CreateCategoryrDTOS): Promise<CreateCategoryrDTOS> {
+  async create(data: CreateCategoryrDTOS & { slug: string }): Promise<CategoryrDTOS> {
     const response = await prisma.category.create({ data });
     return response;
   },
