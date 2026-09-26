@@ -12,9 +12,13 @@ import eventRoutes from "./event";
 import userEventRoutes from "./userEvent";
 import sponsorRoutes from "./sponsor";
 import tagRoutes from "./tag";
+import appVersionRoutes from "./appVersion";
+import appVersionMiddleware from "../middlewares/appVersionMiddleware";
 
 const routes = Router()
 
+routes.use(appVersionMiddleware);
+routes.use('/app', appVersionRoutes);
 routes.use('/activities', activitiesRoutes);
 routes.use("/activityImages",activityImageRoutes);
 routes.use('/users', usersRoutes);

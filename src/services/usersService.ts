@@ -1,17 +1,17 @@
 import * as jwt from "jsonwebtoken";
-import _ from "lodash";
+import { adminUserResponse, profileResponse, RankingUserResponse } from "../dtos/userResponses";
 import { compare, hash } from "bcrypt";
-import { auth } from "../config/auth";
 import { email } from "../config/sendEmail";
-import { RankingUser, User } from "../entities/User";
+import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { generateQRCode } from "../utils/qrCode";
-import { CreateUserDTOS, UpdateProfileDTO } from "../dtos/usersDtos";
+import { SignupUserDTO, UpdateProfileDTO } from "../dtos/usersDtos";
 import { promises as fs } from "fs";
 import path from "path";
 import usersRepository from "../repositories/usersRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import { BrevoClient } from "@getbrevo/brevo";
+import { createAccessToken, createSession, revokeSession, rotateSession } from "./authSessionsService";
 
 const brevo = new BrevoClient({
   apiKey: process.env.BREVO_API_KEY || "",
@@ -36,7 +36,7 @@ function isValidUUID(uuid: string) {
 }
 
 export default {
-  async login({ email, senha }: User) {
+  async login({ email, senha }: User, supportsRefresh = false) {
     const user = await usersRepository.findByEmail(email);
 
     if (!user) {
@@ -52,17 +52,29 @@ export default {
       throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST);
     }
 
-    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
+    const userLogin = profileResponse(user);
 
-    const { senha: _, ...userLogin } = user;
+    if (!supportsRefresh) {
+      return { user: userLogin, token: createAccessToken(user.id, "24h") };
+    }
+
+    const session = await createSession(user.id);
 
     return {
       user: userLogin,
-      token: token,
+      ...session,
     };
   },
 
-  async signup({ nome, email, senha, tipo = "USER" }: CreateUserDTOS) {
+  async refreshSession(refreshToken: string) {
+    return rotateSession(refreshToken);
+  },
+
+  async logout(refreshToken: string) {
+    await revokeSession(refreshToken);
+  },
+
+  async signup({ nome, email, senha }: SignupUserDTO) {
     const userExists = await usersRepository.findByEmail(email);
 
     if (userExists) {
@@ -74,16 +86,14 @@ export default {
       nome,
       email,
       senha: hashedPassword,
-      tipo,
+      tipo: "USER",
     });
 
     const qrCode = await generateQRCode(user.id);
     await usersRepository.updateQRCode(user.id, { qrCode });
     user.qrCode = qrCode;
 
-    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
-
-    const { senha: _, ...userLogin } = user;
+    const userLogin = profileResponse(user);
     try {
       const emailEnviado = await this.sendConfirmationEmail(user);
 
@@ -138,7 +148,7 @@ export default {
         const id = decoded.userId;
 
         const user = await usersRepository.update(id, { confirmed: true });
-        const { senha: _, ...confirmedUser } = user;
+        const confirmedUser = profileResponse(user);
 
         return {
           user: confirmedUser,
@@ -251,7 +261,7 @@ export default {
     }
   },
 
-  async getTop50Ranking(): Promise<RankingUser[]> {
+  async getTop50Ranking(): Promise<RankingUserResponse[]> {
     try {
       const topUsers = await usersRepository.getTop50RankingUsers();
       if (!topUsers || topUsers.length === 0) {
@@ -276,7 +286,7 @@ export default {
         throw new ApiError("Erro ao encontrar usuário: ", ErrorsCode.NOT_FOUND);
       }
 
-      return user;
+      return profileResponse(user);
     } catch (error) {
       console.error("usersService.ts: " + error);
       throw new ApiError("Erro ao consultar o ranking do usuario", ErrorsCode.INTERNAL_ERROR);
@@ -310,7 +320,7 @@ export default {
 
     const updatedUser = await usersRepository.update(userId, { nome, email });
 
-    const { senha: _, ...userResult } = updatedUser;
+    const userResult = profileResponse(updatedUser);
 
     return userResult;
   },
@@ -329,7 +339,7 @@ export default {
     }
   },
 
-  async getUserDetails(id: string): Promise<Omit<User, "senha" | "qrCode">> {
+  async getUserDetails(id: string) {
     try {
       if (!isValidUUID(id)) {
         throw new ApiError("ID de usuário inválido.", ErrorsCode.BAD_REQUEST);
@@ -341,7 +351,7 @@ export default {
         throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
       }
 
-      const { senha, qrCode, ...userDetails } = user;
+      const userDetails = adminUserResponse(user);
 
       return userDetails;
     } catch (error) {
@@ -366,7 +376,7 @@ export default {
 
     return {
       message: "Token de push adicionado com sucesso",
-      user: _.omit(updatedUser, ["senha"]),
+      user: profileResponse(updatedUser),
     };
   },
 };

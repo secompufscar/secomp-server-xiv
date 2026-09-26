@@ -32,8 +32,8 @@ Tecnologias utilizadas no backend do aplicativo: Node.js, Express, TypeScript, M
 Clone o repositório
 
 ```
-git clone https://github.com/secompufscar/secomp-server-xiii.git
-cd secomp-server-xiii
+git clone https://github.com/secompufscar/secomp-server-xiv.git
+cd secomp-server-xiv
 ```
 
 <br>
@@ -64,7 +64,7 @@ npm install
 
 **Configuração do envio de e-mail**
 
-Edite o _.env_ com as credenciais do e-mail responsável por enviar as mensagens de confirmação e redefinição de senha. Este e-mail deve possuir verificação em duas etapas e a senha em SMTP_PASS deve ser um app password.
+Defina `BREVO_API_KEY` no _.env_ com uma chave transacional válida da conta usada pela organização.
 
 <br>
 

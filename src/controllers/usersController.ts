@@ -4,8 +4,19 @@ import { UpdateProfileDTO } from "../dtos/usersDtos";
 
 export default {
   async login(request: Request, response: Response) {
-    const data = await usersService.login(request.body);
+    const supportsRefresh = Boolean(request.header("x-app-version"));
+    const data = await usersService.login(request.body, supportsRefresh);
     response.status(200).json(data);
+  },
+
+  async refresh(request: Request, response: Response) {
+    const data = await usersService.refreshSession(request.body?.refreshToken);
+    response.status(200).json(data);
+  },
+
+  async logout(request: Request, response: Response) {
+    await usersService.logout(request.body?.refreshToken);
+    response.status(204).send();
   },
 
   async signup(request: Request, response: Response) {

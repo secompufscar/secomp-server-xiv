@@ -28,6 +28,10 @@ const routes = Router();
  *                     type: string
  *                   nome:
  *                     type: string
+ *                   slug:
+ *                     type: string
+ *                   requiresEnrollment:
+ *                     type: boolean
  *                   createdAt:
  *                     type: string
  *                     format: date-time
@@ -64,6 +68,10 @@ routes.get("/", categoriesController.list);
  *                   type: string
  *                 nome:
  *                   type: string
+ *                 slug:
+ *                   type: string
+ *                 requiresEnrollment:
+ *                   type: boolean
  *                 createdAt:
  *                   type: string
  *                   format: date-time
@@ -92,12 +100,19 @@ routes.get("/:id", categoriesController.findById);
  *             properties:
  *               nome:
  *                 type: string
+ *               slug:
+ *                 type: string
+ *                 description: Identificador semântico estável; gerado a partir do nome quando omitido.
+ *               requiresEnrollment:
+ *                 type: boolean
+ *                 description: Exige inscrição prévia para realizar check-in.
+ *                 default: false
  *     responses:
  *       201:
  *         description: Categoria criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
-routes.post("/", authMiddleware, adminMiddleware, categoriesController.create);
+routes.post("/", authMiddleware, adminMiddleware, validate(createCategorySchema), categoriesController.create);
 
 /**
  * @swagger
@@ -122,6 +137,11 @@ routes.post("/", authMiddleware, adminMiddleware, categoriesController.create);
  *             properties:
  *               nome:
  *                 type: string
+ *               slug:
+ *                 type: string
+ *               requiresEnrollment:
+ *                 type: boolean
+ *                 description: Exige inscrição prévia para realizar check-in.
  *     responses:
  *       200:
  *         description: Categoria atualizada com sucesso.

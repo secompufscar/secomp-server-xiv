@@ -3,13 +3,14 @@ import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/ac
 
 export default {
   async list(): Promise<ActivityDTOS[]> {
-    const response = await prisma.activity.findMany();
+    const response = await prisma.activity.findMany({ include: { categoria: true } });
     return response;
   },
 
   async findById(id: string): Promise<ActivityDTOS | null> {
     const response = await prisma.activity.findUnique({
       where: { id },
+      include: { categoria: true },
     });
     return response;
   },
@@ -17,28 +18,9 @@ export default {
   async findManyByCategoryId(categoriaId: string): Promise<ActivityDTOS[]> {
     const response = await prisma.activity.findMany({
       where: { categoriaId },
+      include: { categoria: true },
     });
     return response;
-  },
-
-  async isActivityFull(activityId: string): Promise<boolean> {
-    const activity = await prisma.activity.findUnique({
-      where: { id: activityId },
-      select: { vagas: true },
-    });
-
-    if (!activity || activity.vagas === null) {
-      throw new Error("Atividade não encontrada ou número de vagas não definido.");
-    }
-
-    const countUsersAtActivity = await prisma.userAtActivity.count({
-      where: {
-        activityId,
-        listaEspera: false,
-      },
-    });
-
-    return countUsersAtActivity >= activity.vagas;
   },
 
   async create(data: CreateActivityDTOS): Promise<ActivityDTOS> { 
@@ -46,7 +28,7 @@ export default {
     return response;
   },
 
-  async update(id: string, data: UpdateActivityDTOS): Promise<UpdateActivityDTOS> {
+  async update(id: string, data: UpdateActivityDTOS): Promise<ActivityDTOS> {
     const response = await prisma.activity.update({
       data,
       where: { id },

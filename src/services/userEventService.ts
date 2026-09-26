@@ -84,7 +84,7 @@ export default {
 
     await userEventRepository.delete(id);
 
-    await usersAtActivitiesRepository.deleteByUserId(userId);
+    await usersAtActivitiesRepository.deleteByUserIdAndEventId(userId, registration.eventId);
 
     const nextInLine = await userEventRepository.findFirstWaitlist(registration.eventId);
     if (nextInLine) {

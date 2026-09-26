@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 import checkInController from "../controllers/checkInController";
 
 const router = Router();
@@ -11,6 +11,8 @@ const router = Router();
  *     summary: Realiza o check-in de um usuário em uma atividade.
  *     tags:
  *       - Check-In
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
@@ -31,8 +33,10 @@ const router = Router();
  *         description: Usuário ou atividade não encontrados.
  *       400:
  *         description: Solicitação inválida, como check-in já realizado ou atividade inexistente.
+ *       403:
+ *         description: Operação restrita a administradores.
  */
-router.post("/:userId/:activityId", authMiddleware, checkInController.checkIn);
+router.post("/:userId/:activityId", authMiddleware, isAdmin, checkInController.checkIn);
 
 /**
  * @swagger
@@ -41,6 +45,8 @@ router.post("/:userId/:activityId", authMiddleware, checkInController.checkIn);
  *     summary: Lista todos os participantes de uma atividade.
  *     tags:
  *       - Check-In
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: activityId
@@ -64,7 +70,9 @@ router.post("/:userId/:activityId", authMiddleware, checkInController.checkIn);
  *                     type: string
  *       404:
  *         description: Atividade não encontrada ou sem participantes.
+ *       403:
+ *         description: Operação restrita a administradores.
  */
-router.get("/participants/:activityId", authMiddleware, checkInController.listParticipants);
+router.get("/participants/:activityId", authMiddleware, isAdmin, checkInController.listParticipants);
 
 export default router;

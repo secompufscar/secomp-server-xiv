@@ -1,7 +1,10 @@
-export interface CreateUserDTOS {
+export interface SignupUserDTO {
   nome: string;
   email: string;
   senha: string;
+}
+
+export interface CreateUserDTOS extends SignupUserDTO {
   tipo: string;
 }
 

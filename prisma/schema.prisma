@@ -17,7 +17,7 @@ model User {
   id              String        @id @default(uuid())
   nome            String
   email           String        @unique
-  senha           String 
+  senha           String
   tipo            String        @default("USER")
   qrCode          String?       @db.Text
   pushToken       String?
@@ -26,18 +26,34 @@ model User {
   confirmed       Boolean       @default(false)
   userAtActivity  UserAtActivity[]
   points           Int          @default(0)
-  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado 
+  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado
   currentEdition     String?             // ano da ediçao
-  
+
   userEvents      UserEvent[]    // Relação com eventos
 
   // Relação com notificações enviadas
   sentNotifications NotificationHistory[] @relation("NotificationSender")
-  
+
   // Relação com notificações recebidas
   receivedNotifications NotificationHistory[] @relation("NotificationRecipients")
-  
+  refreshSessions       RefreshSession[]
+
   @@map("users")
+}
+
+model RefreshSession {
+  id           String    @id @default(uuid())
+  userId       String
+  tokenHash    String    @unique @db.Char(64)
+  expiresAt    DateTime  @db.DateTime(6)
+  revokedAt    DateTime? @db.DateTime(6)
+  replacedById String?
+  createdAt    DateTime  @default(now()) @db.DateTime(6)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refreshSessions")
 }
 
 // Nova tabela para evento
@@ -51,16 +67,19 @@ model Event {
 
   // Relações
   userEvents UserEvent[]
+  activities Activity[]
 
   @@map("events")
 }
 
 model Category {
-  id         String     @id @default(uuid())
-  nome       String     @db.VarChar(255)
-  createdAt  DateTime   @default(now()) @db.DateTime(6)
-  updatedAt  DateTime   @updatedAt @db.Timestamp
-  atividades Activity[]
+  id                 String     @id @default(uuid())
+  nome               String     @db.VarChar(255)
+  slug               String     @unique @db.VarChar(80)
+  requiresEnrollment Boolean    @default(false)
+  createdAt          DateTime   @default(now()) @db.DateTime(6)
+  updatedAt          DateTime   @updatedAt @db.Timestamp
+  atividades         Activity[]
 
   @@map("category")
 }
@@ -73,6 +92,7 @@ model Activity {
   detalhes        String?          @db.VarChar(500)
   palestranteNome String           @db.VarChar(255)
   categoriaId     String
+  eventId         String?
   createdAt       DateTime         @default(now()) @db.DateTime(6)
   updatedAt       DateTime         @updatedAt @db.Timestamp
   local           String           @db.VarChar(255)
@@ -81,9 +101,11 @@ model Activity {
 
   // Relacionamentos
   categoria Category @relation(fields: [categoriaId], references: [id])
+  event     Event?   @relation(fields: [eventId], references: [id])
 
   activityImage activityImage[]
 
+  @@index([eventId])
   @@map("atividades")
 }
 
@@ -101,6 +123,7 @@ model UserAtActivity {
   activityId String
   activity   Activity @relation(fields: [activityId], references: [id])
 
+  @@unique([userId, activityId])
   @@map("userAtActivity")
 }
 
@@ -119,7 +142,7 @@ model NotificationHistory {
 
   // Relação muitos-para-muitos com recipients
   recipients  User[]    @relation("NotificationRecipients")
-  
+
   @@index([sentAt])
   @@index([status])
 }
