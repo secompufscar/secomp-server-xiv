@@ -25,6 +25,4 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: npx prisma generate
-      - run: npx tsc --noEmit
-      - run: npm test
+      - run: npm run verify

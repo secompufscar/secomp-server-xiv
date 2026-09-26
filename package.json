@@ -10,7 +10,13 @@
     "dev": "npx nodemon",
     "start": "node ./dist/index.js",
     "build": "npx tsc && cp -r src/views dist/",
-    "test": "node --require ts-node/register --test tests/*.test.cjs"
+    "test": "node --require ts-node/register --test tests/*.test.cjs",
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "migrate:status": "prisma migrate status",
+    "migrate:deploy": "prisma migrate deploy",
+    "verify": "npm run prisma:generate && npm run typecheck && npm test"
   },
   "keywords": [],
   "author": "",

@@ -22,3 +22,5 @@ Esta branch reúne as correções P0 revalidadas sobre o código da edição XIV
 ## Compatibilidade com o aplicativo
 
 Os bloqueadores P0 identificados na análise do aplicativo têm um plano de publicação próprio em [app-p0-compatibility.md](app-p0-compatibility.md). A exigência de versão permanece desativada por padrão para permitir a publicação coordenada entre API e lojas.
+
+O procedimento operacional para aplicar migrações, validar a API e liberar o aplicativo está em [p0-deployment-runbook.md](p0-deployment-runbook.md).
