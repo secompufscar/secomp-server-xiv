@@ -16,8 +16,9 @@ Esta branch reúne as correções P0 revalidadas sobre o código da edição XIV
 | 10 | Escritas parciais por ausência de transações | Pendente | — |
 | 11 | Upload sem limite e substituição insegura no Cloudinary | Pendente | — |
 | 12 | Exclusão de categoria com verificação incorreta de array | Pendente | — |
-| 13 | Endurecimento de autenticação, validação e reset de senha | Pendente | — |
+| 13 | Endurecimento de autenticação, validação e reset de senha | Implementado nesta branch | [Documento](api-hardening-p1.md) |
 | 14 | Build, documentação e testes | Parcial: testes e CI adicionados | Documentação deste diretório |
+| 15 | Limites HTTP, rate limit, rastreabilidade e health checks | Implementado nesta branch | [Documento](api-hardening-p1.md) |
 
 ## Compatibilidade com o aplicativo
 
