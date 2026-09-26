@@ -60,25 +60,16 @@ export default {
   },
 
   async sendForgotPasswordEmail(request: Request, response: Response) {
-    try {
-      const { email } = request.body;
-      await usersService.sendForgotPasswordEmail(email);
-      response.status(200).json({ message: "Email enviado com sucesso" });
-    } catch (error) {
-      response.status(500).json({ message: "Erro ao enviar email" });
-    }
+    const { email } = request.body;
+    await usersService.sendForgotPasswordEmail(email);
+    response.status(200).json({ message: "Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação." });
   },
 
   async updateForgottenPassword(request: Request, response: Response) {
-    try {
-      const { token } = request.params; 
-      const { senha } = request.body; 
-
-      const data = await usersService.updatePassword(token, senha);
-      return response.status(200).json(data);
-    } catch (error) {
-      response.status(500).json({ message: "Erro ao atualizar senha" });
-    }
+    const { token } = request.params;
+    const { senha } = request.body;
+    const data = await usersService.updatePassword(token, senha);
+    return response.status(200).json(data);
   },
 
   async getUserRanking(request: Request, response: Response) {

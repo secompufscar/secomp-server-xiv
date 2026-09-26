@@ -168,7 +168,7 @@ export default {
     try {
       const user = await usersRepository.findByEmail(email);
       if (!user) {
-        throw new ApiError("Usuário não encontrado!", ErrorsCode.NOT_FOUND);
+        return;
       }
 
       if (!process.env.JWT_RESET_SECRET) {
@@ -198,7 +198,7 @@ export default {
         ],
       });
     } catch (err) {
-      console.log("Erro no serviço de recuperação de senha", err);    // FIXME: botão "esqueci minha senha" do app retorna 404 por causa dessa linha
+      console.error("Erro no serviço de recuperação de senha", err);
       throw new ApiError("Erro ao enviar email de recuperação de senha!", ErrorsCode.INTERNAL_ERROR);
     }
   },
@@ -224,6 +224,9 @@ export default {
 
       return { message: "Senha atualizada com sucesso" };
     } catch (err) {
+      if (err instanceof ApiError) {
+        throw err;
+      }
       if (err instanceof jwt.TokenExpiredError) {
         throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
       }

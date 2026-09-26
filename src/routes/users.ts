@@ -1,6 +1,17 @@
 import { Router } from "express";
 import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 import usersController from "../controllers/usersController";
+import validate from "../middlewares/validate";
+import { accountRateLimit, authenticationRateLimit } from "../middlewares/rateLimits";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  logoutSchema,
+  refreshSchema,
+  resetTokenParamsSchema,
+  signupSchema,
+  updatePasswordSchema,
+} from "../schemas/userSchema";
 
 const routes = Router();
 
@@ -33,7 +44,7 @@ const routes = Router();
  *       400:
  *         description: Bad request
  */
-routes.post("/signup", usersController.signup);
+routes.post("/signup", accountRateLimit, validate(signupSchema), usersController.signup);
 
 /**
  * @swagger
@@ -61,7 +72,7 @@ routes.post("/signup", usersController.signup);
  *       401:
  *         description: Unauthorized
  */
-routes.post("/login", usersController.login);
+routes.post("/login", authenticationRateLimit, validate(loginSchema), usersController.login);
 
 /**
  * @swagger
@@ -75,7 +86,7 @@ routes.post("/login", usersController.login);
  *       401:
  *         description: Sessão ausente, expirada, revogada ou reutilizada.
  */
-routes.post("/refresh", usersController.refresh);
+routes.post("/refresh", authenticationRateLimit, validate(refreshSchema), usersController.refresh);
 
 /**
  * @swagger
@@ -87,7 +98,7 @@ routes.post("/refresh", usersController.refresh);
  *       204:
  *         description: Sessão encerrada ou já inexistente.
  */
-routes.post("/logout", usersController.logout);
+routes.post("/logout", validate(logoutSchema), usersController.logout);
 
 /**
  * @swagger
@@ -248,7 +259,7 @@ routes.get("/confirmation/:token", usersController.confirmEmail);
  *       500:
  *         description: Internal server error
  */
-routes.patch("/updatePassword/:token", usersController.updateForgottenPassword);
+routes.patch("/updatePassword/:token", authenticationRateLimit, validate(updatePasswordSchema, resetTokenParamsSchema), usersController.updateForgottenPassword);
 
 /**
  * @swagger
@@ -272,7 +283,7 @@ routes.patch("/updatePassword/:token", usersController.updateForgottenPassword);
  *       500:
  *         description: Internal server error
  */
-routes.post("/sendForgotPasswordEmail", usersController.sendForgotPasswordEmail);
+routes.post("/sendForgotPasswordEmail", accountRateLimit, validate(forgotPasswordSchema), usersController.sendForgotPasswordEmail);
 
 /**
  * @swagger

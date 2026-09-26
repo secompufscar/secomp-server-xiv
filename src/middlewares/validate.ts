@@ -1,31 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodSchema, ZodError } from "zod";
+import { ZodSchema } from "zod";
 
-const validate =
-  (bodySchema?: ZodSchema<any>, pathSchema?: ZodSchema<any>) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    try {
-      // Valida o corpo da solicitação se o esquema do corpo estiver presente
-      if (bodySchema) {
-        bodySchema.parse(req.body);
-      }
-
-      // Valida os parâmetros de caminho se o esquema de caminho estiver presente
-      if (pathSchema) {
-        pathSchema.parse(req.params);
-      }
-
-      // Avança para o próximo middleware se a validação for bem-sucedida
-      next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({
-          message: "Erro de validação",
-          errors: error.errors,
-        });
-      }
-      next(error);
+const validate = (bodySchema?: ZodSchema<any>, pathSchema?: ZodSchema<any>) => (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Valida o corpo da solicitação se o esquema do corpo estiver presente
+    if (bodySchema) {
+      req.body = bodySchema.parse(req.body);
     }
-  };
+
+    // Valida os parâmetros de caminho se o esquema de caminho estiver presente
+    if (pathSchema) {
+      req.params = pathSchema.parse(req.params);
+    }
+
+    // Avança para o próximo middleware se a validação for bem-sucedida
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 export default validate;

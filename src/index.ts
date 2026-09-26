@@ -1,17 +1,19 @@
+import "dotenv/config";
 import "express-async-errors";
 import express from "express";
 import cors from "cors";
 import errorHandler from "./middlewares/errorHandler";
 import routes from "./routes";
 import path from "path";
-import * as dotenv from "dotenv";
 import { setupSwagger } from "./swagger";
 import schedulerService from "./services/schedulerService";
-
-// Load environment variables early
-dotenv.config();
+import helmet from "helmet";
+import requestId from "./middlewares/requestId";
+import { httpConfig } from "./config/http";
 
 const app = express();
+app.disable("x-powered-by");
+app.set("trust proxy", httpConfig.trustProxyHops);
 
 // Set up view engine (EJS)
 app.set("views", path.join(__dirname, "..", "src", "views"));
@@ -21,16 +23,15 @@ app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 
 // Middleware
-app.use(express.json());
+app.use(requestId);
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
+app.use(express.json({ limit: httpConfig.bodyLimit }));
+app.use(express.urlencoded({ extended: false, limit: httpConfig.bodyLimit }));
 app.use(cors({
-  origin: [
-    "http://localhost:8081",      
-    "https://secompufscar.com.br", 
-    "https://app.secompufscar.com.br", 
-    "https://secomp-app-xiv.vercel.app", // Front End Expo Web App
-    "https://secomp-app-xiv-git-main-secomp-tis-projects.vercel.app",
-    "http://localhost:3000" 
-  ],
+  origin: httpConfig.corsOrigins,
   methods: ["GET","POST","PUT", "PATCH", "DELETE","OPTIONS"],
   credentials: true 
 }));
