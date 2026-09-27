@@ -32,4 +32,8 @@ export default {
       where: { id },
     });
   },
+
+  async hasActivities(categoriaId: string): Promise<boolean> {
+    return (await prisma.activity.findFirst({ where: { categoriaId }, select: { id: true } })) !== null;
+  },
 };

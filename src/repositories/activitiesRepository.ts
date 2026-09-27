@@ -37,8 +37,9 @@ export default {
   },
 
   async delete(id: string): Promise<void> {
-    await prisma.activity.delete({
-      where: { id },
+    await prisma.$transaction(async (transaction) => {
+      await transaction.userAtActivity.deleteMany({ where: { activityId: id } });
+      await transaction.activity.delete({ where: { id } });
     });
   },
 };

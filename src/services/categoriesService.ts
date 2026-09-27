@@ -1,5 +1,4 @@
 import categoriesRepository from "../repositories/categoriesRepository";
-import activitiesRepository from "../repositories/activitiesRepository";
 import { CreateCategoryrDTOS, UpdateCategoryrDTOS } from "../dtos/categoriesDtos";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { createCategorySlug } from "../utils/categorySlug";
@@ -40,9 +39,12 @@ export default {
   },
 
   async delete(id: string) {
-    const existingActivities = await activitiesRepository.findManyByCategoryId(id);
+    const category = await categoriesRepository.findById(id);
+    if (!category) {
+      throw new ApiError("Categoria não encontrada", ErrorsCode.NOT_FOUND);
+    }
 
-    if (!existingActivities) {
+    if (await categoriesRepository.hasActivities(id)) {
       throw new ApiError("Esta categoria não pode ser excluida porque ainda há atividades nela", ErrorsCode.CONFLICT);
     }
 

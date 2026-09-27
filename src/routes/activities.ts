@@ -136,7 +136,7 @@ routes.get("/:id", activitiesController.findById);
  *         description: Atividade criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
-routes.post("/", authMiddleware, adminMiddleware, activitiesController.create);
+routes.post("/", authMiddleware, adminMiddleware, validate(createActivitySchema), activitiesController.create);
 
 /**
  * @swagger
@@ -180,7 +180,7 @@ routes.post("/", authMiddleware, adminMiddleware, activitiesController.create);
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.put("/:id", validate(updateActivitySchema, activityIdSchema), authMiddleware, adminMiddleware, activitiesController.update);
+routes.put("/:id", authMiddleware, adminMiddleware, validate(updateActivitySchema, activityIdSchema), activitiesController.update);
 
 /**
  * @swagger

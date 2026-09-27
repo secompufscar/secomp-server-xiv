@@ -1,5 +1,4 @@
 import activitiesRepository from "../repositories/activitiesRepository";
-import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/activitiesDtos";
 import schedulerService from "./schedulerService";
@@ -89,7 +88,6 @@ export default {
   },
 
   async delete(id: string): Promise<void> {
-    await usersAtActivitiesRepository.deleteByActivityId(id);
     await activitiesRepository.delete(id);
   },
 };

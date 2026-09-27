@@ -13,7 +13,7 @@ test('MySQL serializa inscrições concorrentes por atividade', {
   const userIds = [randomUUID(), randomUUID(), randomUUID()];
 
   try {
-    await prisma.category.create({ data: { id: categoryId, nome: `capacity-test-${suffix}` } });
+    await prisma.category.create({ data: { id: categoryId, nome: `capacity-test-${suffix}`, slug: `capacity-test-${suffix}` } });
     await prisma.activity.create({
       data: {
         id: activityId, nome: 'Capacity test', vagas: 1, detalhes: null,
