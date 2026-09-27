@@ -13,7 +13,7 @@ Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidad
 | 7 | Ausência de vínculo entre atividade e edição do evento | Implementado nesta branch | [Documento](activity-event-link.md) |
 | 8 | Múltiplos eventos atuais e estado duplicado de inscrição | Pendente | — |
 | 9 | Agendador: fuso, recorrência, persistência e cancelamento | Pendente | — |
-| 10 | Escritas parciais por ausência de transações | Parcial: exclusão de atividade e inscrições em transação | [Documento](admin-write-integrity.md) |
+| 10 | Escritas parciais por ausência de transações | Parcial: exclusão de atividade e escritas de evento/inscrição em transação | [Atividades](admin-write-integrity.md), [eventos e inscrições](event-write-integrity.md) |
 | 11 | Upload sem limite e substituição insegura no Cloudinary | Parcial: limites e MIME implementados; Cloudinary pendente | [Documento](api-hardening-p1.md) |
 | 12 | Exclusão de categoria com verificação incorreta de array | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
 | 13 | Endurecimento de autenticação, validação e reset de senha | Parcial; pendências detalhadas no roadmap | [Documento](api-hardening-p1.md) |

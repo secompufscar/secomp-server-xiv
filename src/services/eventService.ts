@@ -1,6 +1,5 @@
 import eventRepository from "../repositories/eventRepository";
 import userEventRepository from "../repositories/userEventRepository";
-import userRepository from "../repositories/usersRepository";
 import { CreateEventDTOS, UpdateEventDTOS, EventDTOS } from "../dtos/eventDtos";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 
@@ -38,15 +37,7 @@ export default {
   },
 
   async create(data: CreateEventDTOS): Promise<EventDTOS> {
-    const newEvent = await eventRepository.create(data);
-
-    try {
-      await userRepository.setRegistrationStatusForAllEligibleUsers(0);
-    } catch (error) {
-      throw new ApiError("Set registration status for all eligible users to 0 was not possible", ErrorsCode.INTERNAL_ERROR);
-    }
-
-    return newEvent;
+    return eventRepository.createWithRegistrationReset(data);
   },
 
   async update(id: string, data: UpdateEventDTOS): Promise<EventDTOS> {
@@ -72,16 +63,6 @@ export default {
   },
 
   async delete(eventId: string): Promise<void> {
-    try {
-      await userRepository.setRegistrationStatusForAllEligibleUsers(2);
-      await userEventRepository.updateAllUsersToStatus(eventId, 2);
-      await eventRepository.delete(eventId);
-    } catch (error) {
-      console.error(
-        `[eventService.delete] Erro crítico ao tentar deletar o evento ${eventId} e suas associações/efeitos colaterais:`,
-        error,
-      );
-      throw error;
-    }
+    await eventRepository.deleteWithRegistrationClosure(eventId);
   },
 };

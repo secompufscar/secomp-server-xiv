@@ -27,24 +27,6 @@ export default {
     return response.map(toUserEntity);
   },
 
-  async setRegistrationStatusForAllEligibleUsers(newStatus: number): Promise<void> {
-    await prisma.user.updateMany({
-      where: { registrationStatus: { not: newStatus } },
-      data: { registrationStatus: newStatus },
-    });
-  },
-
-  async updateUserEventStatus(userId: string, registrationStatusInput: number, currentEdition: number): Promise<User> {
-    const response = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        registrationStatus: registrationStatusInput,
-        currentEdition: currentEdition.toString(),
-      },
-    });
-    return toUserEntity(response);
-  },
-
   async setRegistrationStatusForUsers(userIds: string[], newStatus: number): Promise<void> {
     if (userIds.length === 0) {
       return;
