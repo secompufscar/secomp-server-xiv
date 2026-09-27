@@ -1,5 +1,7 @@
 # Server da SECOMP UFSCar
 
+O [roadmap técnico P0–P2](docs/roadmap.md) e o [índice de correções](docs/README.md) registram o andamento das melhorias e suas evidências.
+
 Backend desenvolvido pela equipe de TI da SECOMP UFSCar especialmente para o evento. Tem como objetivo automatizar a gestão da SECOMP garantindo:
 
 - Cadastro e organização de eventos (palestras, minicursos, atividades e etc.)

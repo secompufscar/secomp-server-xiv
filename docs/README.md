@@ -1,6 +1,6 @@
 # Acompanhamento das correções — edição XIV
 
-Esta branch reúne as correções P0 revalidadas sobre o código da edição XIV. Os documentos abaixo descrevem os contratos e as decisões técnicas aplicados neste repositório.
+Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidado P0–P2](roadmap.md) registra prioridades, pendências, critérios de aceite e evidências. A tabela abaixo preserva a ordem histórica dos achados; seus números não representam níveis P0/P1. Implementação na branch não confirma publicação em produção.
 
 | Prioridade | Tema | Estado | Referência |
 | --- | --- | --- | --- |
@@ -13,12 +13,13 @@ Esta branch reúne as correções P0 revalidadas sobre o código da edição XIV
 | 7 | Ausência de vínculo entre atividade e edição do evento | Implementado nesta branch | [Documento](activity-event-link.md) |
 | 8 | Múltiplos eventos atuais e estado duplicado de inscrição | Pendente | — |
 | 9 | Agendador: fuso, recorrência, persistência e cancelamento | Pendente | — |
-| 10 | Escritas parciais por ausência de transações | Pendente | — |
-| 11 | Upload sem limite e substituição insegura no Cloudinary | Pendente | — |
-| 12 | Exclusão de categoria com verificação incorreta de array | Pendente | — |
-| 13 | Endurecimento de autenticação, validação e reset de senha | Implementado nesta branch | [Documento](api-hardening-p1.md) |
+| 10 | Escritas parciais por ausência de transações | Parcial: exclusão de atividade e inscrições em transação | [Documento](admin-write-integrity.md) |
+| 11 | Upload sem limite e substituição insegura no Cloudinary | Parcial: limites e MIME implementados; Cloudinary pendente | [Documento](api-hardening-p1.md) |
+| 12 | Exclusão de categoria com verificação incorreta de array | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
+| 13 | Endurecimento de autenticação, validação e reset de senha | Parcial; pendências detalhadas no roadmap | [Documento](api-hardening-p1.md) |
 | 14 | Build, documentação e testes | Parcial: testes e CI adicionados | Documentação deste diretório |
 | 15 | Limites HTTP, rate limit, rastreabilidade e health checks | Implementado nesta branch | [Documento](api-hardening-p1.md) |
+| 16 | Campos administrativos descartados pela sanitização | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
 
 ## Compatibilidade com o aplicativo
 
