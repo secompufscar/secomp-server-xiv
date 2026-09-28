@@ -2,6 +2,8 @@
 
 Este documento consolida prioridades e evidências do trabalho no `secomp-server-xiv`. A numeração da tabela histórica em `docs/README.md` era uma ordem de itens, não uma classificação P0/P1. A classificação abaixo permite acompanhar o trabalho sem confundir código implementado com publicação em produção.
 
+Atualização de 28/09/2026: a [revisão abrangente](security-performance-review-2026-09-28.md) identificou 22 grupos de achados. Há problemas herdados e regressões recentes (log de tokens e bloqueio de links web por política de versão), com reproduções e métricas. As correções abaixo não encerram esses achados automaticamente.
+
 ## Critérios e estados
 
 - **P0:** falhas de privilégio, exposição de credenciais/dados e integridade essenciais antes da publicação.
@@ -42,7 +44,7 @@ Não há P3+ definido nesta etapa. Novos itens devem incluir evidência, impacto
 
 | ID | Tema | Estado e critério de aceite |
 | --- | --- | --- |
-| P2-01 | Consultas, paginação e índices | Pendente: medir latência/volume e definir paginação compatível antes de alterar listas consumidas pelo app |
+| P2-01 | Consultas, paginação e índices | Medição sintética realizada: 1.000/5.000 usuários, seis consultas; resultados e limitações na revisão AUD-14. Implementação pendente; definir paginação compatível antes de alterar listas consumidas pelo app |
 | P2-02 | Observabilidade | Parcial: request ID e health checks disponíveis. Falta definir métricas, timeouts e alertas sem dados sensíveis |
 | P2-03 | Robustez do pipeline | Parcial: testes, TypeScript, build multiplataforma e CI de PRs disponíveis. Integração MySQL isolada de atomicidade adicionada à CI nesta rodada; faltam testes de carga representativos |
 
