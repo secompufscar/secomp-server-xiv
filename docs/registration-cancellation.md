@@ -9,7 +9,7 @@ O cancelamento removia `UserEvent`, os vínculos de atividades e promovia a fila
 - `DELETE /userEvent/:id` mantém autenticação, `200` com corpo vazio no sucesso e `404` para inscrição ausente ou de outro titular. O Swagger foi corrigido de `204` para o `200` já praticado.
 - Nenhuma migração ou novo APK é necessário para esta alteração.
 - Esta etapa não altera os campos duplicados `User.registrationStatus`/`currentEdition`, pontos, nem a regra de promoção ao cancelar inscrições pendentes ou encerradas. Essas regras e a concorrência entre cancelamentos distintos continuam pendentes no P1-03/P1-04; atomicidade não comprova a correção dessas regras.
-- Consultas de nomes e total de presentes permanecem disponíveis; este patch não muda os endpoints de presença.
+- As listagens administrativas preservam `user.nome` e `presente`, permitindo filtrar os presentes e contar o total. Este patch não muda os endpoints de presença nem acrescenta um campo agregado de total.
 
 ## Evidência
 

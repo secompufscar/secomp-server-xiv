@@ -14,6 +14,12 @@ Das 26 branches além de `main`, 25 têm seus commits integralmente contidos em 
 
 Recomendação: encerrar o experimento sem merge, preservando o commit completo `1701019131325934848a5835ef79183740bc0d68` na tag `archive/feature-add-blob-image-logic-2026-09-28` antes de remover a branch. Não aplicar suas migrações. As melhorias compatíveis de upload/substituição continuam no P1-07.
 
-## Limites
+## Execução
+
+Em 28/09/2026, a tag de arquivo foi publicada primeiro e as 26 referências remotas inventariadas foram removidas por um único push atômico, com `--force-with-lease` explícito para cada SHA. A operação revalidou ausência de PRs referentes às branches, proteção e ancestralidade imediatamente antes do push. Permaneceram `main` e `codex/p1-registration-cancellation`, associada ao [PR #14](https://github.com/secompufscar/secomp-server-xiv/pull/14). Os commits mergeados continuam no histórico de `main`; o experimento pode ser recuperado pela tag de arquivo. As branches locais não foram apagadas.
+
+## Limites operacionais
 
 Estar contido em `main` comprova integração de commits, não ausência de bugs, deploy ou execução de migrações. As pendências funcionais e de segurança permanecem no [roadmap](roadmap.md). A nova branch de cancelamento deve permanecer enquanto seu PR estiver aberto. O checkout XIII pai e seus diretórios não rastreados não fazem parte desta limpeza.
+
+Esta auditoria não certifica que cada branch histórica melhorou segurança, manutenção ou desempenho. A remoção de referências não desfaz código já integrado. A atribuição de regressões a branches individuais exige revisar os respectivos diffs e testar os fluxos afetados; não foi realizada uma revisão completa de cada branch histórica nesta etapa. Testes funcionais e rollback não substituem medições de desempenho.
