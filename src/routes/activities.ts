@@ -39,6 +39,8 @@ const routes = Router();
  *                     type: string
  *                   categoriaId:
  *                     type: string
+ *                   eventId:
+ *                     type: string
  *                   createdAt:
  *                     type: string
  *                     format: date-time
@@ -86,6 +88,8 @@ routes.get("/", activitiesController.list);
  *                   type: string
  *                 categoriaId:
  *                   type: string
+ *                 eventId:
+ *                   type: string
  *                 createdAt:
  *                   type: string
  *                   format: date-time
@@ -124,12 +128,15 @@ routes.get("/:id", activitiesController.findById);
  *                 type: string
  *               categoriaId:
  *                 type: string
+ *               eventId:
+ *                 type: string
+ *                 description: Edição do evento; usa a edição atual quando omitido.
  *     responses:
  *       201:
  *         description: Atividade criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
-routes.post("/", authMiddleware, adminMiddleware, activitiesController.create);
+routes.post("/", authMiddleware, adminMiddleware, validate(createActivitySchema), activitiesController.create);
 
 /**
  * @swagger
@@ -165,13 +172,15 @@ routes.post("/", authMiddleware, adminMiddleware, activitiesController.create);
  *                 type: string
  *               categoriaId:
  *                 type: string
+ *               eventId:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Atividade atualizada com sucesso.
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.put("/:id", validate(updateActivitySchema, activityIdSchema), authMiddleware, adminMiddleware, activitiesController.update);
+routes.put("/:id", authMiddleware, adminMiddleware, validate(updateActivitySchema, activityIdSchema), activitiesController.update);
 
 /**
  * @swagger

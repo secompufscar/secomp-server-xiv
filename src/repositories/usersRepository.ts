@@ -1,6 +1,7 @@
+import { RankingUserResponse } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
 import { User as PrismaUser, Prisma } from "@prisma/client";
-import { User, RegistrationStatus, RankingUser } from "../entities/User";
+import { User, RegistrationStatus } from "../entities/User";
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
 
 function toUserEntity(prismaUser: PrismaUser): User {
@@ -24,24 +25,6 @@ export default {
   async findManyByIds(ids: string[]): Promise<User[]> {
     const response = await prisma.user.findMany({ where: { id: { in: ids } } });
     return response.map(toUserEntity);
-  },
-
-  async setRegistrationStatusForAllEligibleUsers(newStatus: number): Promise<void> {
-    await prisma.user.updateMany({
-      where: { registrationStatus: { not: newStatus } },
-      data: { registrationStatus: newStatus },
-    });
-  },
-
-  async updateUserEventStatus(userId: string, registrationStatusInput: number, currentEdition: number): Promise<User> {
-    const response = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        registrationStatus: registrationStatusInput,
-        currentEdition: currentEdition.toString(),
-      },
-    });
-    return toUserEntity(response);
   },
 
   async setRegistrationStatusForUsers(userIds: string[], newStatus: number): Promise<void> {
@@ -168,20 +151,20 @@ export default {
     return Number(result[0].rank);
   },
 
-  async getTop50RankingUsers(): Promise<RankingUser[]> {
-    const result = await prisma.$queryRaw<User[]>(Prisma.sql`
+  async getTop50RankingUsers(): Promise<RankingUserResponse[]> {
+    const result = await prisma.$queryRaw<{ id: string; nome: string; points: number; ranking: bigint }[]>(Prisma.sql`
       SELECT
-        sub.*,
+        sub.id, sub.nome, sub.points,
         ROW_NUMBER() OVER (
           ORDER BY sub.points DESC, sub.presences DESC, sub.createdAt ASC
         ) AS ranking
       FROM (
         SELECT 
-          u.*,
+          u.id, u.nome, u.points, u.createdAt,
           COUNT(CASE WHEN ua.presente = 1 THEN 1 END) AS presences
         FROM users u
         LEFT JOIN userAtActivity ua ON ua.userId = u.id
-        GROUP BY u.id
+        GROUP BY u.id, u.nome, u.points, u.createdAt
       ) AS sub
       ORDER BY ranking
       LIMIT 50;
@@ -190,11 +173,8 @@ export default {
     return result.map(user => ({
       id: user.id,
       nome: user.nome,
-      tipo: user.tipo,
-      createdAt: user.createdAt,
-      confirmed: user.confirmed,
       points: Number(user.points),
-      rank: Number((user as any).ranking),
+      rank: Number(user.ranking),
     }));
   },
 

@@ -3,6 +3,7 @@ export interface CreateActivityDTOS {
   data: Date | null;
   palestranteNome: string;
   categoriaId: string;
+  eventId?: string;
   vagas: number | null;
   detalhes: string | null;
   local: string;
@@ -15,6 +16,7 @@ export interface UpdateActivityDTOS {
   vagas: number | null;
   palestranteNome: string;
   categoriaId: string;
+  eventId?: string;
   detalhes: string | null;
   local: string;
   points?: number;
@@ -28,5 +30,12 @@ export interface ActivityDTOS {
   detalhes: string | null;
   palestranteNome: string;
   categoriaId: string;
+  eventId: string | null;
   points: number;
+  categoria?: {
+    id: string;
+    nome: string;
+    slug: string;
+    requiresEnrollment: boolean;
+  };
 }

@@ -1,7 +1,30 @@
+import { userIdentitySelect } from "../dtos/userResponses";
 // IMPORTANTE: Usar a instância única do Prisma.
 import { prisma } from "../lib/prisma";
+import { Prisma } from "@prisma/client";
 import { UserAtActivity } from "../entities/UserAtActivity";
-import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos";
+import { UpdateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos";
+
+type EnrollmentCreationResult =
+  | { status: "created"; enrollment: UserAtActivity }
+  | { status: "duplicate" }
+  | { status: "activity-not-found" }
+  | { status: "capacity-undefined" };
+
+async function lockActivity(tx: Prisma.TransactionClient, activityId: string) {
+  const rows = await tx.$queryRaw<{ vagas: number | null }[]>(Prisma.sql`
+    SELECT vagas FROM atividades WHERE id = ${activityId} FOR UPDATE
+  `);
+  return rows[0];
+}
+
+async function lockOccupiedEnrollments(tx: Prisma.TransactionClient, activityId: string) {
+  return tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+    SELECT id FROM userAtActivity
+    WHERE activityId = ${activityId} AND listaEspera = FALSE
+    FOR UPDATE
+  `);
+}
 
 export default {
   async list(): Promise<UserAtActivity[]> {
@@ -19,7 +42,7 @@ export default {
   async findManyByActivityId(activityId: string): Promise<UserAtActivity[]> {
     const response = await prisma.userAtActivity.findMany({
       where: { activityId },
-      include: { user: true },
+      include: { user: { select: userIdentitySelect } },
     });
     return response;
   },
@@ -28,7 +51,7 @@ export default {
     const response = await prisma.userAtActivity.findMany({
       where: { userId },
       include: {
-        user: true,
+        user: { select: userIdentitySelect },
         activity: true,
       },
     });
@@ -42,9 +65,58 @@ export default {
     return response;
   },
 
-  async create(data: CreateUserAtActivityDTOS): Promise<CreateUserAtActivityDTOS> {
-    const response = await prisma.userAtActivity.create({ data });
-    return response;
+  async createWithCapacity(userId: string, activityId: string): Promise<EnrollmentCreationResult> {
+    try {
+      return await prisma.$transaction(async tx => {
+        const activity = await lockActivity(tx, activityId);
+        if (!activity) return { status: "activity-not-found" } as const;
+        if (activity.vagas === null) return { status: "capacity-undefined" } as const;
+
+        const existing = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+          SELECT id FROM userAtActivity
+          WHERE userId = ${userId} AND activityId = ${activityId}
+          LIMIT 1 FOR UPDATE
+        `);
+        if (existing.length > 0) return { status: "duplicate" } as const;
+
+        const occupied = await lockOccupiedEnrollments(tx, activityId);
+        const enrollment = await tx.userAtActivity.create({
+          data: {
+            userId,
+            activityId,
+            presente: false,
+            inscricaoPrevia: true,
+            listaEspera: occupied.length >= activity.vagas,
+          },
+        });
+        return { status: "created", enrollment } as const;
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        return { status: "duplicate" };
+      }
+      throw error;
+    }
+  },
+
+  async getActivityEnrollmentSummary(activityId: string, userId: string) {
+    const enrollments = await prisma.userAtActivity.findMany({
+      where: { activityId },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      select: {
+        userId: true,
+        listaEspera: true,
+      },
+    });
+
+    const waitlist = enrollments.filter(enrollment => enrollment.listaEspera);
+    const waitlistIndex = waitlist.findIndex(enrollment => enrollment.userId === userId);
+
+    return {
+      occupiedCount: enrollments.filter(enrollment => !enrollment.listaEspera).length,
+      waitlistCount: waitlist.length,
+      waitlistPosition: waitlistIndex >= 0 ? waitlistIndex + 1 : null,
+    };
   },
 
   async update(id: string, data: UpdateUserAtActivityDTOS): Promise<UpdateUserAtActivityDTOS> {
@@ -55,28 +127,33 @@ export default {
     return response;
   },
 
-  async findFirstInWaitlist(activityId: string): Promise<UserAtActivity | null> {
-    const response = await prisma.userAtActivity.findFirst({
-      where: {
-        activityId,
-        listaEspera: true,
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
+  async deleteAndPromote(id: string, activityId: string): Promise<void> {
+    await prisma.$transaction(async tx => {
+      const activity = await lockActivity(tx, activityId);
+      if (!activity) throw new Error("Atividade não encontrada");
+
+      await tx.userAtActivity.delete({ where: { id } });
+      if (activity.vagas === null) return;
+
+      const occupied = await lockOccupiedEnrollments(tx, activityId);
+      if (occupied.length >= activity.vagas) return;
+
+      const nextInLine = await tx.userAtActivity.findFirst({
+        where: { activityId, listaEspera: true },
+        orderBy: { createdAt: "asc" },
+      });
+      if (nextInLine) {
+        await tx.userAtActivity.update({
+          where: { id: nextInLine.id },
+          data: { listaEspera: false, inscricaoPrevia: true, presente: false },
+        });
+      }
     });
-    return response;
   },
 
-  async delete(id: string): Promise<void> {
-    await prisma.userAtActivity.delete({
-      where: { id },
-    });
-  },
-
-  async deleteByUserId(userId: string): Promise<void> {
+  async deleteByUserIdAndEventId(userId: string, eventId: string): Promise<void> {
     await prisma.userAtActivity.deleteMany({
-      where: { userId },
+      where: { userId, activity: { eventId } },
     });
   },
 

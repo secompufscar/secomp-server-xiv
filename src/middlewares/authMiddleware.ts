@@ -1,3 +1,4 @@
+import { profileResponse } from "../dtos/userResponses";
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedUserError } from "../utils/exceptions";
 import { User } from "../entities/User";
@@ -33,7 +34,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
       throw new ApiError("Confirme o seu email para acessar", ErrorsCode.UNAUTHORIZED);
     }
 
-    const { senha: _, ...loggedUser } = user;
+    const loggedUser = profileResponse(user);
     req.user = loggedUser;
 
     next();
@@ -63,4 +64,21 @@ export async function isAdmin(req: Request, res: Response, next: NextFunction) {
   } else {
     return res.status(403).json({ message: "Acesso negado: Somente administradores podem acessar este recurso." });
   }
+}
+
+export function authorizeSelfOrAdmin(userIdParam = "userId") {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const authenticatedUserId = req.user?.id;
+    const requestedUserId = req.params[userIdParam];
+
+    if (!authenticatedUserId) {
+      return res.status(401).json({ message: "Usuário não autenticado" });
+    }
+
+    if (req.user.tipo?.toUpperCase() !== "ADMIN" && authenticatedUserId !== requestedUserId) {
+      return res.status(403).json({ message: "Acesso permitido apenas ao próprio usuário ou a administradores." });
+    }
+
+    next();
+  };
 }

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authMiddleware, authorizeSelfOrAdmin, isAdmin } from "../middlewares/authMiddleware";
 import userEventController from "../controllers/userEventController";
 
 const routes = Router();
@@ -9,7 +9,9 @@ const routes = Router();
  * /userEvent/event/{eventId}:
  *   get:
  *     tags: [UserEvents]
- *     summary: Lista inscrições de um evento
+ *     summary: Lista inscrições de um evento (somente administradores)
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: eventId
@@ -18,15 +20,19 @@ const routes = Router();
  *           type: string
  *     responses:
  *       200:
- *         description: Lista de inscrições
+ *         description: Lista de inscrições com identidade mínima (id e nome)
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/UserEventDTO'
+ *       401:
+ *         description: Token ausente ou inválido
+ *       403:
+ *         description: Requer administrador
  */
-routes.get("/event/:eventId", userEventController.findByEventId);
+routes.get("/event/:eventId", authMiddleware, isAdmin, userEventController.findByEventId);
 
 /**
  * @swagger
@@ -47,8 +53,10 @@ routes.get("/event/:eventId", userEventController.findByEventId);
  *         description: Lista de inscrições do usuário
  *       401:
  *         description: Não autorizado
+ *       403:
+ *         description: O usuário só pode consultar as próprias inscrições
  */
-routes.get("/user/:userId", authMiddleware, userEventController.findByUserId);
+routes.get("/user/:userId", authMiddleware, authorizeSelfOrAdmin(), userEventController.findByUserId);
 
 /**
  * @swagger
@@ -78,10 +86,12 @@ routes.get("/user/:userId", authMiddleware, userEventController.findByUserId);
  *               $ref: '#/components/schemas/UserEventDTO'
  *       401:
  *         description: Não autorizado
+ *       403:
+ *         description: O usuário só pode consultar a própria inscrição
  *       404:
  *         description: Inscrição não encontrada
  */
-routes.get("/user/:userId/event/:eventId", authMiddleware, userEventController.findByUserIdEventId);
+routes.get("/user/:userId/event/:eventId", authMiddleware, authorizeSelfOrAdmin(), userEventController.findByUserIdEventId);
 
 /**
  * @swagger

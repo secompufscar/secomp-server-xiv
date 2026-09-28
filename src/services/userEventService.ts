@@ -44,19 +44,11 @@ export default {
       throw new ApiError("Usuário não encontrado", ErrorsCode.BAD_REQUEST);
     }
 
-    const newUserEventEntry = await userEventRepository.create({
+    return userEventRepository.createWithUserStatus({
       userId,
       eventId,
       status: 1,
-    });
-
-    try {
-      await userRepository.updateUserEventStatus(userId, 1, event.year);
-    } catch (error) {
-      throw new ApiError("falha ao atualizar o status do usuário", ErrorsCode.INTERNAL_ERROR);
-    }
-
-    return newUserEventEntry;
+    }, event.year);
   },
 
   async update(id: string, { status }: UpdateUserEventDTOS): Promise<UserEventDTOS> {
@@ -84,7 +76,7 @@ export default {
 
     await userEventRepository.delete(id);
 
-    await usersAtActivitiesRepository.deleteByUserId(userId);
+    await usersAtActivitiesRepository.deleteByUserIdAndEventId(userId, registration.eventId);
 
     const nextInLine = await userEventRepository.findFirstWaitlist(registration.eventId);
     if (nextInLine) {

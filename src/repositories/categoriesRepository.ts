@@ -14,7 +14,7 @@ export default {
     return response;
   },
 
-  async create(data: CreateCategoryrDTOS): Promise<CreateCategoryrDTOS> {
+  async create(data: CreateCategoryrDTOS & { slug: string }): Promise<CategoryrDTOS> {
     const response = await prisma.category.create({ data });
     return response;
   },
@@ -31,5 +31,9 @@ export default {
     await prisma.category.delete({
       where: { id },
     });
+  },
+
+  async hasActivities(categoriaId: string): Promise<boolean> {
+    return (await prisma.activity.findFirst({ where: { categoriaId }, select: { id: true } })) !== null;
   },
 };

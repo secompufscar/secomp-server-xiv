@@ -1,3 +1,4 @@
+import { userIdentitySelect } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 
@@ -52,7 +53,7 @@ export default {
   async findByEvent(eventId: string): Promise<UserEventDTOS[]> {
     const response = await prisma.userEvent.findMany({
       where: { eventId },
-      include: { user: true },
+      include: { user: { select: userIdentitySelect } },
     });
     return response.map(toUserEventDTO);
   },
@@ -60,7 +61,7 @@ export default {
   async findActiveByEvent(eventId: string): Promise<UserEventDTOS[]> {
     const response = await prisma.userEvent.findMany({
       where: { eventId, status: 1, user: { registrationStatus: 1 } },
-      include: { user: true },
+      include: { user: { select: userIdentitySelect } },
     });
     return response.map(toUserEventDTO);
   },
@@ -73,9 +74,15 @@ export default {
     return response ? toUserEventDTO(response) : null;
   },
 
-  async create(data: CreateUserEventDTOS): Promise<UserEventDTOS> {
-    const response = await prisma.userEvent.create({ data });
-    return toUserEventDTO(response);
+  async createWithUserStatus(data: CreateUserEventDTOS, eventYear: number): Promise<UserEventDTOS> {
+    return prisma.$transaction(async (transaction) => {
+      const registration = await transaction.userEvent.create({ data });
+      await transaction.user.update({
+        where: { id: data.userId },
+        data: { registrationStatus: 1, currentEdition: eventYear.toString() },
+      });
+      return toUserEventDTO(registration);
+    });
   },
 
   async update(id: string, data: UpdateUserEventDTOS): Promise<UserEventDTOS> {

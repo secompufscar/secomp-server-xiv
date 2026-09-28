@@ -4,6 +4,7 @@ import usersRepository from "../repositories/usersRepository";
 import eventService from "./eventService";
 import { UserAtActivity } from "../entities/UserAtActivity";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
+import categoriesRepository from "../repositories/categoriesRepository";
 
 export default {
   async checkIn(userId: string, activityId: string): Promise<UserAtActivity> {
@@ -24,7 +25,12 @@ export default {
       throw new ApiError("Este usuário já realizou o check-in nesta atividade", ErrorsCode.CONFLICT);
     }
 
-    if (activity.categoriaId === "1") {
+    const category = await categoriesRepository.findById(activity.categoriaId);
+    if (!category) {
+      throw new ApiError("Categoria da atividade não encontrada", ErrorsCode.NOT_FOUND);
+    }
+
+    if (category.requiresEnrollment) {
       if (!userAtActivity) {
         throw new ApiError("Usuário não está cadastrado na atividade", ErrorsCode.BAD_REQUEST);
       }

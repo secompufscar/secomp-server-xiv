@@ -4,8 +4,19 @@ import { UpdateProfileDTO } from "../dtos/usersDtos";
 
 export default {
   async login(request: Request, response: Response) {
-    const data = await usersService.login(request.body);
+    const supportsRefresh = Boolean(request.header("x-app-version"));
+    const data = await usersService.login(request.body, supportsRefresh);
     response.status(200).json(data);
+  },
+
+  async refresh(request: Request, response: Response) {
+    const data = await usersService.refreshSession(request.body?.refreshToken);
+    response.status(200).json(data);
+  },
+
+  async logout(request: Request, response: Response) {
+    await usersService.logout(request.body?.refreshToken);
+    response.status(204).send();
   },
 
   async signup(request: Request, response: Response) {
@@ -49,25 +60,16 @@ export default {
   },
 
   async sendForgotPasswordEmail(request: Request, response: Response) {
-    try {
-      const { email } = request.body;
-      await usersService.sendForgotPasswordEmail(email);
-      response.status(200).json({ message: "Email enviado com sucesso" });
-    } catch (error) {
-      response.status(500).json({ message: "Erro ao enviar email" });
-    }
+    const { email } = request.body;
+    await usersService.sendForgotPasswordEmail(email);
+    response.status(200).json({ message: "Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação." });
   },
 
   async updateForgottenPassword(request: Request, response: Response) {
-    try {
-      const { token } = request.params; 
-      const { senha } = request.body; 
-
-      const data = await usersService.updatePassword(token, senha);
-      return response.status(200).json(data);
-    } catch (error) {
-      response.status(500).json({ message: "Erro ao atualizar senha" });
-    }
+    const { token } = request.params;
+    const { senha } = request.body;
+    const data = await usersService.updatePassword(token, senha);
+    return response.status(200).json(data);
   },
 
   async getUserRanking(request: Request, response: Response) {

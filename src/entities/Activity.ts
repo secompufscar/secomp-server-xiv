@@ -6,5 +6,6 @@ export interface Activity {
   detalhes: string | null;
   palestranteNome: string;
   categoriaId: string;
+  eventId: string | null;
   points: number;
 }

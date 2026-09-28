@@ -1,3 +1,4 @@
+import { userIdentitySelect } from "../dtos/userResponses";
 import { UserAtActivity } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
@@ -62,7 +63,7 @@ export default {
         activityId,
       },
       include: {
-        user: true,
+        user: { select: userIdentitySelect },
       },
     });
     return response;

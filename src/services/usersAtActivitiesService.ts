@@ -27,6 +27,15 @@ export default {
     return usersAtActivities;
   },
 
+  async getActivityEnrollmentSummary(activityId: string, userId: string) {
+    const activity = await activitiesRepository.findById(activityId);
+    if (!activity) {
+      throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
+    }
+
+    return usersAtActivitiesRepository.getActivityEnrollmentSummary(activityId, userId);
+  },
+
   async findUserAtActivity(userId: string, activityId: string) {
     const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
@@ -47,17 +56,18 @@ export default {
       throw new ApiError("Você precisa estar inscrito no evento anual para participar das atividades", ErrorsCode.CONFLICT);
     }
 
-    const isFull = await activitiesRepository.isActivityFull(activityId);
+    const result = await usersAtActivitiesRepository.createWithCapacity(userId, activityId);
+    if (result.status === "duplicate") {
+      throw new ApiError("Usuário já está inscrito nesta atividade", ErrorsCode.CONFLICT);
+    }
+    if (result.status === "activity-not-found") {
+      throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
+    }
+    if (result.status === "capacity-undefined") {
+      throw new ApiError("Número de vagas da atividade não definido", ErrorsCode.CONFLICT);
+    }
 
-    const userAtActivity = await usersAtActivitiesRepository.create({
-      userId,
-      activityId,
-      presente: false,
-      inscricaoPrevia: true,
-      listaEspera: isFull,
-    });
-
-    return userAtActivity;
+    return result.enrollment;
   },
 
   async update(id: string, { presente, inscricaoPrevia, listaEspera }: UpdateUserAtActivityDTOS) {
@@ -99,21 +109,7 @@ export default {
       await usersRepository.removePoints(userId, points);
     }
 
-    await usersAtActivitiesRepository.delete(userAtActivity.id);
-    
-    const isFull = await activitiesRepository.isActivityFull(activityId);
-
-    if (!isFull) {
-      const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(activityId);
-
-      if (nextInLine) {
-        await usersAtActivitiesRepository.update(nextInLine.id, {
-          listaEspera: false,
-          inscricaoPrevia: true,
-          presente: false,
-        });
-      }
-    }
+    await usersAtActivitiesRepository.deleteAndPromote(userAtActivity.id, activityId);
 
     return userAtActivity;
   },

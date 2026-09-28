@@ -6,6 +6,7 @@ export const eventParamsSchema = z.object({
 
 const eventBodySchema = z
   .object({
+    isCurrent: z.boolean().optional(),
     year: z
       .number({ required_error: "Ano é obrigatório" })
       .int("Ano deve ser inteiro")

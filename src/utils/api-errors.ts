@@ -13,5 +13,6 @@ export enum ErrorsCode {
   FORBIDDEN = 403,
   NOT_FOUND = 404,
   CONFLICT = 409,
+  UPGRADE_REQUIRED = 426,
   INTERNAL_ERROR = 500,
 }
