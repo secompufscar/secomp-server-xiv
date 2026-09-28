@@ -16,4 +16,4 @@ As escritas relacionadas de cada operação agora usam uma transação Prisma. A
 
 Em 27/09/2026, a integração foi executada contra o MySQL 8.4 local em um schema temporário vazio. As oito migrações foram aplicadas, o teste de rollback passou e o schema foi removido pelo executor. O banco `secomp` não foi migrado nem usado como destino das escritas de teste.
 
-Ainda falta transacionar o cancelamento de inscrição e revisar a regra de edição atual sob concorrência. O reset global na criação de uma nova edição conserva o comportamento atual e precisa de uma decisão funcional antes de mudar seu alcance.
+O [cancelamento de inscrição](registration-cancellation.md) foi transacionado e validado em MySQL isolado na rodada seguinte. Ainda falta revisar a regra de edição atual sob concorrência. O reset global na criação de uma nova edição conserva o comportamento atual e precisa de uma decisão funcional antes de mudar seu alcance.

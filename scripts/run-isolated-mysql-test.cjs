@@ -54,7 +54,9 @@ async function main() {
       process.stdout.write(`Banco temporário criado: ${database}\n`);
     }
     run([path.join(root, 'node_modules/prisma/build/index.js'), 'migrate', 'deploy']);
-    run(['--require', 'ts-node/register', '--test', 'tests/event-write-atomicity.integration.test.cjs']);
+    run(['--require', 'ts-node/register', '--test', '--test-concurrency=1',
+      'tests/event-write-atomicity.integration.test.cjs',
+      'tests/registration-cancellation.integration.test.cjs']);
   } finally {
     if (dropOnExit) {
       await prisma.$executeRawUnsafe(`DROP DATABASE \`${database}\``);

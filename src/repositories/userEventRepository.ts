@@ -1,5 +1,6 @@
 import { userIdentitySelect } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 
 type UserEventStatus = 0 | 1 | 2;
@@ -100,8 +101,26 @@ export default {
     });
   },
 
-  async delete(id: string): Promise<void> {
-    await prisma.userEvent.delete({ where: { id } });
+  async deleteWithActivitiesAndWaitlist(id: string, userId: string): Promise<void> {
+    await prisma.$transaction(async (transaction) => {
+      const registration = await transaction.userEvent.findFirst({ where: { id, userId } });
+      if (!registration) {
+        throw new ApiError("Inscrição não encontrada com este id e userId", ErrorsCode.NOT_FOUND);
+      }
+
+      await transaction.userEvent.delete({ where: { id, userId } });
+      await transaction.userAtActivity.deleteMany({
+        where: { userId, activity: { eventId: registration.eventId } },
+      });
+
+      const nextInLine = await transaction.userEvent.findFirst({
+        where: { eventId: registration.eventId, status: 0 },
+        orderBy: { createdAt: "asc" },
+      });
+      if (nextInLine) {
+        await transaction.userEvent.update({ where: { id: nextInLine.id }, data: { status: 1 } });
+      }
+    });
   },
 
   async createForAllUsers(eventId: string): Promise<void> {
