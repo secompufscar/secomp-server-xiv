@@ -1,4 +1,9 @@
 import "dotenv/config";
+import { validateSecuritySecrets } from "./config/securitySecrets";
+
+// Reject unsafe configuration before loading services, listening or scheduling work.
+validateSecuritySecrets();
+
 import "express-async-errors";
 import express from "express";
 import cors from "cors";

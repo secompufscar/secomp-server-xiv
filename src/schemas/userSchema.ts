@@ -6,7 +6,8 @@ const email = z
   .email("E-mail inválido")
   .max(254)
   .transform((value) => value.toLowerCase());
-const password = z.string().min(6, "A senha deve ter pelo menos 6 caracteres").max(72, "A senha deve ter no máximo 72 caracteres");
+const password = z.string().min(6, "A senha deve ter pelo menos 6 caracteres")
+  .refine((value) => Buffer.byteLength(value, "utf8") <= 72, "A senha deve ter no máximo 72 bytes em UTF-8");
 
 export const signupSchema = z
   .object({

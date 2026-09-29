@@ -1,14 +1,20 @@
 import { NextFunction, Request, Response } from "express";
-import { getAppVersionResponse, isAppPlatform } from "../config/appVersion";
+import { getAppVersionResponse } from "../config/appVersion";
 
 export default function appVersionMiddleware(request: Request, response: Response, next: NextFunction) {
   if (request.path === "/app/version") return next();
   if (process.env.APP_VERSION_ENFORCEMENT_ENABLED !== "true") return next();
 
   const platformHeader = request.header("x-app-platform")?.toLowerCase();
-  if (platformHeader === "web") return next();
+  // Legacy clients and browser links cannot declare a native app version.
+  // This policy is an update hint, never an authentication boundary.
+  if (platformHeader !== "android" && platformHeader !== "ios") return next();
 
-  const platform = isAppPlatform(platformHeader) ? platformHeader : "android";
+  if (request.method === "GET" && /^\/users\/confirmation\/[^/]+\/?$/i.test(request.path)) return next();
+  if (request.method === "POST" && /^\/users\/sendForgotPasswordEmail\/?$/i.test(request.path)) return next();
+  if (request.method === "PATCH" && /^\/users\/updatePassword\/[^/]+\/?$/i.test(request.path)) return next();
+
+  const platform = platformHeader;
   const currentVersion = request.header("x-app-version")?.trim();
   const versionResponse = getAppVersionResponse(platform, currentVersion);
 

@@ -103,7 +103,7 @@ export default {
       };
     } catch (err) {
       await usersRepository.delete(user.id);
-      console.error(err);
+      console.error("SIGNUP_CONFIRMATION_FAILED");
 
       throw new ApiError("Erro ao enviar email de confirmação!", ErrorsCode.INTERNAL_ERROR);
     }
@@ -135,7 +135,7 @@ export default {
       console.log("E-mail enviado com sucesso via Brevo! MessageID:", result.messageId);
       return true;
     } catch (err) {
-      console.error("FALHA DETALHADA NO BREVO:", err);
+      console.error("CONFIRMATION_EMAIL_FAILED");
       throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR);
     }
   },
@@ -198,7 +198,7 @@ export default {
         ],
       });
     } catch (err) {
-      console.error("Erro no serviço de recuperação de senha", err);
+      console.error("PASSWORD_RESET_EMAIL_FAILED");
       throw new ApiError("Erro ao enviar email de recuperação de senha!", ErrorsCode.INTERNAL_ERROR);
     }
   },
