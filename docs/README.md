@@ -2,6 +2,8 @@
 
 Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidado P0–P2](roadmap.md) registra prioridades, pendências, critérios de aceite e evidências. A tabela abaixo preserva a ordem histórica dos achados; seus números não representam níveis P0/P1. Implementação na branch não confirma publicação em produção.
 
+A [revisão de segurança, integridade e desempenho de 28/09/2026](security-performance-review-2026-09-28.md) registra 22 grupos de achados, reproduções controladas, métricas MySQL e regressões identificadas também nas branches recentes. Merge e CI verde não significam ausência dessas pendências.
+
 | Prioridade | Tema | Estado | Referência |
 | --- | --- | --- | --- |
 | 1 | Escalada de privilégio no cadastro público | Implementado nesta branch | Testes de cadastro |

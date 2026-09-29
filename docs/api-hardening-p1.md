@@ -34,7 +34,7 @@ Reduzir abuso, vazamento de informações e consumo descontrolado de recursos se
 | `HTTP_BODY_LIMIT` | `1mb` | Limite de JSON e formulário URL encoded |
 | `UPLOAD_MAX_MB` | `8` | Limite da imagem de atividade em MiB |
 | `TRUST_PROXY_HOPS` | `1` | Proxies confiáveis antes do Express; necessário para IP e rate limit no Railway |
-| `CORS_ORIGINS` | lista histórica | Origens permitidas, separadas por vírgula |
+| `CORS_ORIGINS` | lista histórica | Origens adicionais, separadas por vírgula; clientes publicados continuam permitidos. Ver [compatibilidade web](web-cors-compatibility.md) |
 | `AUTH_RATE_LIMIT_WINDOW_MINUTES` | `15` | Janela de autenticação |
 | `AUTH_RATE_LIMIT_MAX_FAILURES` | `20` | Falhas de autenticação por IP e janela |
 | `ACCOUNT_RATE_LIMIT_WINDOW_MINUTES` | `60` | Janela de operações de conta |

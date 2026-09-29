@@ -1,7 +1,6 @@
 import userEventRepository from "../repositories/userEventRepository";
 import eventRepository from "../repositories/eventRepository";
 import userRepository from "../repositories/usersRepository";
-import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 
@@ -69,19 +68,7 @@ export default {
   },
 
   async delete(id: string, userId: string): Promise<void> {
-    const registration = await userEventRepository.findByIdAndUser(id, userId);
-    if (!registration) {
-      throw new ApiError("Inscrição não encontrada com este id e userId", ErrorsCode.NOT_FOUND);
-    }
-
-    await userEventRepository.delete(id);
-
-    await usersAtActivitiesRepository.deleteByUserIdAndEventId(userId, registration.eventId);
-
-    const nextInLine = await userEventRepository.findFirstWaitlist(registration.eventId);
-    if (nextInLine) {
-      await userEventRepository.update(nextInLine.id, { status: 1 });
-    }
+    await userEventRepository.deleteWithActivitiesAndWaitlist(id, userId);
   },
 
   async registerAllUsers(eventId: string): Promise<void> {

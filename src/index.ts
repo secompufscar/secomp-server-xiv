@@ -14,7 +14,7 @@ import { setupSwagger } from "./swagger";
 import schedulerService from "./services/schedulerService";
 import helmet from "helmet";
 import requestId from "./middlewares/requestId";
-import { httpConfig } from "./config/http";
+import { corsOptions, httpConfig } from "./config/http";
 
 const app = express();
 app.disable("x-powered-by");
@@ -35,11 +35,7 @@ app.use(helmet({
 }));
 app.use(express.json({ limit: httpConfig.bodyLimit }));
 app.use(express.urlencoded({ extended: false, limit: httpConfig.bodyLimit }));
-app.use(cors({
-  origin: httpConfig.corsOrigins,
-  methods: ["GET","POST","PUT", "PATCH", "DELETE","OPTIONS"],
-  credentials: true 
-}));
+app.use(cors(corsOptions));
 
 // API Routes
 app.use("/api/v1", routes);

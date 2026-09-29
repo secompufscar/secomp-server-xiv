@@ -28,7 +28,7 @@ jobs:
       - run: npm run build
 
   mysql:
-    name: MySQL recovery and rollback
+    name: MySQL integrity and rollback
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -36,6 +36,7 @@ jobs:
         image: mysql:8.4
         env:
           MYSQL_ROOT_PASSWORD: ci-local-only
+          MYSQL_ROOT_HOST: "%"
           MYSQL_DATABASE: secomp_test
         ports:
           - 3306:3306
