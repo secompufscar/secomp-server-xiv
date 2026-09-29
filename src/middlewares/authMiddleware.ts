@@ -6,9 +6,11 @@ import { JWT_SECRET } from "../secrets";
 import * as jwt from "jsonwebtoken";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import userRepository from "../repositories/usersRepository"; // Importa o repositório
+import { matchesAuthVersion } from "../utils/authVersion";
 
 type jwtPayload = {
   userId: string;
+  authVersion?: number;
 };
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -20,7 +22,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     }
 
     const token = authorization.split(" ")[1];
-    const { userId } = jwt.verify(token, JWT_SECRET) as jwtPayload;
+    const { userId, authVersion } = jwt.verify(token, JWT_SECRET) as jwtPayload;
 
     // Usa o repositório para buscar o usuário.
     const user = await userRepository.findById(userId);
@@ -32,6 +34,10 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
     if (!user.confirmed) {
       throw new ApiError("Confirme o seu email para acessar", ErrorsCode.UNAUTHORIZED);
+    }
+
+    if (!matchesAuthVersion(authVersion, user.authVersion ?? 0)) {
+      throw new ApiError("Senha alterada; faça login novamente", ErrorsCode.UNAUTHORIZED);
     }
 
     const loggedUser = profileResponse(user);

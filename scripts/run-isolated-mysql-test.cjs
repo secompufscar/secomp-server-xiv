@@ -55,6 +55,7 @@ async function main() {
     }
     run([path.join(root, 'node_modules/prisma/build/index.js'), 'migrate', 'deploy']);
     run(['--require', 'ts-node/register', '--test', 'tests/event-write-atomicity.integration.test.cjs']);
+    run(['--require', 'ts-node/register', '--test', 'tests/password-recovery.integration.test.cjs']);
   } finally {
     if (dropOnExit) {
       await prisma.$executeRawUnsafe(`DROP DATABASE \`${database}\``);
