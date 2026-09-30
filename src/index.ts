@@ -1,4 +1,9 @@
 import "dotenv/config";
+import { validateSecuritySecrets } from "./config/securitySecrets";
+
+// Reject unsafe configuration before loading services, listening or scheduling work.
+validateSecuritySecrets();
+
 import "express-async-errors";
 import express from "express";
 import cors from "cors";
@@ -9,7 +14,7 @@ import { setupSwagger } from "./swagger";
 import schedulerService from "./services/schedulerService";
 import helmet from "helmet";
 import requestId from "./middlewares/requestId";
-import { httpConfig } from "./config/http";
+import { corsOptions, httpConfig } from "./config/http";
 
 const app = express();
 app.disable("x-powered-by");
@@ -28,13 +33,9 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: httpConfig.bodyLimit }));
 app.use(express.urlencoded({ extended: false, limit: httpConfig.bodyLimit }));
-app.use(cors({
-  origin: httpConfig.corsOrigins,
-  methods: ["GET","POST","PUT", "PATCH", "DELETE","OPTIONS"],
-  credentials: true 
-}));
 
 // API Routes
 app.use("/api/v1", routes);
@@ -67,5 +68,7 @@ const PORT = process.env.PORT || 3000;
 const MODE = process.env.NODE_ENV;
 app.listen(PORT, () => {
   console.log(`> Servidor rodando na porta ${PORT}. Modo: ${MODE}`);
-  schedulerService.scheduleAllActivityNotifications();
+  void schedulerService.scheduleAllActivityNotifications().catch(() => {
+    console.error("[Scheduler] initial-scheduling-failed");
+  });
 });

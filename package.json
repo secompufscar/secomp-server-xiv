@@ -10,7 +10,7 @@
     "dev": "npx nodemon",
     "start": "node ./dist/index.js",
     "build": "tsc && node scripts/copy-views.cjs",
-    "test": "node --require ts-node/register --test tests/*.test.cjs",
+    "test": "node --require ts-node/register --test --test-concurrency=2 tests/*.test.cjs",
     "test:db:atomicity": "node scripts/run-isolated-mysql-test.cjs",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",

@@ -51,13 +51,12 @@ const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunc
   const invalidJson = errorStatus === 400 && errorType === "entity.parse.failed";
   const tooLarge = errorStatus === 413;
   const statusCode = invalidJson ? 400 : tooLarge ? 413 : 500;
-  const internalError = err instanceof Error ? err : new Error("Erro desconhecido");
   console.error({
     requestId: req.requestId,
     method: req.method,
-    path: req.originalUrl,
-    error: internalError.message,
-    ...(process.env.NODE_ENV !== "production" ? { stack: internalError.stack } : {}),
+    // The route template excludes path parameters, query strings and provider payloads.
+    route: typeof req.route?.path === "string" ? req.route.path : "unmatched",
+    errorCode: invalidJson ? "INVALID_JSON" : tooLarge ? "PAYLOAD_TOO_LARGE" : "INTERNAL_SERVER_ERROR",
   });
 
   return res.status(statusCode).json({

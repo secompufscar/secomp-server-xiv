@@ -146,11 +146,13 @@ test('exclusão de atividade e inscrições usa a mesma transação e propaga fa
   const calls = [];
   const failure = new Error('delete failed');
   prismaModule.prisma = { $transaction: async action => action({
+    $queryRaw: async () => { calls.push(['lock']); return [{ id }]; },
     userAtActivity: { deleteMany: async args => { calls.push(['enrollments', args]); } },
     activity: { delete: async args => { calls.push(['activity', args]); throw failure; } },
   }) };
   await assert.rejects(activities.delete(id), error => error === failure);
   assert.deepEqual(calls, [
+    ['lock'],
     ['enrollments', { where: { activityId: id } }],
     ['activity', { where: { id } }],
   ]);

@@ -24,6 +24,7 @@ model User {
   createdAt       DateTime      @default(now()) @db.DateTime(6)
   updatedAt       DateTime?     @updatedAt @db.Timestamp
   confirmed       Boolean       @default(false)
+  authVersion     Int           @default(0)
   userAtActivity  UserAtActivity[]
   points           Int          @default(0)
   registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado
@@ -44,6 +45,7 @@ model User {
 model RefreshSession {
   id           String    @id @default(uuid())
   userId       String
+  authVersion  Int       @default(0)
   tokenHash    String    @unique @db.Char(64)
   expiresAt    DateTime  @db.DateTime(6)
   revokedAt    DateTime? @db.DateTime(6)
@@ -112,6 +114,7 @@ model Activity {
 model UserAtActivity {
   id              String   @id @default(uuid())
   presente        Boolean
+  creditedPoints  Int?
   inscricaoPrevia Boolean
   listaEspera     Boolean
   createdAt       DateTime @default(now()) @db.DateTime(6)

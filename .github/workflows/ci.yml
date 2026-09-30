@@ -25,3 +25,34 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run verify
+      - run: npm run build
+
+  mysql:
+    name: MySQL integrity and rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-local-only
+          MYSQL_ROOT_HOST: "%"
+          MYSQL_DATABASE: secomp_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci-local-only"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      DATABASE_URL: mysql://root:ci-local-only@127.0.0.1:3306/secomp_test
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npm run test:db:atomicity

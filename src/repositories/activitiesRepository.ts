@@ -38,6 +38,8 @@ export default {
 
   async delete(id: string): Promise<void> {
     await prisma.$transaction(async (transaction) => {
+      // Match check-in/cancellation lock order before touching attendance rows.
+      await transaction.$queryRaw`SELECT id FROM atividades WHERE id = ${id} FOR UPDATE`;
       await transaction.userAtActivity.deleteMany({ where: { activityId: id } });
       await transaction.activity.delete({ where: { id } });
     });

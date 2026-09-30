@@ -10,6 +10,7 @@ const usersRepository = require('../src/repositories/usersRepository').default;
 const activitiesService = require('../src/services/usersAtActivitiesService').default;
 const checkInService = require('../src/services/checkInService').default;
 const checkInRepository = require('../src/repositories/checkInRepository').default;
+const attendanceRepository = require('../src/repositories/attendanceRepository').default;
 const userEventService = require('../src/services/userEventService').default;
 const activitiesRoutes = require('../src/routes/usersAtActivities').default;
 const checkInRoutes = require('../src/routes/checkIn').default;
@@ -92,6 +93,8 @@ test('participante não lista inscritos, altera presença nem realiza check-in',
   assert.equal((await fetch(`${base}/activities/registration-id`, { method: 'PUT', headers, body: '{}' })).status, 403);
   assert.equal((await fetch(`${base}/check-in/${otherId}/activity-id`, { method: 'POST', headers })).status, 403);
   assert.equal((await fetch(`${base}/check-in/participants/activity-id`, { headers })).status, 403);
+  assert.equal((await fetch(`${base}/check-in/presentes/activity-id`, { headers })).status, 403);
+  assert.equal((await fetch(`${base}/check-in/presentes/activity-id`)).status, 401);
   assert.equal(list.mock.callCount() + update.mock.callCount() + checkIn.mock.callCount() + participants.mock.callCount(), 0);
 });
 
@@ -103,6 +106,8 @@ test('administrador executa operações coletivas e check-in', async (t) => {
   const checkIn = t.mock.method(checkInService, 'checkIn', async () => ({}));
   const participants = t.mock.method(checkInRepository, 'findParticipantsByActivity', async () => []);
   const findEvents = t.mock.method(userEventService, 'findByUser', async () => []);
+  const summary = { totalPresentes: 1, presentes: [{ userId: ownerId, nome: 'Participante' }] };
+  t.mock.method(attendanceRepository, 'presentSummary', async () => summary);
   const base = await startApp(t, role);
 
   assert.equal((await fetch(`${base}/activities/activity-id`, { headers })).status, 200);
@@ -110,6 +115,9 @@ test('administrador executa operações coletivas e check-in', async (t) => {
   assert.equal((await fetch(`${base}/activities/${otherId}/activity-id`, { method: 'DELETE', headers })).status, 200);
   assert.equal((await fetch(`${base}/check-in/${otherId}/activity-id`, { method: 'POST', headers })).status, 200);
   assert.equal((await fetch(`${base}/check-in/participants/activity-id`, { headers })).status, 200);
+  const presentResponse = await fetch(`${base}/check-in/presentes/activity-id`, { headers });
+  assert.equal(presentResponse.status, 200);
+  assert.deepEqual(await presentResponse.json(), summary);
   assert.equal((await fetch(`${base}/events/user/${otherId}`, { headers })).status, 200);
   assert.equal(list.mock.callCount(), 1);
   assert.equal(update.mock.callCount(), 1);

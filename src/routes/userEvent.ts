@@ -135,7 +135,7 @@ routes.post("/", authMiddleware, userEventController.create);
  *         schema:
  *           type: string
  *     responses:
- *       204:
+ *       200:
  *         description: Inscrição removida
  *       404:
  *         description: Inscrição não encontrada

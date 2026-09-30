@@ -9,6 +9,7 @@ export interface User {
   createdAt: Date;
   updatedAt: Date | null;
   confirmed: boolean;
+  authVersion?: number;
   registrationStatus: RegistrationStatus; 
   currentEdition: string | null; // Edição atual (ex: "2025")
   points: number;

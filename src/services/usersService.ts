@@ -12,6 +12,9 @@ import usersRepository from "../repositories/usersRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import { BrevoClient } from "@getbrevo/brevo";
 import { createAccessToken, createSession, revokeSession, rotateSession } from "./authSessionsService";
+import { randomUUID } from "crypto";
+import { matchesAuthVersion } from "../utils/authVersion";
+import passwordRecoveryRepository from "../repositories/passwordRecoveryRepository";
 
 const brevo = new BrevoClient({
   apiKey: process.env.BREVO_API_KEY || "",
@@ -55,10 +58,10 @@ export default {
     const userLogin = profileResponse(user);
 
     if (!supportsRefresh) {
-      return { user: userLogin, token: createAccessToken(user.id, "24h") };
+      return { user: userLogin, token: createAccessToken(user.id, "24h", user.authVersion ?? 0) };
     }
 
-    const session = await createSession(user.id);
+    const session = await createSession(user.id, user.authVersion ?? 0);
 
     return {
       user: userLogin,
@@ -103,7 +106,7 @@ export default {
       };
     } catch (err) {
       await usersRepository.delete(user.id);
-      console.error(err);
+      console.error("SIGNUP_CONFIRMATION_FAILED");
 
       throw new ApiError("Erro ao enviar email de confirmação!", ErrorsCode.INTERNAL_ERROR);
     }
@@ -135,7 +138,7 @@ export default {
       console.log("E-mail enviado com sucesso via Brevo! MessageID:", result.messageId);
       return true;
     } catch (err) {
-      console.error("FALHA DETALHADA NO BREVO:", err);
+      console.error("CONFIRMATION_EMAIL_FAILED");
       throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR);
     }
   },
@@ -175,7 +178,8 @@ export default {
         throw new Error("JWT_RESET_SECRET não está definido");
       }
 
-      const emailToken = jwt.sign({ userId: user.id }, process.env.JWT_RESET_SECRET, { expiresIn: "1h" });
+      const emailToken = jwt.sign({ userId: user.id, authVersion: user.authVersion ?? 0, purpose: "password-reset" },
+        process.env.JWT_RESET_SECRET, { expiresIn: "1h", jwtid: randomUUID() });
 
       // Link com protocolo personalizado que é interpretado pelo app mobile
       const url = `https://secomp-app-xiv.vercel.app/SetNewPassword?token=${emailToken}`;
@@ -198,7 +202,7 @@ export default {
         ],
       });
     } catch (err) {
-      console.error("Erro no serviço de recuperação de senha", err);
+      console.error("PASSWORD_RESET_EMAIL_FAILED");
       throw new ApiError("Erro ao enviar email de recuperação de senha!", ErrorsCode.INTERNAL_ERROR);
     }
   },
@@ -209,18 +213,27 @@ export default {
         throw new Error("JWT_RESET_SECRET não está definido");
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET) as {
-        userId: string;
-      };
+      const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET);
+      if (typeof decoded === "string" || typeof decoded.userId !== "string" || !decoded.userId
+        || typeof decoded.exp !== "number" || (decoded.purpose !== undefined && decoded.purpose !== "password-reset")) {
+        throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+      }
 
       const user = await usersRepository.findById(decoded.userId);
       if (!user) {
         throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
       }
 
+      if (!matchesAuthVersion(decoded.authVersion, user.authVersion ?? 0)) {
+        throw new ApiError("Link já utilizado ou invalidado. Solicite uma nova recuperação.", ErrorsCode.UNAUTHORIZED);
+      }
+
       const hashedPassword = await hash(newPassword, 10);
 
-      await usersRepository.update(user.id, { senha: hashedPassword });
+      const changed = await passwordRecoveryRepository.consumeAndChangePassword(user.id, user.authVersion ?? 0, hashedPassword);
+      if (!changed) {
+        throw new ApiError("Link já utilizado ou invalidado. Solicite uma nova recuperação.", ErrorsCode.UNAUTHORIZED);
+      }
 
       return { message: "Senha atualizada com sucesso" };
     } catch (err) {

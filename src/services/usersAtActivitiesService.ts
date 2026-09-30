@@ -1,3 +1,4 @@
+import attendanceRepository from "../repositories/attendanceRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import activitiesRepository from "../repositories/activitiesRepository";
 import checkInRepository from "../repositories/checkInRepository";
@@ -56,7 +57,7 @@ export default {
       throw new ApiError("Você precisa estar inscrito no evento anual para participar das atividades", ErrorsCode.CONFLICT);
     }
 
-    const result = await usersAtActivitiesRepository.createWithCapacity(userId, activityId);
+    const result = await usersAtActivitiesRepository.createWithCapacity(userId, activityId, true);
     if (result.status === "duplicate") {
       throw new ApiError("Usuário já está inscrito nesta atividade", ErrorsCode.CONFLICT);
     }
@@ -70,47 +71,6 @@ export default {
     return result.enrollment;
   },
 
-  async update(id: string, { presente, inscricaoPrevia, listaEspera }: UpdateUserAtActivityDTOS) {
-    const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
-
-    if (!existingUserAtActivity) {
-      throw new ApiError("Registro não encontrado", ErrorsCode.NOT_FOUND);
-    }
-    if (presente === true && existingUserAtActivity.presente === false) {
-      const activity = await activitiesRepository.findById(existingUserAtActivity.activityId);
-
-      if (activity && activity.points && activity.points > 0) {
-        await userRepository.addPoints(existingUserAtActivity.userId, activity.points);
-      }
-    }
-    const updatedUserAtActivity = await usersAtActivitiesRepository.update(id, {
-      presente: presente ?? existingUserAtActivity.presente,
-      inscricaoPrevia: inscricaoPrevia ?? existingUserAtActivity.inscricaoPrevia,
-      listaEspera: listaEspera ?? existingUserAtActivity.listaEspera,
-    });
-
-    return updatedUserAtActivity;
-  },
-
-  async delete(userId: string, activityId: string) {
-    const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
-
-    if (!userAtActivity) {
-      throw new ApiError("Registro não encontrado", ErrorsCode.NOT_FOUND);
-    }
-
-    if (userAtActivity.presente === true){
-      const activity = await activitiesRepository.findById(activityId);
-      if (!activity) {
-        throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
-      }
-
-      const points = activity.points;
-      await usersRepository.removePoints(userId, points);
-    }
-
-    await usersAtActivitiesRepository.deleteAndPromote(userAtActivity.id, activityId);
-
-    return userAtActivity;
-  },
+  update: (id: string, data: UpdateUserAtActivityDTOS) => attendanceRepository.update(id, data),
+  delete: (userId: string, activityId: string) => attendanceRepository.remove(userId, activityId),
 };

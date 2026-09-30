@@ -1,5 +1,8 @@
 import { userIdentitySelect } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
+import { lockAttendanceUser } from "./attendanceRepository";
+import { Prisma } from "@prisma/client";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 
 type UserEventStatus = 0 | 1 | 2;
@@ -100,8 +103,56 @@ export default {
     });
   },
 
-  async delete(id: string): Promise<void> {
-    await prisma.userEvent.delete({ where: { id } });
+  async deleteWithActivitiesAndWaitlist(id: string, userId: string): Promise<void> {
+    await prisma.$transaction(async (transaction) => {
+      await lockAttendanceUser(transaction, userId);
+      const registration = await transaction.userEvent.findFirst({ where: { id, userId } });
+      if (!registration) {
+        throw new ApiError("Inscrição não encontrada com este id e userId", ErrorsCode.NOT_FOUND);
+      }
+
+      const presences = await transaction.userAtActivity.findMany({
+        where: { userId, activity: { eventId: registration.eventId } },
+        select: { activityId: true, presente: true, creditedPoints: true },
+      });
+      const activityIds = [...new Set(presences.map(row => row.activityId))].sort();
+      for (const activityId of activityIds) {
+        await transaction.$queryRaw`SELECT id FROM atividades WHERE id = ${activityId} FOR UPDATE`;
+      }
+      // Reverse only recorded grants here; legacy annual cancellation kept unknown points.
+      const credit = presences.reduce((total, row) => total + (row.presente ? row.creditedPoints ?? 0 : 0), 0);
+      if (credit) {
+        const adjusted = await transaction.user.updateMany({ where: { id: userId, points: { gte: credit } }, data: { points: { decrement: credit } } });
+        if (adjusted.count !== 1) throw new ApiError("Saldo de pontos inconsistente; solicite revisão administrativa", ErrorsCode.CONFLICT);
+      }
+
+      await transaction.userEvent.delete({ where: { id, userId } });
+      await transaction.userAtActivity.deleteMany({
+        where: { userId, activity: { eventId: registration.eventId } },
+      });
+
+      for (const activityId of activityIds) {
+        const activity = await transaction.activity.findUnique({ where: { id: activityId }, select: { vagas: true } });
+        if (activity?.vagas === null || !activity) continue;
+        const occupied = await transaction.userAtActivity.count({ where: { activityId, listaEspera: false } });
+        const available = Math.max(0, activity.vagas - occupied);
+        const waiting = await transaction.userAtActivity.findMany({ where: { activityId, listaEspera: true, presente: false }, orderBy: [{ createdAt: "asc" }, { id: "asc" }], take: available });
+        for (const row of waiting) await transaction.userAtActivity.update({ where: { id: row.id }, data: { listaEspera: false, inscricaoPrevia: true, presente: false, creditedPoints: 0 } });
+      }
+
+      const user = await transaction.user.findUnique({ where: { id: userId }, select: { currentEdition: true } });
+      const event = await transaction.event.findUnique({ where: { id: registration.eventId }, select: { year: true } });
+      if (event && user?.currentEdition === event.year.toString()) {
+        await transaction.user.update({ where: { id: userId }, data: { registrationStatus: 0, currentEdition: null } });
+      }
+      const queue = await transaction.$queryRaw<Array<{ id: string }>>`
+        SELECT id FROM userEvent WHERE eventId = ${registration.eventId} AND status = 0
+        ORDER BY createdAt, id LIMIT 1 FOR UPDATE`;
+      const nextInLine = queue[0];
+      if (nextInLine) {
+        await transaction.userEvent.update({ where: { id: nextInLine.id }, data: { status: 1 } });
+      }
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
   },
 
   async createForAllUsers(eventId: string): Promise<void> {

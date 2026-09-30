@@ -66,14 +66,26 @@ test('atividade não é criada sem evento atual ou explícito', async (t) => {
 
 test('cancelar uma edição remove somente inscrições em atividades daquela edição', async (t) => {
   const registration = { id: 'registration', userId: 'user', eventId: event2026.id, status: 1 };
-  t.mock.method(userEventRepository, 'findByIdAndUser', async () => registration);
-  t.mock.method(userEventRepository, 'delete', async () => undefined);
-  t.mock.method(userEventRepository, 'findFirstWaitlist', async () => null);
-  const scopedDelete = t.mock.method(usersAtActivitiesRepository, 'deleteByUserIdAndEventId', async () => undefined);
+  const prismaModule = require('../src/lib/prisma');
+  const original = prismaModule.prisma;
+  t.after(() => { prismaModule.prisma = original; });
+  let scopedDelete;
+  prismaModule.prisma = {
+    $transaction: async action => action({
+      $queryRaw: async query => (query.sql ?? query.join('')).includes('FROM userEvent') ? [] : [{ id: 'user' }],
+      user: { findUnique: async () => ({ currentEdition: null }) },
+      event: { findUnique: async () => ({ year: 2026 }) },
+      userEvent: {
+        findFirst: async ({ where }) => where.id ? registration : null,
+        delete: async () => registration,
+      },
+      userAtActivity: { findMany: async () => [], deleteMany: async args => { scopedDelete = args; } },
+    }),
+  };
 
   await userEventService.delete(registration.id, registration.userId);
 
-  assert.deepEqual(scopedDelete.mock.calls[0].arguments, [registration.userId, event2026.id]);
+  assert.deepEqual(scopedDelete, { where: { userId: registration.userId, activity: { eventId: event2026.id } } });
 });
 
 test('repositório aplica o evento no filtro de exclusão', async () => {

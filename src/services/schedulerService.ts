@@ -1,80 +1,138 @@
-import * as cron from "node-cron"; // Corrija esta linha
-import { subHours, addHours } from "date-fns";
 import activitiesRepository from "../repositories/activitiesRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import notificationService from "./notificationService";
 import { ActivityDTOS, CreateActivityDTOS, UpdateActivityDTOS } from "../dtos/activitiesDtos";
-import { ApiError, ErrorsCode } from "../utils/api-errors";
 
-// Objeto para armazenar as tarefas agendadas por ID da atividade
-const scheduledJobs: { [activityId: string]: cron.ScheduledTask[] } = {};
+type SchedulableActivity = ActivityDTOS | CreateActivityDTOS | UpdateActivityDTOS;
+type Timer = ReturnType<typeof setTimeout>;
+type SchedulerDependencies = {
+  now: () => number;
+  setTimer: (callback: () => void, delay: number) => Timer;
+  clearTimer: (timer: Timer) => void;
+  listActivities: () => Promise<SchedulableActivity[]>;
+  findParticipants: (activityId: string) => Promise<{ userId: string }[]>;
+  sendNotification: typeof notificationService.sendPushNotification;
+  report: (code: string) => void;
+};
 
-const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivityDTOS | UpdateActivityDTOS) => {
-  if (!("id" in activity) || !activity.id || !activity.data) {
-    throw new ApiError("data sent was malformed", ErrorsCode.BAD_REQUEST);
-  }
-  const activityId = activity.id;
+// Node timers overflow above this value; recheck the absolute deadline on each wake.
+export const MAX_TIMER_DELAY = 2_147_483_647;
+const HOUR = 60 * 60 * 1000;
 
-  // Cancela e remove qualquer agendamento antigo para esta atividade
-  if (scheduledJobs[activityId]) {
-    console.log(`[Scheduler] Removendo agendamentos antigos para a atividade ID: ${activityId}`);
-    scheduledJobs[activityId].forEach((job) => job.stop());
-    delete scheduledJobs[activityId];
-  }
-
-  const activityDate = new Date(activity.data);
-  const now = new Date();
-
-  // Função auxiliar para criar e armazenar uma tarefa
-  const scheduleAndStoreJob = (notificationDate: Date, title: string, message: string) => {
-    // Adiciona 3 horas para compensar a conversão implícita para UTC
-    const adjustedDate = addHours(notificationDate, 3);
-
-    if (adjustedDate > now) {
-      const cronTime = `${adjustedDate.getMinutes()} ${adjustedDate.getHours()} ${adjustedDate.getDate()} ${adjustedDate.getMonth() + 1} *`;
-
-      const job = cron.schedule(cronTime, async () => {
-        console.log(`[Scheduler] EXECUTANDO TAREFA para atividade "${activity.nome}" (ID: ${activityId})`);
-
-        const users = await usersAtActivitiesRepository.findManyByActivityId(activityId);
-        const userIds = users.map((u) => u.userId);
-
-        if (userIds.length > 0) {
-          console.log(`[Scheduler] Encontrados ${userIds.length} usuários para notificar: ${userIds.join(", ")}`);
-          notificationService.sendPushNotification({ title, message, recipientIds: userIds, data: { activityId } });
-        } else {
-          console.log(`[Scheduler] Nenhum usuário encontrado inscrito na atividade ${activityId}. Nenhuma notificação enviada.`);
-        }
-      });
-
-      // Armazena a nova tarefa
-      if (!scheduledJobs[activityId]) {
-        scheduledJobs[activityId] = [];
-      }
-      scheduledJobs[activityId].push(job);
-      console.log(`[Scheduler] Tarefa agendada para atividade "${activity.nome}" (ID: ${activityId}) para ser executada em: ${cronTime}`);
-    } else {
-      console.log(
-        `[Scheduler] O horário da notificação para a atividade "${activity.nome}" (ID: ${activityId}) já passou. Não foi agendada.`,
-      );
-    }
+export function createScheduler(overrides: Partial<SchedulerDependencies> = {}) {
+  const dependencies: SchedulerDependencies = {
+    now: Date.now,
+    setTimer: (callback, delay) => setTimeout(callback, delay),
+    clearTimer: (timer) => clearTimeout(timer),
+    listActivities: () => activitiesRepository.list(),
+    findParticipants: (id) => usersAtActivitiesRepository.findManyByActivityId(id),
+    sendNotification: (data) => notificationService.sendPushNotification(data),
+    // Deliberately omit participant IDs, payloads, and raw provider/database errors.
+    report: (code) => console.error(`[Scheduler] ${code}`),
+    ...overrides,
   };
+  type Job = { timer?: Timer; fired: boolean; finished: boolean; timerVersion: number };
+  const scheduledJobs = new Map<string, Job[]>();
 
-  // Agenda a notificação para 24 horas antes
-  scheduleAndStoreJob(subHours(activityDate, 24), "Lembrete de Atividade", `A atividade "${activity.nome}" começará em 24 horas!`);
+  function cancelNotificationsForActivity(activityId: string) {
+    const jobs = scheduledJobs.get(activityId);
+    scheduledJobs.delete(activityId);
+    jobs?.forEach((job) => {
+      if (job.timer) dependencies.clearTimer(job.timer);
+    });
+  }
 
-  // Agenda a notificação para 2 horas antes
-  scheduleAndStoreJob(subHours(activityDate, 2), "Atividade Começando em Breve", `A atividade "${activity.nome}" começará em 2 horas!`);
-};
+  function scheduleNotificationsForActivity(activity: SchedulableActivity) {
+    if (!("id" in activity) || !activity.id) {
+      dependencies.report("activity-without-id-skipped");
+      return;
+    }
+    const activityId = activity.id;
+    cancelNotificationsForActivity(activityId);
+    // An undated activity is valid, including an update that removes an old date.
+    if (!activity.data) return;
+    const activityTime = new Date(activity.data).getTime();
+    if (!Number.isFinite(activityTime)) {
+      dependencies.report("invalid-activity-date-skipped");
+      return;
+    }
 
-const scheduleAllActivityNotifications = async () => {
-  console.log("[Scheduler] Iniciando agendamento de todas as atividades...");
-  const activities = await activitiesRepository.list();
-  activities.forEach(scheduleNotificationsForActivity);
-  console.log("[Scheduler] Agendamento inicial concluído.");
-};
+    const jobs: Job[] = [];
+    scheduledJobs.set(activityId, jobs);
+    const isCurrent = () => scheduledJobs.get(activityId) === jobs;
+    try {
+      for (const hours of [24, 2]) {
+        const deadline = activityTime - hours * HOUR;
+        if (deadline <= dependencies.now()) continue;
+        const job: Job = { fired: false, finished: false, timerVersion: 0 };
+        jobs.push(job);
+        const run = async () => {
+          if (!isCurrent() || job.fired) return;
+          job.fired = true;
+          try {
+            // Avoid obsolete reminders if the process was suspended past the start.
+            if (dependencies.now() >= activityTime) return;
+            const participants = await dependencies.findParticipants(activityId);
+            // An update/delete may finish while the participant lookup is in flight.
+            if (!isCurrent() || dependencies.now() >= activityTime) return;
+            const recipientIds = [...new Set(participants.map((user) => user.userId))];
+            if (recipientIds.length === 0) return;
+            await dependencies.sendNotification({
+              title: hours === 24 ? "Lembrete de Atividade" : "Atividade Começando em Breve",
+              message: `A atividade "${activity.nome}" começará em ${hours} horas!`,
+              recipientIds,
+              data: { activityId },
+            });
+          } catch {
+            dependencies.report("notification-failed");
+          } finally {
+            job.finished = true;
+            if (isCurrent() && jobs.every((entry) => entry.finished)) scheduledJobs.delete(activityId);
+          }
+        };
+        const arm = () => {
+          if (!isCurrent() || job.fired) return;
+          const remaining = deadline - dependencies.now();
+          if (remaining <= 0) {
+            void run();
+            return;
+          }
+          try {
+            const timerVersion = ++job.timerVersion;
+            job.timer = dependencies.setTimer(() => {
+              if (job.timerVersion === timerVersion) arm();
+            }, Math.min(remaining, MAX_TIMER_DELAY));
+            job.timer.unref?.();
+          } catch {
+            cancelNotificationsForActivity(activityId);
+            dependencies.report("activity-scheduling-failed");
+          }
+        };
+        arm();
+      }
+      if (jobs.length === 0) scheduledJobs.delete(activityId);
+    } catch {
+      cancelNotificationsForActivity(activityId);
+      dependencies.report("activity-scheduling-failed");
+    }
+  }
 
-export default {
-  scheduleAllActivityNotifications,
-  scheduleNotificationsForActivity,
-};
+  async function scheduleAllActivityNotifications() {
+    try {
+      const activities = await dependencies.listActivities();
+      for (const activity of activities) {
+        try {
+          scheduleNotificationsForActivity(activity);
+        } catch {
+          dependencies.report("activity-scheduling-failed");
+        }
+      }
+    } catch {
+      dependencies.report("initial-scheduling-failed");
+    }
+  }
+
+  return { scheduleAllActivityNotifications, scheduleNotificationsForActivity, cancelNotificationsForActivity };
+}
+
+export default createScheduler();
