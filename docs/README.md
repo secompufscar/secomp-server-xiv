@@ -4,6 +4,8 @@ Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidad
 
 A [revisão de segurança, integridade e desempenho de 28/09/2026](security-performance-review-2026-09-28.md) registra 22 grupos de achados, reproduções controladas, métricas MySQL e regressões identificadas também nas branches recentes. Merge e CI verde não significam ausência dessas pendências.
 
+Atualização de 30/09: [correções prioritárias](event-critical-fixes.md) no PR #17; [limites para eduroam](shared-network-rate-limits.md) no PR #18; [consistência de edição/inscrição](edition-registration-consistency.md) na branch `codex/edition-registration-consistency`. Esta última rodada tem 93 testes locais, build e cinco integrações MySQL aprovados; publicação/CI precisam de verificação própria. Nenhum desses estados confirma deploy ou migração em produção. As revisões datadas preservam os achados originais; o roadmap é o resumo das pendências atuais.
+
 | Prioridade | Tema | Estado | Referência |
 | --- | --- | --- | --- |
 | 1 | Escalada de privilégio no cadastro público | Implementado nesta branch | Testes de cadastro |
@@ -13,9 +15,9 @@ A [revisão de segurança, integridade e desempenho de 28/09/2026](security-perf
 | 5 | Duplicidade e corrida na capacidade das atividades | Implementado nesta branch | [Documento](activity-capacity.md) |
 | 6 | ID fixo de categoria no check-in | Implementado nesta branch | [Documento](checkin-category-rule.md) |
 | 7 | Ausência de vínculo entre atividade e edição do evento | Implementado nesta branch | [Documento](activity-event-link.md) |
-| 8 | Múltiplos eventos atuais e estado duplicado de inscrição | Pendente | — |
-| 9 | Agendador: fuso, recorrência, persistência e cancelamento | Pendente | — |
-| 10 | Escritas parciais por ausência de transações | Parcial: exclusão de atividade e escritas de evento/inscrição em transação | [Atividades](admin-write-integrity.md), [eventos e inscrições](event-write-integrity.md) |
+| 8 | Múltiplos eventos atuais e estado duplicado de inscrição | Implementado na branch; migração/produção pendentes | [Documento](edition-registration-consistency.md) |
+| 9 | Agendador: fuso, recorrência, persistência e cancelamento | Parcial: horários, data nula, disparo único por processo e cancelamento corrigidos; persistência/coordenação pendentes | [Documento](event-critical-fixes.md) |
+| 10 | Escritas parciais por ausência de transações | Parcial: evento, inscrição, presença/pontos, filas e encerramento transacionados; restam outros fluxos da auditoria | [Presença](event-critical-fixes.md), [edições](edition-registration-consistency.md) |
 | 11 | Upload sem limite e substituição insegura no Cloudinary | Parcial: limites e MIME implementados; Cloudinary pendente | [Documento](api-hardening-p1.md) |
 | 12 | Exclusão de categoria com verificação incorreta de array | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
 | 13 | Endurecimento de autenticação, validação e reset de senha | Parcial; pendências detalhadas no roadmap | [Documento](api-hardening-p1.md) |

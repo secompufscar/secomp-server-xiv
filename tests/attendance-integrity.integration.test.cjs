@@ -164,9 +164,8 @@ test('MySQL: presença, pontos e fila são atômicos sob concorrência', {
     await attendance.update(legacyRow.id, { presente: false });
     assert.equal(await points(legacy), 23);
 
-    // Deterministic interleaving: create a new occupied seat after annual cancellation
-    // reads its registration, but before it locks the activity. A repeatable-read
-    // snapshot here would miss that seat and promote two people into only one vacancy.
+    // Start enrollment after cancellation's registration read. The exclusive edition
+    // gate must keep it behind cancellation, allowing the existing queue to advance first.
     const capacityRepository = require('../src/repositories/usersAtActivitiesRepository').default;
     const raceActivity = await activity(eventId, true);
     await prisma.activity.update({ where: { id: raceActivity.id }, data: { vagas: 2 } });
@@ -179,6 +178,8 @@ test('MySQL: presença, pontos e fila são atômicos sob concorrência', {
     const secondInQueue = await enrollment(secondWaiting, raceActivity.id, { listaEspera: true, createdAt: new Date('2069-01-02') });
     const leavingRegistration = await prisma.userEvent.findUniqueOrThrow({ where: { userId_eventId: { userId: leaving, eventId } } });
     let interleaved = false;
+    let competing;
+    let competingCompleted = false;
     module.prisma = new Proxy(prisma, {
       get(target, key) {
         if (key !== '$transaction') return target[key];
@@ -192,12 +193,24 @@ test('MySQL: presença, pontos e fila são atômicos sob concorrência', {
                   const result = await delegate[operation](args);
                   if (!interleaved && args.where?.id === leavingRegistration.id) {
                     interleaved = true;
-                    // Route the competing transaction to the real client; retain the
-                    // wrapped transaction for the remainder of cancellation.
-                    module.prisma = prisma;
-                    const created = await capacityRepository.createWithCapacity(arriving, raceActivity.id, true);
-                    assert.equal(created.status, 'created');
-                    assert.equal(created.enrollment.listaEspera, false);
+                    let reachedGate;
+                    const gateStarted = new Promise(resolve => { reachedGate = resolve; });
+                    module.prisma = new Proxy(prisma, { get(client, key) {
+                      if (key !== '$transaction') return client[key];
+                      return (action, opts) => prisma.$transaction(tx => action(new Proxy(tx, { get(inner, method) {
+                        if (method !== '$queryRaw') return inner[method];
+                        return async (...args) => {
+                          if (String(args[0]).includes('editionStateLock')) reachedGate();
+                          return inner.$queryRaw(...args);
+                        };
+                      } })), opts);
+                    } });
+                    competing = capacityRepository.createWithCapacity(arriving, raceActivity.id, true)
+                      .then(value => { competingCompleted = true; return value; });
+                    competing.catch(() => {}); // Awaited after cancellation; avoid early unhandled rejection.
+                    await gateStarted;
+                    assert.equal(competingCompleted, false, 'shared gate cannot complete while cancellation holds exclusive gate');
+                    // Do not await enrollment here: cancellation must release its gate first.
                   }
                   return result;
                 };
@@ -207,13 +220,78 @@ test('MySQL: presença, pontos e fila são atômicos sob concorrência', {
         })), options);
       },
     });
-    try { await registrations.deleteWithActivitiesAndWaitlist(leavingRegistration.id, leaving); }
-    finally { module.prisma = prisma; }
+    try {
+      await registrations.deleteWithActivitiesAndWaitlist(leavingRegistration.id, leaving);
+      const created = await competing;
+      assert.equal(created.status, 'created');
+      assert.equal(created.enrollment.listaEspera, true, 'existing queue gets the vacancies before the newcomer');
+    } finally { module.prisma = prisma; if (competing) await competing.catch(() => {}); }
     assert.equal(interleaved, true, 'competing enrollment must run after registration read');
     assert.equal(await prisma.userAtActivity.count({ where: { activityId: raceActivity.id, listaEspera: false } }), 2);
     assert.equal((await prisma.userAtActivity.findUniqueOrThrow({ where: { id: firstInQueue.id } })).listaEspera, false);
-    assert.equal((await prisma.userAtActivity.findUniqueOrThrow({ where: { id: secondInQueue.id } })).listaEspera, true);
+    assert.equal((await prisma.userAtActivity.findUniqueOrThrow({ where: { id: secondInQueue.id } })).listaEspera, false);
     assert.equal(await prisma.userAtActivity.count({ where: { userId: leaving, activityId: raceActivity.id } }), 0);
+
+    // Moving an activity between editions cannot race past the cancellation gate.
+    const activitiesRepository = require('../src/repositories/activitiesRepository').default;
+    const movingActivity = await activity(eventId);
+    const movingUser = await user(eventId);
+    await attendance.checkIn(movingUser, movingActivity.id);
+    const movingAnnual = await prisma.userEvent.findUniqueOrThrow({ where: { userId_eventId: { userId: movingUser, eventId } } });
+    let movingPromise;
+    let moveCompleted = false;
+    let moveStarted = false;
+    module.prisma = new Proxy(prisma, { get(client, key) {
+      if (key !== '$transaction') return client[key];
+      return (action, options) => prisma.$transaction(tx => action(new Proxy(tx, { get(transaction, model) {
+        if (model !== 'userEvent') return transaction[model];
+        return new Proxy(transaction[model], { get(delegate, method) {
+          if (method !== 'findFirst') return delegate[method];
+          return async args => {
+            const result = await delegate[method](args);
+            if (!moveStarted && args.where?.id === movingAnnual.id) {
+              moveStarted = true;
+              let reachedGate;
+              const gateStarted = new Promise(resolve => { reachedGate = resolve; });
+              module.prisma = new Proxy(prisma, { get(client, key) {
+                if (key !== '$transaction') return client[key];
+                return (action, options) => prisma.$transaction(tx => action(new Proxy(tx, { get(inner, method) {
+                  if (method !== '$queryRaw') return inner[method];
+                  return async (...args) => {
+                    if (String(args[0]).includes('editionStateLock')) reachedGate();
+                    return inner.$queryRaw(...args);
+                  };
+                } })), options);
+              } });
+              movingPromise = activitiesRepository.update(movingActivity.id, { eventId: otherEventId })
+                .then(value => { moveCompleted = true; return value; });
+              movingPromise.catch(() => {});
+              await gateStarted;
+              assert.equal(moveCompleted, false, 'activity move must wait behind annual cancellation');
+            }
+            return result;
+          };
+        } });
+      } })), options);
+    } });
+    try {
+      await registrations.deleteWithActivitiesAndWaitlist(movingAnnual.id, movingUser);
+      await movingPromise;
+    } finally { module.prisma = prisma; if (movingPromise) await movingPromise.catch(() => {}); }
+    assert.equal(moveStarted, true);
+    assert.equal(await points(movingUser), 0);
+    assert.equal(await prisma.userAtActivity.count({ where: { userId: movingUser, activityId: movingActivity.id } }), 0);
+    assert.equal((await prisma.activity.findUniqueOrThrow({ where: { id: movingActivity.id } })).eventId, otherEventId);
+
+    // Opposite serialization: a completed move puts attendance outside the cancelled edition.
+    const alreadyMovedActivity = await activity(eventId);
+    const alreadyMovedUser = await user(eventId);
+    await attendance.checkIn(alreadyMovedUser, alreadyMovedActivity.id);
+    const alreadyMovedAnnual = await prisma.userEvent.findUniqueOrThrow({ where: { userId_eventId: { userId: alreadyMovedUser, eventId } } });
+    await activitiesRepository.update(alreadyMovedActivity.id, { eventId: otherEventId });
+    await registrations.deleteWithActivitiesAndWaitlist(alreadyMovedAnnual.id, alreadyMovedUser);
+    assert.equal(await points(alreadyMovedUser), 10);
+    assert.equal(await prisma.userAtActivity.count({ where: { userId: alreadyMovedUser, activityId: alreadyMovedActivity.id, presente: true, creditedPoints: 10 } }), 1);
 
     // Annual cancellation and activity deletion contend on the same user lock.
     const concurrentActivity = await activity(eventId);

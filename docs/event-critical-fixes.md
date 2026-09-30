@@ -1,5 +1,7 @@
 # Correções prioritárias antes do evento — 30/09/2026
 
+Continuidade posterior desta rodada: [cotas para rede compartilhada](shared-network-rate-limits.md) corrigem o bloqueio entre contas/operações no eduroam; [consistência de edição](edition-registration-consistency.md) implementa sincronização de perfis da fila e estados administrativos/encerramento. Pendências indicadas abaixo descrevem o escopo original do PR #17; consultar o [roadmap](roadmap.md) para o estado consolidado atual.
+
 Implementadas na branch `codex/event-critical-fixes`, que integra o trabalho dos PRs #14, #15 e #16 e a revisão por blocos. Código na branch não confirma deploy, migrações nem comportamento online.
 
 ## Agendamento

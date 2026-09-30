@@ -8,7 +8,6 @@ const eventRepository = require('../src/repositories/eventRepository').default;
 const schedulerService = require('../src/services/schedulerService').default;
 const userEventService = require('../src/services/userEventService').default;
 const userEventRepository = require('../src/repositories/userEventRepository').default;
-const usersAtActivitiesRepository = require('../src/repositories/usersAtActivitiesRepository').default;
 
 const event2026 = {
   id: '11111111-1111-4111-8111-111111111111', year: 2026,
@@ -86,19 +85,6 @@ test('cancelar uma edição remove somente inscrições em atividades daquela ed
   await userEventService.delete(registration.id, registration.userId);
 
   assert.deepEqual(scopedDelete, { where: { userId: registration.userId, activity: { eventId: event2026.id } } });
-});
-
-test('repositório aplica o evento no filtro de exclusão', async () => {
-  let received;
-  require('../src/lib/prisma').prisma = {
-    userAtActivity: { deleteMany: async args => { received = args; } },
-  };
-
-  await usersAtActivitiesRepository.deleteByUserIdAndEventId('user', event2026.id);
-
-  assert.deepEqual(received, {
-    where: { userId: 'user', activity: { eventId: event2026.id } },
-  });
 });
 
 test('schema e migração registram o vínculo atividade-evento', () => {

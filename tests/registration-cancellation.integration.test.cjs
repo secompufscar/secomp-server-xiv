@@ -27,8 +27,11 @@ test('MySQL: cancelamento reverte cada escrita e preserva outras edições e usu
       id, nome: 'Cancellation test', email: `${id}@example.invalid`, senha: 'unused',
     })) });
     const eventData = { startDate: new Date('2041-01-01'), endDate: new Date('2041-01-07'), isCurrent: false };
-    const event = await prisma.event.create({ data: { ...eventData, year: 2041 } });
-    const otherEvent = await prisma.event.create({ data: { ...eventData, year: 2042 } });
+    const usedYears = new Set((await prisma.event.findMany({ select: { year: true } })).map(row => row.year));
+    let testYear = 2041;
+    while (usedYears.has(testYear) || usedYears.has(testYear + 1)) testYear++;
+    const event = await prisma.event.create({ data: { ...eventData, year: testYear } });
+    const otherEvent = await prisma.event.create({ data: { ...eventData, year: testYear + 1 } });
     const category = await prisma.category.create({ data: { nome: 'Cancellation', slug: `cancel-${randomUUID()}` } });
     const activities = [];
     for (const eventId of [event.id, otherEvent.id, null]) {

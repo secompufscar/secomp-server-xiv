@@ -12,6 +12,7 @@ function database(t, requiresEnrollment, initial) {
   prismaModule.prisma = { $transaction: action => action({
     $queryRaw: async query => (query.sql ?? query.join('')).includes('FROM userEvent') ? [{ status: 1 }] : [{ id: 'synthetic' }],
     activity: { findUniqueOrThrow: async () => ({ id: 'activity', eventId: 'event', points: 10, categoria: { requiresEnrollment } }) },
+    event: { findUnique: async () => ({ id: 'event', registrationsClosed: false }) },
     user: { updateMany: async ({ data }) => { state.points += data.points.increment; return { count: 1 }; } },
     userAtActivity: {
       findUnique: async () => state.row,

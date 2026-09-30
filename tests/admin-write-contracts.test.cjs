@@ -153,6 +153,7 @@ test('exclusão de atividade e inscrições usa a mesma transação e propaga fa
   await assert.rejects(activities.delete(id), error => error === failure);
   assert.deepEqual(calls, [
     ['lock'],
+    ['lock'],
     ['enrollments', { where: { activityId: id } }],
     ['activity', { where: { id } }],
   ]);

@@ -27,16 +27,6 @@ export default {
     return response.map(toUserEntity);
   },
 
-  async setRegistrationStatusForUsers(userIds: string[], newStatus: number): Promise<void> {
-    if (userIds.length === 0) {
-      return;
-    }
-    await prisma.user.updateMany({
-      where: { id: { in: userIds } },
-      data: { registrationStatus: newStatus },
-    });
-  },
-
   async findByEmail(email: string): Promise<User | null> {
     const response = await prisma.user.findUnique({ where: { email } });
     return response ? toUserEntity(response) : null;
@@ -59,43 +49,6 @@ export default {
   async updateQRCode(id: string, data: UpdateQrCodeUsersDTOS): Promise<User> {
     const response = await prisma.user.update({ where: { id }, data });
     return toUserEntity(response);
-  },
-
-  async addPoints(userId: string, points: number): Promise<User> {
-    try {
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { points: { increment: points } },
-      });
-      return toUserEntity(updatedUser);
-    } catch (error) {
-      throw new Error(`Falha ao adicionar pontos para o usuário ${userId}`);
-    }
-  },
-
-  async removePoints(userId: string, points: number): Promise<User> {
-    try {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-
-      if (!user) {
-        throw new Error(`Usuário ${userId} não encontrado`);
-      }
-
-      if (user.points < points) {
-        throw new Error(`Usuário ${userId} não possui pontos suficientes`);
-      }
-
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { points: { decrement: points } },
-      });
-
-      return toUserEntity(updatedUser);
-    } catch (error) {
-      throw new Error(
-        `Falha ao remover pontos do usuário ${userId}: ${(error as Error).message}`,
-      );
-    }
   },
 
   async getUserPoints(id: string): Promise<{ points: number } | null> {
