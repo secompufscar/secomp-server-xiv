@@ -59,7 +59,8 @@ async function main() {
       'tests/registration-cancellation.integration.test.cjs',
       'tests/password-recovery.integration.test.cjs',
       'tests/attendance-integrity.integration.test.cjs',
-      'tests/edition-state-integrity.integration.test.cjs']);
+      'tests/edition-state-integrity.integration.test.cjs',
+      'tests/signup-recovery.integration.test.cjs']);
   } finally {
     if (dropOnExit) {
       await prisma.$executeRawUnsafe(`DROP DATABASE \`${database}\``);
