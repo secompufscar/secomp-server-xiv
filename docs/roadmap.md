@@ -8,6 +8,8 @@ Atualização de 28/09/2026: a [revisão abrangente](security-performance-review
 
 Atualização de 30/09/2026: [correções prioritárias](event-critical-fixes.md) implementam agendamento seguro, atomicidade de presença/pontos e reversões, consulta de nomes/total de presentes e CORS em erros de parser. P1-03 continua parcial (estados administrativos/desativação e sincronização de perfis da fila); P1-05 tem correções locais implementadas, mas persistência e coordenação entre instâncias seguem pendentes. Produção não confirmada.
 
+Ainda em 30/09: [cotas em rede compartilhada](shared-network-rate-limits.md) separam cadastro/recuperação e login/refresh/reset, distinguem e-mails/tokens e mantêm teto amplo por rede. Testes simulam 100 contas pelo mesmo IP; topologia real do proxy, tráfego e armazenamento por instância continuam sujeitos a validação operacional. Não exige ação dos usuários.
+
 - **P0:** falhas de privilégio, exposição de credenciais/dados e integridade essenciais antes da publicação.
 - **P1:** confiabilidade, proteção contra abuso, regressões e operações que podem perder dados.
 - **P2:** eficiência, observabilidade e evolução operacional a validar com medições.

@@ -13,7 +13,7 @@ Reduzir abuso, vazamento de informações e consumo descontrolado de recursos se
 - Upload de imagem usa memória com limite padrão de 8 MiB, um arquivo por request e MIME declarado como JPEG, PNG, WebP ou GIF.
 - Cadastro, login, renovação, logout e recuperação de senha validam e normalizam entrada com Zod.
 - Campos desconhecidos no cadastro são descartados, impedindo que o cliente injete propriedades como `tipo: ADMIN`.
-- Login e operações de conta possuem limites independentes por IP. Tentativas de login bem-sucedidas não consomem a cota de falhas.
+- Login, refresh, reset, cadastro e recuperação possuem limites separados por identidade e teto amplo por rede. Tentativas de autenticação bem-sucedidas não consomem a cota de falhas. Ver os escopos atualizados na configuração abaixo.
 - Recuperação de senha retorna a mesma resposta para e-mails existentes e inexistentes.
 - Erros inesperados deixam de expor mensagens internas. O servidor registra o detalhe junto com o `requestId`.
 - Conflitos e registros ausentes conhecidos pelo Prisma são convertidos em respostas HTTP consistentes.
@@ -36,9 +36,13 @@ Reduzir abuso, vazamento de informações e consumo descontrolado de recursos se
 | `TRUST_PROXY_HOPS` | `1` | Proxies confiáveis antes do Express; necessário para IP e rate limit no Railway |
 | `CORS_ORIGINS` | lista histórica | Origens adicionais, separadas por vírgula; clientes publicados continuam permitidos. Ver [compatibilidade web](web-cors-compatibility.md) |
 | `AUTH_RATE_LIMIT_WINDOW_MINUTES` | `15` | Janela de autenticação |
-| `AUTH_RATE_LIMIT_MAX_FAILURES` | `20` | Falhas de autenticação por IP e janela |
+| `AUTH_RATE_LIMIT_MAX_FAILURES` | `20` | Falhas por rede + e-mail/token, separadas por operação |
+| `AUTH_NETWORK_RATE_LIMIT_MAX_FAILURES` | `2000` | Teto de falhas por rede, separado entre login, refresh e reset |
 | `ACCOUNT_RATE_LIMIT_WINDOW_MINUTES` | `60` | Janela de operações de conta |
-| `ACCOUNT_RATE_LIMIT_MAX_REQUESTS` | `20` | Operações de conta por IP e janela |
+| `ACCOUNT_RATE_LIMIT_MAX_REQUESTS` | `20` | Requisições por e-mail, separadas entre cadastro e recuperação |
+| `ACCOUNT_NETWORK_RATE_LIMIT_MAX_REQUESTS` | `2000` | Teto de requisições por rede, separado entre cadastro e recuperação |
+
+Ver [limites em rede compartilhada](shared-network-rate-limits.md) para escopos, testes e limitações no eduroam.
 
 Valores ausentes ou inválidos usam os padrões seguros. Antes da implantação, confirme `TRUST_PROXY_HOPS` contra a topologia real do proxy para impedir que cabeçalhos de IP sejam interpretados incorretamente.
 

@@ -8,7 +8,7 @@ const requestId = require("../src/middlewares/requestId").default;
 const validate = require("../src/middlewares/validate").default;
 const { signupSchema } = require("../src/schemas/userSchema");
 const { createHealthRoutes } = require("../src/routes/health");
-const { accountRateLimit } = require("../src/middlewares/rateLimits");
+const { signupRateLimit } = require("../src/middlewares/rateLimits");
 const { activityImageUpload } = require("../src/config/upload");
 
 async function listen(t, app) {
@@ -154,7 +154,7 @@ test("health checks distinguem processo ativo de banco indisponível", async (t)
 test("limite de operações de conta responde 429 com rastreabilidade", async (t) => {
   const app = express();
   app.use(requestId);
-  app.post("/account", accountRateLimit, (_request, response) => response.status(204).send());
+  app.post("/account", signupRateLimit, (_request, response) => response.status(204).send());
   const base = await listen(t, app);
 
   for (let attempt = 0; attempt < 20; attempt += 1) {

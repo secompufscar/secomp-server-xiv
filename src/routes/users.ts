@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 import usersController from "../controllers/usersController";
 import validate from "../middlewares/validate";
-import { accountRateLimit, authenticationRateLimit } from "../middlewares/rateLimits";
+import { signupRateLimit, recoveryRateLimit, loginRateLimit, refreshRateLimit, passwordResetRateLimit } from "../middlewares/rateLimits";
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -44,7 +44,7 @@ const routes = Router();
  *       400:
  *         description: Bad request
  */
-routes.post("/signup", accountRateLimit, validate(signupSchema), usersController.signup);
+routes.post("/signup", signupRateLimit[0], validate(signupSchema), signupRateLimit[1], usersController.signup);
 
 /**
  * @swagger
@@ -72,7 +72,7 @@ routes.post("/signup", accountRateLimit, validate(signupSchema), usersController
  *       401:
  *         description: Unauthorized
  */
-routes.post("/login", authenticationRateLimit, validate(loginSchema), usersController.login);
+routes.post("/login", loginRateLimit[0], validate(loginSchema), loginRateLimit[1], usersController.login);
 
 /**
  * @swagger
@@ -86,7 +86,7 @@ routes.post("/login", authenticationRateLimit, validate(loginSchema), usersContr
  *       401:
  *         description: Sessão ausente, expirada, revogada ou reutilizada.
  */
-routes.post("/refresh", authenticationRateLimit, validate(refreshSchema), usersController.refresh);
+routes.post("/refresh", refreshRateLimit[0], validate(refreshSchema), refreshRateLimit[1], usersController.refresh);
 
 /**
  * @swagger
@@ -259,7 +259,7 @@ routes.get("/confirmation/:token", usersController.confirmEmail);
  *       500:
  *         description: Internal server error
  */
-routes.patch("/updatePassword/:token", authenticationRateLimit, validate(updatePasswordSchema, resetTokenParamsSchema), usersController.updateForgottenPassword);
+routes.patch("/updatePassword/:token", passwordResetRateLimit[0], validate(updatePasswordSchema, resetTokenParamsSchema), passwordResetRateLimit[1], usersController.updateForgottenPassword);
 
 /**
  * @swagger
@@ -283,7 +283,7 @@ routes.patch("/updatePassword/:token", authenticationRateLimit, validate(updateP
  *       500:
  *         description: Internal server error
  */
-routes.post("/sendForgotPasswordEmail", accountRateLimit, validate(forgotPasswordSchema), usersController.sendForgotPasswordEmail);
+routes.post("/sendForgotPasswordEmail", recoveryRateLimit[0], validate(forgotPasswordSchema), recoveryRateLimit[1], usersController.sendForgotPasswordEmail);
 
 /**
  * @swagger
