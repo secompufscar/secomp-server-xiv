@@ -33,8 +33,10 @@ export const httpConfig = {
   uploadMaxBytes: positiveInteger(process.env.UPLOAD_MAX_MB, 8) * 1024 * 1024,
   authRateLimitWindowMs: positiveInteger(process.env.AUTH_RATE_LIMIT_WINDOW_MINUTES, 15) * 60 * 1000,
   authRateLimitMax: positiveInteger(process.env.AUTH_RATE_LIMIT_MAX_FAILURES, 20),
+  authNetworkRateLimitMax: positiveInteger(process.env.AUTH_NETWORK_RATE_LIMIT_MAX_FAILURES, 2000),
   accountRateLimitWindowMs: positiveInteger(process.env.ACCOUNT_RATE_LIMIT_WINDOW_MINUTES, 60) * 60 * 1000,
   accountRateLimitMax: positiveInteger(process.env.ACCOUNT_RATE_LIMIT_MAX_REQUESTS, 20),
+  accountNetworkRateLimitMax: positiveInteger(process.env.ACCOUNT_NETWORK_RATE_LIMIT_MAX_REQUESTS, 2000),
 };
 
 export const corsOptions: CorsOptions = {
