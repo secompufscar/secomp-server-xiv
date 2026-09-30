@@ -78,34 +78,44 @@ export default {
   },
 
   async signup({ nome, email, senha }: SignupUserDTO) {
-    const userExists = await usersRepository.findByEmail(email);
+    const duplicate = () => new ApiError("Este email já existe na base de dados!", ErrorsCode.BAD_REQUEST);
+    const resume = async (pending: User | null) => {
+      if (!pending || pending.confirmed || pending.tipo !== "USER" || !await compare(senha, pending.senha)) {
+        throw duplicate();
+      }
+      const qrCode = pending.qrCode || await generateQRCode(pending.id);
+      const saved = await usersRepository.repairPendingSignup(pending, qrCode);
+      if (!saved) throw duplicate();
+      return saved;
+    };
 
-    if (userExists) {
-      throw new ApiError("Este email já existe na base de dados!", ErrorsCode.BAD_REQUEST);
+    let user: User;
+    const existing = await usersRepository.findByEmail(email);
+    if (existing) {
+      user = await resume(existing);
+    } else {
+      const id = randomUUID();
+      const hashedPassword = await hash(senha, 10);
+      // QR generation must finish before the single database write.
+      const qrCode = await generateQRCode(id);
+      try {
+        user = await usersRepository.createSignup({ id, nome, email, senha: hashedPassword, tipo: "USER", qrCode });
+      } catch (err) {
+        if (!(err && typeof err === "object" && "code" in err && err.code === "P2002")) throw err;
+        // The unique email constraint arbitrates simultaneous requests.
+        user = await resume(await usersRepository.findByEmail(email));
+      }
     }
 
-    const hashedPassword = await hash(senha, 10);
-    const user = await usersRepository.create({
-      nome,
-      email,
-      senha: hashedPassword,
-      tipo: "USER",
-    });
-
-    const qrCode = await generateQRCode(user.id);
-    await usersRepository.updateQRCode(user.id, { qrCode });
-    user.qrCode = qrCode;
-
-    const userLogin = profileResponse(user);
     try {
       const emailEnviado = await this.sendConfirmationEmail(user);
+      if (!emailEnviado) throw new Error("Confirmation email was not accepted");
 
       return {
         message: "Usuário criado com sucesso. Email de confirmação enviado.",
         emailEnviado,
       };
     } catch (err) {
-      await usersRepository.delete(user.id);
       console.error("SIGNUP_CONFIRMATION_FAILED");
 
       throw new ApiError("Erro ao enviar email de confirmação!", ErrorsCode.INTERNAL_ERROR);

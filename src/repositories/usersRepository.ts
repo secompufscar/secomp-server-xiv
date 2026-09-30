@@ -37,6 +37,24 @@ export default {
     return toUserEntity(response);
   },
 
+  async createSignup(data: CreateUserDTOS & { id: string; qrCode: string }): Promise<User> {
+    return toUserEntity(await prisma.user.create({ data }));
+  },
+
+  async repairPendingSignup(user: User, qrCode: string): Promise<User | null> {
+    return prisma.$transaction(async tx => {
+      // Revalidate the snapshot after password verification; never overwrite
+      // credentials, profile or a concurrently confirmed account.
+      await tx.$queryRaw`SELECT id FROM users WHERE id = ${user.id} FOR UPDATE`;
+      const saved = await tx.user.findUnique({ where: { id: user.id } });
+      // JS equality also avoids case-insensitive database collation for hashes.
+      if (!saved || saved.email !== user.email || saved.senha !== user.senha
+        || saved.tipo !== "USER" || saved.confirmed || saved.qrCode !== (user.qrCode ?? null)) return null;
+      if (saved.qrCode) return toUserEntity(saved);
+      return toUserEntity(await tx.user.update({ where: { id: user.id }, data: { qrCode } }));
+    });
+  },
+
   async update(id: string, data: UpdateUserDTOS): Promise<User> {
     const response = await prisma.user.update({ where: { id }, data });
     return toUserEntity(response);
