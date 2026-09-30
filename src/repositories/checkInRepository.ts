@@ -1,5 +1,6 @@
 import { userIdentitySelect } from "../dtos/userResponses";
-import { UserAtActivity } from "@prisma/client";
+import { UserAtActivity } from "../entities/UserAtActivity";
+import { attendanceResponse } from "./attendanceRepository";
 import { prisma } from "../lib/prisma";
 
 export default {
@@ -10,7 +11,7 @@ export default {
         activityId,
       },
     });
-    return response;
+    return response ? attendanceResponse(response) : null;
   },
 
   async markAsPresent(userAtActivityId: string): Promise<UserAtActivity> {
@@ -18,7 +19,7 @@ export default {
       where: { id: userAtActivityId },
       data: { presente: true },
     });
-    return response;
+    return attendanceResponse(response);
   },
 
   async markAsPresentWithoutSubscription(userId: string, activityId: string): Promise<UserAtActivity> {
@@ -54,7 +55,7 @@ export default {
         presente: false,
       },
     });
-    return response;
+    return attendanceResponse(response);
   },
 
   async findParticipantsByActivity(activityId: string): Promise<UserAtActivity[]> {
@@ -66,6 +67,6 @@ export default {
         user: { select: userIdentitySelect },
       },
     });
-    return response;
+    return response.map(attendanceResponse);
   },
 };

@@ -19,7 +19,9 @@ test('DELETE /userEvent/:id preserva autenticação, propriedade, 404 e 200 vazi
   prismaModule.prisma = {
     $transaction: async action => {
       transactions++;
-      return action({
+      return action({ $queryRaw: async query => (query.sql ?? query.join('')).includes('FROM userEvent') ? [] : [{ id: "owner" }],
+        user: { findUnique: async () => ({ currentEdition: null }) },
+        event: { findUnique: async () => ({ year: 2041 }) },
         userEvent: {
           findFirst: async ({ where }) => where.id
             ? (exists && where.id === 'registration' && where.userId === 'owner'
@@ -27,7 +29,7 @@ test('DELETE /userEvent/:id preserva autenticação, propriedade, 404 e 200 vazi
             : null,
           delete: async args => { writes.push(args); exists = false; },
         },
-        userAtActivity: { deleteMany: async args => writes.push(args) },
+        userAtActivity: { findMany: async () => [], deleteMany: async args => writes.push(args) },
       });
     },
   };

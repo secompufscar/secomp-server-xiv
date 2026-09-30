@@ -33,9 +33,9 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: httpConfig.bodyLimit }));
 app.use(express.urlencoded({ extended: false, limit: httpConfig.bodyLimit }));
-app.use(cors(corsOptions));
 
 // API Routes
 app.use("/api/v1", routes);
@@ -68,5 +68,7 @@ const PORT = process.env.PORT || 3000;
 const MODE = process.env.NODE_ENV;
 app.listen(PORT, () => {
   console.log(`> Servidor rodando na porta ${PORT}. Modo: ${MODE}`);
-  schedulerService.scheduleAllActivityNotifications();
+  void schedulerService.scheduleAllActivityNotifications().catch(() => {
+    console.error("[Scheduler] initial-scheduling-failed");
+  });
 });

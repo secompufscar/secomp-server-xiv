@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { Prisma } from "@prisma/client";
 import { UserAtActivity } from "../entities/UserAtActivity";
 import { UpdateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos";
+import { attendanceResponse, assertActivityEligibility, lockAttendanceUser } from "./attendanceRepository";
 
 type EnrollmentCreationResult =
   | { status: "created"; enrollment: UserAtActivity }
@@ -29,14 +30,14 @@ async function lockOccupiedEnrollments(tx: Prisma.TransactionClient, activityId:
 export default {
   async list(): Promise<UserAtActivity[]> {
     const response = await prisma.userAtActivity.findMany();
-    return response;
+    return response.map(attendanceResponse);
   },
 
   async findById(id: string): Promise<UserAtActivity | null> {
     const response = await prisma.userAtActivity.findUnique({
       where: { id },
     });
-    return response;
+    return response ? attendanceResponse(response) : null;
   },
 
   async findManyByActivityId(activityId: string): Promise<UserAtActivity[]> {
@@ -44,7 +45,7 @@ export default {
       where: { activityId },
       include: { user: { select: userIdentitySelect } },
     });
-    return response;
+    return response.map(attendanceResponse);
   },
 
   async findManyByUserId(userId: string): Promise<UserAtActivity[]> {
@@ -55,21 +56,26 @@ export default {
         activity: true,
       },
     });
-    return response;
+    return response.map(attendanceResponse);
   },
 
   async findByUserIdAndActivityId(userId: string, activityId: string): Promise<UserAtActivity | null> {
     const response = await prisma.userAtActivity.findFirst({
       where: { userId, activityId },
     });
-    return response;
+    return response ? attendanceResponse(response) : null;
   },
 
-  async createWithCapacity(userId: string, activityId: string): Promise<EnrollmentCreationResult> {
+  async createWithCapacity(userId: string, activityId: string, validateEligibility = false): Promise<EnrollmentCreationResult> {
     try {
       return await prisma.$transaction(async tx => {
+        if (validateEligibility) await lockAttendanceUser(tx, userId);
         const activity = await lockActivity(tx, activityId);
         if (!activity) return { status: "activity-not-found" } as const;
+        if (validateEligibility) {
+          const edition = await tx.activity.findUniqueOrThrow({ where: { id: activityId }, select: { eventId: true } });
+          await assertActivityEligibility(tx, userId, edition.eventId);
+        }
         if (activity.vagas === null) return { status: "capacity-undefined" } as const;
 
         const existing = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
@@ -85,11 +91,12 @@ export default {
             userId,
             activityId,
             presente: false,
+            creditedPoints: 0,
             inscricaoPrevia: true,
             listaEspera: occupied.length >= activity.vagas,
           },
         });
-        return { status: "created", enrollment } as const;
+        return { status: "created", enrollment: attendanceResponse(enrollment) } as const;
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -124,7 +131,7 @@ export default {
       where: { id },
       data,
     });
-    return response;
+    return attendanceResponse(response);
   },
 
   async deleteAndPromote(id: string, activityId: string): Promise<void> {

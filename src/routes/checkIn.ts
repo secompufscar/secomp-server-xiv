@@ -74,5 +74,6 @@ router.post("/:userId/:activityId", authMiddleware, isAdmin, checkInController.c
  *         description: Operação restrita a administradores.
  */
 router.get("/participants/:activityId", authMiddleware, isAdmin, checkInController.listParticipants);
+router.get("/presentes/:activityId", authMiddleware, isAdmin, checkInController.presentSummary);
 
 export default router;

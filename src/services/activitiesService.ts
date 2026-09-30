@@ -89,5 +89,6 @@ export default {
 
   async delete(id: string): Promise<void> {
     await activitiesRepository.delete(id);
+    schedulerService.cancelNotificationsForActivity(id);
   },
 };

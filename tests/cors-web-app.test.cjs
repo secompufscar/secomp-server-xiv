@@ -20,9 +20,10 @@ test('CORS_ORIGINS parcial preserva os clientes publicados e normaliza origens a
 test('app web recebe CORS no preflight, sucesso e erro HTTP sem liberar outras origens', async t => {
   const app = express();
   app.use(cors({ ...corsOptions, origin: getCorsOrigins('https://secompufscar.com.br') }));
-  app.use(express.json());
+  app.use(express.json({ limit: '1kb' }));
   app.post('/users/login', (_req, res) => res.status(401).json({ message: 'Credenciais inválidas' }));
   app.get('/event/current', (_req, res) => res.status(200).json({ id: 'event' }));
+  app.use(require('../src/middlewares/errorHandler').default);
   const server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
@@ -48,4 +49,19 @@ test('app web recebe CORS no preflight, sucesso e erro HTTP sem liberar outras o
     const denied = await fetch(`${base}/event/current`, { headers: { Origin: origin } });
     assert.equal(denied.headers.get('access-control-allow-origin'), null);
   }
+  for (const [body, status] of [['{', 400], [JSON.stringify({ value: 'x'.repeat(2000) }), 413]]) {
+    for (const origin of [webOrigin, 'https://unrelated.vercel.app']) {
+      const response = await fetch(`${base}/users/login`, { method: 'POST', headers: { Origin: origin, 'content-type': 'application/json' }, body });
+      assert.equal(response.status, status);
+      assert.equal(response.headers.get('access-control-allow-origin'), origin === webOrigin ? webOrigin : null);
+      assert.equal((await response.json()).errorCode, status === 400 ? 'INVALID_JSON' : 'PAYLOAD_TOO_LARGE');
+    }
+  }
+});
+
+test('bootstrap instala CORS antes dos dois parsers de corpo', () => {
+  const source = require('node:fs').readFileSync('src/index.ts', 'utf8');
+  const corsIndex = source.indexOf('app.use(cors(corsOptions))');
+  assert.ok(corsIndex >= 0 && corsIndex < source.indexOf('app.use(express.json('));
+  assert.ok(corsIndex < source.indexOf('app.use(express.urlencoded('));
 });

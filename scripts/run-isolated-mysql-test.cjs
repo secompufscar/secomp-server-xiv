@@ -57,7 +57,8 @@ async function main() {
     run(['--require', 'ts-node/register', '--test', '--test-concurrency=1',
       'tests/event-write-atomicity.integration.test.cjs',
       'tests/registration-cancellation.integration.test.cjs',
-      'tests/password-recovery.integration.test.cjs']);
+      'tests/password-recovery.integration.test.cjs',
+      'tests/attendance-integrity.integration.test.cjs']);
   } finally {
     if (dropOnExit) {
       await prisma.$executeRawUnsafe(`DROP DATABASE \`${database}\``);

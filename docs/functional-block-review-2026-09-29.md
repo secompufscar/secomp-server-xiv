@@ -1,5 +1,7 @@
 # Revisão por blocos funcionais — 29/09/2026
 
+Atualização de 30/09: [correções prioritárias](event-critical-fixes.md) tratam presença/pontos/cancelamento, falhas e horários do agendador e CORS nos parsers. Os achados abaixo descrevem o estado auditado anteriormente; não significam que todos continuam reproduzíveis. Estados administrativos/edição, cotas em rede compartilhada, fila persistente e demais pontos indicados no documento de correções permanecem pendentes. Diagnósticos em `scripts/audit` registram o estado anterior e não substituem a suíte de regressão atual.
+
 ## Conclusão e próxima prioridade
 
 **Primeira correção: tornar o agendador tolerante a atividades sem data e a falhas isoladas.** Há um caminho demonstrado de encerramento do processo da API após a inicialização, alimentado por dados que o próprio cadastro aceita. É uma alteração restrita ao servidor e deve preservar o cadastro de atividades ainda sem horário.
