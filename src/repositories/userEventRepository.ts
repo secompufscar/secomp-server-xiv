@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { lockAttendanceUser } from "./attendanceRepository";
 import { Prisma } from "@prisma/client";
+import { lockEditionState, publicEventSelect, requireEdition, syncRegistrationProfile } from "./editionState";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 
 type UserEventStatus = 0 | 1 | 2;
@@ -47,7 +48,7 @@ export default {
   async findByUser(userId: string): Promise<UserEventDTOS[]> {
     const response = await prisma.userEvent.findMany({
       where: { userId },
-      include: { event: true },
+      include: { event: { select: publicEventSelect } },
       orderBy: { event: { startDate: "desc" } },
     });
     return response.map(toUserEventDTO);
@@ -63,7 +64,7 @@ export default {
 
   async findActiveByEvent(eventId: string): Promise<UserEventDTOS[]> {
     const response = await prisma.userEvent.findMany({
-      where: { eventId, status: 1, user: { registrationStatus: 1 } },
+      where: { eventId, status: 1 },
       include: { user: { select: userIdentitySelect } },
     });
     return response.map(toUserEventDTO);
@@ -78,33 +79,43 @@ export default {
   },
 
   async createWithUserStatus(data: CreateUserEventDTOS, eventYear: number): Promise<UserEventDTOS> {
+    if (![0, 1, 2].includes(data.status)) throw new ApiError("Status de inscrição inválido", ErrorsCode.BAD_REQUEST);
     return prisma.$transaction(async (transaction) => {
+      await lockEditionState(transaction);
+      await lockAttendanceUser(transaction, data.userId);
+      const event = await requireEdition(transaction, data.eventId);
+      if (event.registrationsClosed) throw new ApiError("Inscrições desta edição estão encerradas", ErrorsCode.CONFLICT);
       const registration = await transaction.userEvent.create({ data });
-      await transaction.user.update({
-        where: { id: data.userId },
-        data: { registrationStatus: 1, currentEdition: eventYear.toString() },
-      });
+      await syncRegistrationProfile(transaction, data.userId, data.eventId, registration.status);
       return toUserEventDTO(registration);
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
   },
 
   async update(id: string, data: UpdateUserEventDTOS): Promise<UserEventDTOS> {
-    const response = await prisma.userEvent.update({
-      where: { id },
-      data,
-    });
-    return toUserEventDTO(response);
+    if (data.status !== undefined && ![0, 1, 2].includes(data.status)) throw new ApiError("Status de inscrição inválido", ErrorsCode.BAD_REQUEST);
+    const hint = await prisma.userEvent.findUnique({ where: { id }, select: { userId: true } });
+    if (!hint) throw new ApiError("Inscrição não encontrada", ErrorsCode.NOT_FOUND);
+    return prisma.$transaction(async tx => {
+      await lockEditionState(tx);
+      await lockAttendanceUser(tx, hint.userId);
+      const old = await tx.userEvent.findUnique({ where: { id } });
+      if (!old) throw new ApiError("Inscrição não encontrada", ErrorsCode.NOT_FOUND);
+      const status = data.status ?? old.status;
+      const event = await requireEdition(tx, old.eventId);
+      if ((old.status === 2 || event.registrationsClosed) && status !== 2) throw new ApiError("Inscrições encerradas não podem ser reativadas", ErrorsCode.CONFLICT);
+      const response = await tx.userEvent.update({ where: { id }, data: { status } });
+      await syncRegistrationProfile(tx, old.userId, old.eventId, status);
+      return toUserEventDTO(response);
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
   },
 
   async updateStatusForUsers(userIds: string[], eventId: string, status: number): Promise<void> {
-    await prisma.userEvent.updateMany({
-      where: { userId: { in: userIds }, eventId },
-      data: { status },
-    });
+    await updateRegistrationStatuses(eventId, status, userIds);
   },
 
   async deleteWithActivitiesAndWaitlist(id: string, userId: string): Promise<void> {
     await prisma.$transaction(async (transaction) => {
+      await lockEditionState(transaction, true);
       await lockAttendanceUser(transaction, userId);
       const registration = await transaction.userEvent.findFirst({ where: { id, userId } });
       if (!registration) {
@@ -140,17 +151,17 @@ export default {
         for (const row of waiting) await transaction.userAtActivity.update({ where: { id: row.id }, data: { listaEspera: false, inscricaoPrevia: true, presente: false, creditedPoints: 0 } });
       }
 
-      const user = await transaction.user.findUnique({ where: { id: userId }, select: { currentEdition: true } });
-      const event = await transaction.event.findUnique({ where: { id: registration.eventId }, select: { year: true } });
-      if (event && user?.currentEdition === event.year.toString()) {
-        await transaction.user.update({ where: { id: userId }, data: { registrationStatus: 0, currentEdition: null } });
-      }
-      const queue = await transaction.$queryRaw<Array<{ id: string }>>`
-        SELECT id FROM userEvent WHERE eventId = ${registration.eventId} AND status = 0
-        ORDER BY createdAt, id LIMIT 1 FOR UPDATE`;
-      const nextInLine = queue[0];
-      if (nextInLine) {
-        await transaction.userEvent.update({ where: { id: nextInLine.id }, data: { status: 1 } });
+      const event = await requireEdition(transaction, registration.eventId);
+      await syncRegistrationProfile(transaction, userId, registration.eventId, null);
+      if (registration.status === 1 && !event.registrationsClosed) {
+        const queue = await transaction.$queryRaw<Array<{ id: string; userId: string }>>`
+          SELECT id, userId FROM userEvent WHERE eventId = ${registration.eventId} AND status = 0
+          ORDER BY createdAt, id LIMIT 1 FOR UPDATE`;
+        const nextInLine = queue[0];
+        if (nextInLine) {
+          await transaction.userEvent.update({ where: { id: nextInLine.id }, data: { status: 1 } });
+          await syncRegistrationProfile(transaction, nextInLine.userId, registration.eventId, 1);
+        }
       }
     }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
   },
@@ -160,10 +171,26 @@ export default {
   },
 
   async closeAllForEvent(eventId: string): Promise<void> {
-    await prisma.userEvent.updateMany({ where: { eventId }, data: { status: 2 } });
+    await updateRegistrationStatuses(eventId, 2);
   },
 
   async updateAllUsersToStatus(eventId: string, status: number): Promise<void> {
-    await prisma.userEvent.updateMany({ where: { eventId }, data: { status } });
+    await updateRegistrationStatuses(eventId, status);
   },
 };
+
+async function updateRegistrationStatuses(eventId: string, status: number, userIds?: string[]) {
+  if (![0, 1, 2].includes(status)) throw new ApiError("Status de inscrição inválido", ErrorsCode.BAD_REQUEST);
+  await prisma.$transaction(async tx => {
+    await lockEditionState(tx, true);
+    const event = await requireEdition(tx, eventId);
+    if (event.registrationsClosed && status !== 2) throw new ApiError("Inscrições desta edição estão encerradas", ErrorsCode.CONFLICT);
+    if (status !== 2 && await tx.userEvent.count({ where: { eventId, status: 2, ...(userIds ? { userId: { in: userIds } } : {}) } })) throw new ApiError("Inscrições encerradas não podem ser reativadas", ErrorsCode.CONFLICT);
+    await tx.userEvent.updateMany({ where: { eventId, ...(userIds ? { userId: { in: userIds } } : {}) }, data: { status } });
+    if (!userIds && status === 2) await tx.event.update({ where: { id: eventId }, data: { registrationsClosed: true } });
+    if (event.isCurrent) {
+      await tx.$executeRaw`UPDATE users AS u JOIN userEvent AS r ON r.userId = u.id AND r.eventId = ${eventId}
+        SET u.registrationStatus = r.status, u.currentEdition = ${event.year.toString()}`;
+    }
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted });
+}

@@ -3,8 +3,8 @@ import { userIdentitySelect } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
 import { Prisma } from "@prisma/client";
 import { UserAtActivity } from "../entities/UserAtActivity";
-import { UpdateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos";
 import { attendanceResponse, assertActivityEligibility, lockAttendanceUser } from "./attendanceRepository";
+import { lockEditionState } from "./editionState";
 
 type EnrollmentCreationResult =
   | { status: "created"; enrollment: UserAtActivity }
@@ -69,7 +69,8 @@ export default {
   async createWithCapacity(userId: string, activityId: string, validateEligibility = false): Promise<EnrollmentCreationResult> {
     try {
       return await prisma.$transaction(async tx => {
-        if (validateEligibility) await lockAttendanceUser(tx, userId);
+        await lockEditionState(tx);
+        await lockAttendanceUser(tx, userId);
         const activity = await lockActivity(tx, activityId);
         if (!activity) return { status: "activity-not-found" } as const;
         if (validateEligibility) {
@@ -126,54 +127,10 @@ export default {
     };
   },
 
-  async update(id: string, data: UpdateUserAtActivityDTOS): Promise<UpdateUserAtActivityDTOS> {
-    const response = await prisma.userAtActivity.update({
-      where: { id },
-      data,
-    });
-    return attendanceResponse(response);
-  },
-
-  async deleteAndPromote(id: string, activityId: string): Promise<void> {
-    await prisma.$transaction(async tx => {
-      const activity = await lockActivity(tx, activityId);
-      if (!activity) throw new Error("Atividade não encontrada");
-
-      await tx.userAtActivity.delete({ where: { id } });
-      if (activity.vagas === null) return;
-
-      const occupied = await lockOccupiedEnrollments(tx, activityId);
-      if (occupied.length >= activity.vagas) return;
-
-      const nextInLine = await tx.userAtActivity.findFirst({
-        where: { activityId, listaEspera: true },
-        orderBy: { createdAt: "asc" },
-      });
-      if (nextInLine) {
-        await tx.userAtActivity.update({
-          where: { id: nextInLine.id },
-          data: { listaEspera: false, inscricaoPrevia: true, presente: false },
-        });
-      }
-    });
-  },
-
-  async deleteByUserIdAndEventId(userId: string, eventId: string): Promise<void> {
-    await prisma.userAtActivity.deleteMany({
-      where: { userId, activity: { eventId } },
-    });
-  },
-
   async countByUserId(userId: string): Promise<number> {
     const count = await prisma.userAtActivity.count({
       where: { userId },
     });
     return count;
-  },
-  
-  async deleteByActivityId(activityId: string): Promise<void> {
-    await prisma.userAtActivity.deleteMany({
-      where: { activityId: activityId },
-    });
   },
 };

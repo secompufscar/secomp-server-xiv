@@ -16,6 +16,19 @@ const eventData = {
   isCurrent: true,
 };
 
+function transactionDefaults(overrides = {}) {
+  return {
+    $queryRaw: async () => [{ id: 1 }],
+    $executeRaw: async () => 0,
+    ...overrides,
+    event: {
+      findUnique: async () => ({ id: eventId, ...eventData, registrationsClosed: false }),
+      updateMany: async () => ({ count: 1 }),
+      ...overrides.event,
+    },
+  };
+}
+
 test('criação de evento reverte a gravação quando o reset dos usuários falha', async t => {
   const original = prismaModule.prisma;
   t.after(() => { prismaModule.prisma = original; });
@@ -23,10 +36,10 @@ test('criação de evento reverte a gravação quando o reset dos usuários falh
   const failure = new Error('user update failed');
   prismaModule.prisma = {
     $transaction: async action => {
-      const transaction = {
+      const transaction = transactionDefaults({
         event: { create: async ({ data }) => ({ id: eventId, ...data }) },
         user: { updateMany: async () => { throw failure; } },
-      };
+      });
       const result = await action(transaction);
       committed = true;
       return result;
@@ -41,16 +54,49 @@ test('criação de evento usa a mesma transação para evento e status', async t
   t.after(() => { prismaModule.prisma = original; });
   const calls = [];
   prismaModule.prisma = {
-    $transaction: async action => action({
+    $transaction: async action => action(transactionDefaults({
       event: { create: async args => { calls.push(['event', args]); return { id: eventId, ...args.data }; } },
       user: { updateMany: async args => { calls.push(['users', args]); } },
-    }),
+    })),
   };
   assert.equal((await events.createWithRegistrationReset(eventData)).id, eventId);
   assert.deepEqual(calls, [
     ['event', { data: eventData }],
-    ['users', { where: { registrationStatus: { not: 0 } }, data: { registrationStatus: 0 } }],
+    ['users', { data: { registrationStatus: 0, currentEdition: null } }],
   ]);
+});
+
+test('criação de evento futuro não altera a edição atual nem o perfil dos usuários', async t => {
+  const original = prismaModule.prisma;
+  t.after(() => { prismaModule.prisma = original; });
+  let locked = false;
+  prismaModule.prisma = {
+    $transaction: async action => action(transactionDefaults({
+      $queryRaw: async sql => { assert.match(sql.join(''), /editionStateLock.*FOR UPDATE/); locked = true; return [{ id: 1 }]; },
+      $executeRaw: async () => assert.fail('future event must not project profiles'),
+      event: {
+        create: async ({ data }) => { assert.equal(locked, true); return { id: eventId, ...data }; },
+        updateMany: async () => assert.fail('future event must not deactivate current'),
+      },
+      user: { updateMany: async () => assert.fail('future event must not reset users') },
+    })),
+  };
+  assert.equal((await events.createWithRegistrationReset({ ...eventData, isCurrent: false })).isCurrent, false);
+});
+
+test('omitir isCurrent preserva o padrão de criar edição atual sob a mesma transação', async t => {
+  const original = prismaModule.prisma;
+  t.after(() => { prismaModule.prisma = original; });
+  let demoted = false;
+  prismaModule.prisma = { $transaction: async action => action(transactionDefaults({
+    event: {
+      updateMany: async () => { demoted = true; },
+      create: async ({ data }) => { assert.equal(demoted, true); return { id: eventId, ...data }; },
+    },
+    user: { updateMany: async () => ({ count: 0 }) },
+  })) };
+  const { isCurrent, ...data } = eventData;
+  assert.equal((await events.createWithRegistrationReset(data)).isCurrent, true);
 });
 
 test('inscrição reverte o vínculo quando a atualização do usuário falha', async t => {
@@ -60,10 +106,10 @@ test('inscrição reverte o vínculo quando a atualização do usuário falha', 
   const failure = new Error('user update failed');
   prismaModule.prisma = {
     $transaction: async action => {
-      const result = await action({
+      const result = await action(transactionDefaults({
         userEvent: { create: async () => ({ id: 'registration', userId, eventId, status: 1 }) },
         user: { update: async () => { throw failure; } },
-      });
+      }));
       committed = true;
       return result;
     },
@@ -75,16 +121,29 @@ test('inscrição reverte o vínculo quando a atualização do usuário falha', 
   assert.equal(committed, false);
 });
 
+test('inscrição em evento futuro não sobrescreve o perfil da edição atual', async t => {
+  const original = prismaModule.prisma;
+  t.after(() => { prismaModule.prisma = original; });
+  prismaModule.prisma = {
+    $transaction: async action => action(transactionDefaults({
+      event: { findUnique: async () => ({ id: eventId, ...eventData, isCurrent: false }) },
+      userEvent: { create: async ({ data }) => ({ id: 'future-registration', ...data }) },
+      user: { update: async () => assert.fail('future registration must not change current profile') },
+    })),
+  };
+  assert.equal((await registrations.createWithUserStatus({ userId, eventId, status: 1 }, 2026)).status, 1);
+});
+
 test('falha ao excluir evento não altera status de usuários', async t => {
   const original = prismaModule.prisma;
   t.after(() => { prismaModule.prisma = original; });
   const failure = new Error('event still has activities');
   let updateCalled = false;
   prismaModule.prisma = {
-    $transaction: async action => action({
+    $transaction: async action => action(transactionDefaults({
       event: { delete: async () => { throw failure; } },
       user: { updateMany: async () => { updateCalled = true; } },
-    }),
+    })),
   };
   await assert.rejects(events.deleteWithRegistrationClosure(eventId), error => error === failure);
   assert.equal(updateCalled, false);
@@ -95,10 +154,10 @@ test('exclusão de evento encerra somente usuários da edição excluída', asyn
   t.after(() => { prismaModule.prisma = original; });
   const calls = [];
   prismaModule.prisma = {
-    $transaction: async action => action({
+    $transaction: async action => action(transactionDefaults({
       event: { delete: async args => { calls.push(['event', args]); return { id: eventId, year: 2026 }; } },
       user: { updateMany: async args => { calls.push(['users', args]); } },
-    }),
+    })),
   };
   await events.deleteWithRegistrationClosure(eventId);
   assert.deepEqual(calls, [

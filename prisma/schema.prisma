@@ -65,6 +65,7 @@ model Event {
   startDate DateTime // Data de início do evento
   endDate   DateTime // Data de término do evento
   isCurrent Boolean  @default(true) // Indica se é a edição atual
+  registrationsClosed Boolean @default(false)
   createdAt DateTime @default(now()) @db.DateTime(6)
 
   // Relações
@@ -72,6 +73,12 @@ model Event {
   activities Activity[]
 
   @@map("events")
+}
+
+model EditionStateLock {
+  id Int @id
+
+  @@map("editionStateLock")
 }
 
 model Category {

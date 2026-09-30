@@ -21,7 +21,7 @@ test('MySQL reverte escritas intermediárias de evento e inscrição', {
     year,
     startDate: new Date('2040-10-01T12:00:00Z'),
     endDate: new Date('2040-10-07T12:00:00Z'),
-    isCurrent: false,
+    isCurrent: true,
   };
 
   function failAfterFirstWrite(model, operation) {
@@ -47,18 +47,32 @@ test('MySQL reverte escritas intermediárias de evento e inscrição', {
       email: `${id}@example.invalid`,
       senha: 'not-used-in-integration-test',
       registrationStatus: 1,
-      currentEdition: index === 0 ? String(year) : '2039',
+      currentEdition: '2039',
+      points: 37 + index,
     })) });
+
+    const previous = await prisma.event.create({ data: { ...eventData, year: 2039 } });
+    const beforeFuture = await prisma.user.findMany({ where: { id: { in: [userId, otherUserId] } }, orderBy: { id: 'asc' } });
+    const future = await events.createWithRegistrationReset({ ...eventData, year: 2042, isCurrent: false });
+    await registrations.createWithUserStatus({ userId: otherUserId, eventId: future.id, status: 1 }, 2042);
+    assert.deepEqual(await prisma.user.findMany({ where: { id: { in: [userId, otherUserId] } }, orderBy: { id: 'asc' } }), beforeFuture);
+    assert.equal((await prisma.event.findUniqueOrThrow({ where: { id: previous.id } })).isCurrent, true);
+    assert.equal(await prisma.userEvent.count({ where: { userId: otherUserId, eventId: future.id } }), 1);
 
     failAfterFirstWrite('user', 'updateMany');
     await assert.rejects(events.createWithRegistrationReset(eventData), /injected failure/);
     prismaModule.prisma = prisma;
     assert.equal(await prisma.event.count({ where: { year } }), 0);
-    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).registrationStatus, 1);
+    assert.deepEqual(await prisma.user.findMany({ where: { id: { in: [userId, otherUserId] } }, orderBy: { id: 'asc' } }), beforeFuture);
+    assert.equal((await prisma.event.findUniqueOrThrow({ where: { id: previous.id } })).isCurrent, true);
 
     const event = await events.createWithRegistrationReset(eventData);
     assert.equal(await prisma.event.count({ where: { id: event.id } }), 1);
     assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).registrationStatus, 0);
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).currentEdition, null);
+    assert.equal((await prisma.event.findUniqueOrThrow({ where: { id: previous.id } })).isCurrent, false);
+    assert.equal(await prisma.event.count({ where: { isCurrent: true } }), 1);
+    const beforeSignup = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
 
     failAfterFirstWrite('user', 'update');
     await assert.rejects(
@@ -67,11 +81,12 @@ test('MySQL reverte escritas intermediárias de evento e inscrição', {
     );
     prismaModule.prisma = prisma;
     assert.equal(await prisma.userEvent.count({ where: { userId, eventId: event.id } }), 0);
-    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).registrationStatus, 0);
+    assert.deepEqual(await prisma.user.findUniqueOrThrow({ where: { id: userId } }), beforeSignup);
 
     await registrations.createWithUserStatus({ userId, eventId: event.id, status: 1 }, year);
     assert.equal(await prisma.userEvent.count({ where: { userId, eventId: event.id } }), 1);
     assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).registrationStatus, 1);
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).currentEdition, String(year));
 
     failAfterFirstWrite('user', 'updateMany');
     await assert.rejects(events.deleteWithRegistrationClosure(event.id), /injected failure/);
@@ -84,6 +99,9 @@ test('MySQL reverte escritas intermediárias de evento e inscrição', {
     assert.equal(await prisma.event.count({ where: { id: event.id } }), 0);
     assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).registrationStatus, 2);
     assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: otherUserId } })).registrationStatus, 0);
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: userId } })).points, 37);
+    assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: otherUserId } })).points, 38);
+    assert.equal(await prisma.userEvent.count({ where: { userId: otherUserId, eventId: future.id } }), 1);
   } finally {
     prismaModule.prisma = prisma;
     await prisma.$disconnect();

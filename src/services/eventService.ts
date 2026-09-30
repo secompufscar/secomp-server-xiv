@@ -56,7 +56,6 @@ export default {
       throw new ApiError("event was not found by this id", ErrorsCode.NOT_FOUND);
     }
 
-    await userEventRepository.updateAllUsersToStatus(id, 2);
     const deactivatedEvent = await eventRepository.deactivate(id);
 
     return deactivatedEvent;

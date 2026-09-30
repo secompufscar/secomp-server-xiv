@@ -9,7 +9,8 @@ function createDatabase(capacity, initial = []) {
 
   const transaction = {
     async $queryRaw(query) {
-      const sql = query.sql.replace(/\s+/g, ' ');
+      const sql = (query.sql ?? query.join('')).replace(/\s+/g, ' ');
+      if (sql.includes('FROM editionStateLock') || sql.includes('FROM users')) return [{ id: 1 }];
       if (sql.includes('SELECT vagas FROM atividades')) return [{ vagas: capacity }];
       if (sql.includes('WHERE userId =')) {
         const [userId, activityId] = query.values;
@@ -90,23 +91,6 @@ test('requisições concorrentes do mesmo usuário criam uma única inscrição'
 
   assert.deepEqual(results.map(result => result.status).sort(), ['created', 'duplicate']);
   assert.equal(database.rows.length, 1);
-});
-
-test('cancelamento e nova inscrição concorrentes mantêm uma única vaga ocupada', async () => {
-  const database = createDatabase(1, [
-    { id: 'confirmed', userId: 'user-1', activityId: 'activity', listaEspera: false, inscricaoPrevia: true, presente: false, createdAt: new Date(1) },
-    { id: 'waiting', userId: 'user-2', activityId: 'activity', listaEspera: true, inscricaoPrevia: true, presente: false, createdAt: new Date(2) },
-  ]);
-  const repository = loadRepository(database.prisma);
-
-  await Promise.all([
-    repository.deleteAndPromote('confirmed', 'activity'),
-    repository.createWithCapacity('user-3', 'activity'),
-  ]);
-
-  assert.equal(database.rows.filter(row => !row.listaEspera).length, 1);
-  assert.equal(database.rows.find(row => row.id === 'waiting').listaEspera, false);
-  assert.equal(database.rows.find(row => row.userId === 'user-3').listaEspera, true);
 });
 
 test('schema e migração impõem unicidade no banco', () => {

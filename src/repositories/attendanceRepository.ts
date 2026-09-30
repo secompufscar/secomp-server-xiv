@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
+import { lockEditionState, requireEdition } from "./editionState";
 
 export function attendanceResponse<T extends { creditedPoints?: number | null }>(row: T) {
   const { creditedPoints: _internal, ...response } = row;
@@ -19,6 +20,7 @@ export async function assertActivityEligibility(tx: Prisma.TransactionClient, us
   // Legacy undated/unlinked activities retain the current-event fallback.
   const edition = eventId ?? (await tx.event.findFirst({ where: { isCurrent: true } }))?.id;
   if (!edition) throw new ApiError("Nenhum evento ativo no momento", ErrorsCode.CONFLICT);
+  if ((await requireEdition(tx, edition)).registrationsClosed) throw new ApiError("Inscrições desta edição estão encerradas", ErrorsCode.CONFLICT);
   const rows = await tx.$queryRaw<Array<{ status: number }>>`
     SELECT status FROM userEvent WHERE userId = ${userId} AND eventId = ${edition} FOR UPDATE`;
   if (rows[0]?.status !== 1) throw new ApiError("Usuário não esta inscrito neste evento!", ErrorsCode.BAD_REQUEST);
@@ -32,6 +34,7 @@ async function adjustPoints(tx: Prisma.TransactionClient, userId: string, delta:
 export default {
   async checkIn(userId: string, activityId: string) {
     return prisma.$transaction(async tx => {
+      await lockEditionState(tx);
       await lockAttendanceUser(tx, userId);
       const activity = await lockActivity(tx, activityId);
       await assertActivityEligibility(tx, userId, activity.eventId);
@@ -51,6 +54,7 @@ export default {
     const hint = await prisma.userAtActivity.findUnique({ where: { id }, select: { userId: true, activityId: true } });
     if (!hint) throw new ApiError("Registro não encontrado", ErrorsCode.NOT_FOUND);
     return prisma.$transaction(async tx => {
+      await lockEditionState(tx);
       await lockAttendanceUser(tx, hint.userId);
       const activity = await lockActivity(tx, hint.activityId);
       const row = await tx.userAtActivity.findUnique({ where: { id } });
@@ -79,6 +83,7 @@ export default {
   },
   async remove(userId: string, activityId: string) {
     return prisma.$transaction(async tx => {
+      await lockEditionState(tx);
       await lockAttendanceUser(tx, userId);
       const activity = await lockActivity(tx, activityId);
       const row = await tx.userAtActivity.findUnique({ where: { userId_activityId: { userId, activityId } } });

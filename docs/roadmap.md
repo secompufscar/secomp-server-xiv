@@ -6,7 +6,9 @@ Atualização de 28/09/2026: a [revisão abrangente](security-performance-review
 
 ## Critérios e estados
 
-Atualização de 30/09/2026: [correções prioritárias](event-critical-fixes.md) implementam agendamento seguro, atomicidade de presença/pontos e reversões, consulta de nomes/total de presentes e CORS em erros de parser. P1-03 continua parcial (estados administrativos/desativação e sincronização de perfis da fila); P1-05 tem correções locais implementadas, mas persistência e coordenação entre instâncias seguem pendentes. Produção não confirmada.
+Continuidade de 30/09: [consistência de edição e inscrição](edition-registration-consistency.md) implementa unicidade da atual, perfil por edição, promoção sincronizada, fechamento/desativação atômicos e barreira com inscrições/check-ins/atividades. Migração e testes isolados presentes na branch; produção não confirmada. Não há reconciliação automática de dados históricos.
+
+Atualização de 30/09/2026: [correções prioritárias](event-critical-fixes.md) implementam agendamento seguro, atomicidade de presença/pontos e reversões, consulta de nomes/total de presentes e CORS em erros de parser. A continuidade acima também corrige estados administrativos/desativação e sincronização de perfis da fila. P1-03 continua parcial por outros fluxos (cadastro/QR, patrocinadores/tags e imagens); P1-05 ainda requer persistência e coordenação entre instâncias. Produção não confirmada.
 
 Ainda em 30/09: [cotas em rede compartilhada](shared-network-rate-limits.md) separam cadastro/recuperação e login/refresh/reset, distinguem e-mails/tokens e mantêm teto amplo por rede. Testes simulam 100 contas pelo mesmo IP; topologia real do proxy, tráfego e armazenamento por instância continuam sujeitos a validação operacional. Não exige ação dos usuários.
 
@@ -37,12 +39,12 @@ Não há P3+ definido nesta etapa. Novos itens devem incluir evidência, impacto
 | --- | --- | --- | --- |
 | P1-01 | Contratos de escrita após sanitização | Corrigido nesta rodada; campos válidos devem chegar ao repositório e entradas inválidas devem falhar antes da escrita | [Escritas administrativas](admin-write-integrity.md) |
 | P1-02 | Exclusão de categorias | Corrigido nesta rodada; vazia retorna 200, ausente 404, ocupada 409, FK protege concorrência | [Escritas administrativas](admin-write-integrity.md) |
-| P1-03 | Escritas parciais por falta de transação | Parcial: exclusão de atividade, criação/exclusão de evento e criação de inscrição corrigidas. Rollback de evento e inscrição comprovado em MySQL isolado. Cancelamento de inscrição transacionado nesta rodada e validado em MySQL isolado; restam desativação, estados de inscrição, concorrência da fila e pontos | [Integridade de evento e inscrição](event-write-integrity.md), [cancelamento](registration-cancellation.md), `activitiesRepository.ts` |
-| P1-04 | Unicidade da edição atual e estado duplicado de inscrição | Pendente: garantir unicidade sob concorrência e não alterar usuários de outras edições | `eventRepository.ts`, `eventService.ts`; item 8 do índice histórico |
+| P1-03 | Escritas parciais por falta de transação | Parcial: atividade, evento, inscrição, presença/pontos, cancelamento/fila e encerramento/desativação corrigidos nas branches; cinco integrações MySQL aprovadas. Restam cadastro/QR, patrocinadores/tags e substituição de imagens | [Presença/pontos](event-critical-fixes.md), [edições](edition-registration-consistency.md), [auditoria por blocos](functional-block-review-2026-09-29.md) |
+| P1-04 | Unicidade da edição atual e estado duplicado de inscrição | Implementado na branch: constraint, coordenação de transições, sincronização do perfil e preservação de edição futura/histórica. Conferir duplicatas antes da migração; não houve deploy | [Consistência de edição](edition-registration-consistency.md) |
 | P1-05 | Agendador | Parcial: horários absolutos, disparo único por processo, data nula, cancelamento e falhas assíncronas corrigidos na branch; reinício reconstrói prazos futuros. Restam persistência, entrega e coordenação entre instâncias | [Correções prioritárias](event-critical-fixes.md), `tests/scheduler-safety.test.cjs` |
 | P1-06 | Autenticação, reset e validação | Parcial: proteções urgentes e recuperação voluntária de uso único com revogação atômica implementadas em branches de 29/09. Tokens legados preservados até a recuperação da própria conta; rollback/concorrência testados em MySQL isolado. Restam senha administrativa, troca de e-mail verificada, demais logs e consultas redundantes. Conferir configuração e aplicar migração aditiva antes do deploy; produção não confirmada | [Recuperação voluntária](password-recovery-safety.md), [proteções urgentes](urgent-auth-web-safety.md), [etapa inicial](api-hardening-p1.md) |
 | P1-07 | Imagens e Cloudinary | Parcial: limites e filtro MIME implementados. Falta validar assinatura binária e garantir substituição/remoção sem perda ou arquivo órfão | [Etapa inicial](api-hardening-p1.md); item 11 do índice histórico |
-| P1-08 | Controles HTTP e dependências | Parcial: request ID, headers, health checks e rate limit implementados. Validar proxy real, cotas para usuários em rede compartilhada e armazenamento por instância; reavaliar alerta transitivo do Bull | [Controles e risco conhecido](api-hardening-p1.md) |
+| P1-08 | Controles HTTP e dependências | Parcial: cotas separadas por identidade/operação e teto amplo por rede implementados no PR #18, com 100 contas no mesmo IP testadas. Validar proxy/tráfego real e armazenamento por instância; reavaliar alerta transitivo do Bull | [Rede compartilhada](shared-network-rate-limits.md), [controles](api-hardening-p1.md) |
 
 ## P2
 
@@ -53,6 +55,10 @@ Não há P3+ definido nesta etapa. Novos itens devem incluir evidência, impacto
 | P2-03 | Robustez do pipeline | Parcial: testes, TypeScript, build multiplataforma e CI de PRs disponíveis. Integração MySQL isolada de atomicidade adicionada à CI nesta rodada; faltam testes de carga representativos |
 
 ## Auditoria e publicação
+
+- [PR #17 — presença, agendamento e composição das correções](https://github.com/secompufscar/secomp-server-xiv/pull/17); CI aprovada na verificação de 30/09.
+- [PR #18 — cotas em rede compartilhada](https://github.com/secompufscar/secomp-server-xiv/pull/18); CI aprovada na verificação de 30/09.
+- Continuidade: branch `codex/edition-registration-consistency`, documentada em [consistência](edition-registration-consistency.md). Merge, migração e deploy precisam de confirmação própria.
 
 - [PR #10 — P0](https://github.com/secompufscar/secomp-server-xiv/pull/10).
 - [PR #11 — P1](https://github.com/secompufscar/secomp-server-xiv/pull/11), criado sobre a branch do #10.

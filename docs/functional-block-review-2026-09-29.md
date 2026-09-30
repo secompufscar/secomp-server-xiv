@@ -1,8 +1,8 @@
 # Revisão por blocos funcionais — 29/09/2026
 
-Atualização de 30/09: [correções prioritárias](event-critical-fixes.md) tratam presença/pontos/cancelamento, falhas e horários do agendador e CORS nos parsers. Os achados abaixo descrevem o estado auditado anteriormente; não significam que todos continuam reproduzíveis. Estados administrativos/edição, cotas em rede compartilhada, fila persistente e demais pontos indicados no documento de correções permanecem pendentes. Diagnósticos em `scripts/audit` registram o estado anterior e não substituem a suíte de regressão atual.
+Atualização de 30/09: [correções prioritárias](event-critical-fixes.md), [cotas em rede compartilhada](shared-network-rate-limits.md) e [consistência de edição](edition-registration-consistency.md) tratam os blocos de presença/pontos/cancelamento, agendador, HTTP/eduroam e estado das inscrições/edição atual. Os achados abaixo preservam o estado auditado em 29/09; não significam que todos continuam reproduzíveis. Cadastro/QR, troca de e-mail, senha administrativa/sessões, imagens, patrocinadores/tags e persistência/coordenação do agendamento continuam pendentes. Ver o [roadmap atualizado](roadmap.md). Diagnósticos em `scripts/audit` registram o estado anterior e não substituem a suíte de regressão atual.
 
-## Conclusão e próxima prioridade
+## Conclusão histórica e prioridades na data da auditoria
 
 **Primeira correção: tornar o agendador tolerante a atividades sem data e a falhas isoladas.** Há um caminho demonstrado de encerramento do processo da API após a inicialização, alimentado por dados que o próprio cadastro aceita. É uma alteração restrita ao servidor e deve preservar o cadastro de atividades ainda sem horário.
 
