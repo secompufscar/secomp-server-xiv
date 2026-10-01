@@ -45,7 +45,7 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
     }
 
     if (!matchesAuthVersion(authVersion, user.authVersion ?? 0)) {
-      return res.status(401).json({ message: "Senha alterada; faça login novamente", statusCode: 401 });
+      return res.status(401).json({ message: "Dados de acesso alterados; faça login novamente", statusCode: 401 });
     }
 
     // Se o usuário é admin, a requisição continua.

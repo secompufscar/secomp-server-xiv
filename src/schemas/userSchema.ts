@@ -39,3 +39,12 @@ export const logoutSchema = z
 export const forgotPasswordSchema = z.object({ email }).strip();
 export const updatePasswordSchema = z.object({ senha: password }).strip();
 export const resetTokenParamsSchema = z.object({ token: z.string().min(20).max(4096) }).strip();
+
+export const profileFieldsSchema = z.object({
+  nome: z.string().trim().min(2, "Nome inválido").max(120).optional(),
+  // The existing active-email column is VARCHAR(191); do not stage an address
+  // that could never be persisted when the participant confirms it.
+  email: email.refine(value => value.length <= 191, "O e-mail deve ter no máximo 191 caracteres").optional(),
+}).strip();
+export const updateProfileSchema = profileFieldsSchema.refine(data => data.nome !== undefined || data.email !== undefined,
+  "A requisição deve conter nome ou email");

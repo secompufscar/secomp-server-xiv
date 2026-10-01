@@ -9,10 +9,14 @@ const user = {
   email: 'user@example.invalid', senha: 'existing-hash', tipo: 'USER',
   qrCode: null, createdAt: new Date(), updatedAt: null, confirmed: true,
   registrationStatus: 1, currentEdition: '2026', points: 0, pushToken: null,
+  authVersion: 0, emailVersion: 0, pendingEmail: null,
 };
 
 let updateInput;
+let revocations = 0;
 const fakePrisma = {
+  $queryRaw: async () => [{ id: user.id }],
+  refreshSession: { updateMany: async () => { revocations++; return { count: 1 }; } },
   user: {
     findUnique: async () => user,
     update: async input => {
@@ -21,6 +25,7 @@ const fakePrisma = {
     },
   },
 };
+fakePrisma.$transaction = async callback => callback(fakePrisma);
 require('../src/lib/prisma').prisma = fakePrisma;
 const adminController = require('../src/controllers/adminController').default;
 
@@ -44,6 +49,8 @@ test('edição administrativa gera hash da nova senha antes de persistir', async
   assert.notEqual(updateInput.data.senha, rawPassword);
   assert.equal(await compare(rawPassword, updateInput.data.senha), true);
   assert.equal('senha' in res.body, false);
+  assert.deepEqual(updateInput.data.authVersion, { increment: 1 });
+  assert.equal(revocations, 1);
 });
 
 test('edição sem senha preserva o hash existente', async () => {
@@ -57,4 +64,5 @@ test('edição sem senha preserva o hash existente', async () => {
   assert.equal(res.statusCode, 201);
   assert.deepEqual(updateInput.data, { nome: 'Nome atualizado' });
   assert.equal('senha' in res.body, false);
+  assert.equal(revocations, 1);
 });

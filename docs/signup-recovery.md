@@ -30,5 +30,5 @@ Os testes não enviam e-mails reais nem modificam contas de produção e não eq
 - Tentativas simultâneas válidas podem enviar mais de um e-mail para a mesma conta. As cotas existentes limitam solicitações, mas não oferecem entrega exatamente uma vez. Não se segura transação de banco durante a chamada ao provedor.
 - Se o participante não lembra a senha da conta pendente, pode usar a recuperação voluntária existente e então retomar o cadastro. Não é exigido reset das contas já existentes.
 - Não há reparação em massa de contas confirmadas antigas sem QR. Este fluxo trata cadastros novos e contas USER pendentes recuperadas voluntariamente.
-- Troca de e-mail e vínculo da confirmação ao endereço ainda são achados separados A2/A3. Esta alteração não os declara corrigidos nem modifica o contrato dos links legados.
+- Troca de e-mail e vínculo da confirmação ao endereço são tratados na [continuidade posterior](verified-email-change.md), com tokens legados aceitos apenas na versão zero. Não faziam parte desta validação de cadastro.
 - Antes do deploy, validar envio/confirmação com conta de teste e o cadastro web/iOS; confirmar migrações anteriores e configuração atual de segredos sem rotacioná-los automaticamente.

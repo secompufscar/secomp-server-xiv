@@ -4,7 +4,7 @@ import { User as PrismaUser, Prisma } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User";
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
 
-function toUserEntity(prismaUser: PrismaUser): User {
+export function toUserEntity(prismaUser: PrismaUser): User {
   return {
     ...prismaUser,
     registrationStatus: prismaUser.registrationStatus as RegistrationStatus,

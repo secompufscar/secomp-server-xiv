@@ -21,7 +21,7 @@ app.disable("x-powered-by");
 app.set("trust proxy", httpConfig.trustProxyHops);
 
 // Set up view engine (EJS)
-app.set("views", path.join(__dirname, "..", "src", "views"));
+app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 // Serve static files
@@ -54,7 +54,7 @@ app.get("/email-confirmado", (req, res) => {
     return res.render("confirmationError", { motivo: "Erro interno" });
   }
 
-  return res.render("confirmationSuccess");
+  return res.render("confirmationSuccess", { emailChanged: req.query.alteracao === "email" });
 });
 
 // Catch-all route for API root

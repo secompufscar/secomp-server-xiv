@@ -30,4 +30,4 @@ Aplicar a migração aditiva **antes** de iniciar o novo código. Ensaiar o depl
 
 A revogação por versão só é garantida quando todas as instâncias da API executam o novo código. Não manter instâncias antigas atendendo após a atualização; uma reversão do código antigo não apaga a coluna, mas deixa de verificar a revogação. Preferir correção que preserve a verificação de versão em vez de restaurar o autenticador antigo após recuperações concluídas.
 
-AUD-02 fica resolvido **para a recuperação voluntária** nesta branch. Mudança de senha administrativa e troca de e-mail verificada permanecem pendentes; esta mudança não anuncia proteção para esses fluxos. Deploy, migração de produção e incidente histórico do iOS não foram confirmados por estes testes.
+AUD-02 fica resolvido **para a recuperação voluntária** nesta etapa. Mudança de senha administrativa e troca de e-mail foram tratadas depois na [continuidade de 30/09](verified-email-change.md), com testes próprios; não faziam parte da validação histórica acima. Deploy, migração de produção e incidente histórico do iOS não foram confirmados por estes testes.
