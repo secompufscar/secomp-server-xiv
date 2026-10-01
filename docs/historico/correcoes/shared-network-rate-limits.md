@@ -1,5 +1,7 @@
 # Limites compatíveis com rede compartilhada — 30/09/2026
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 O público usa eduroam. Essa informação não confirma quantos IPs públicos a rede usa, mas exige que a API suporte muitas contas pelo mesmo IP. Antes, cadastro e recuperação compartilhavam 20 requisições/IP/hora; login, refresh e reset compartilhavam 20 falhas/IP/15min. Usuários diferentes podiam bloquear uns aos outros e cadastro podia esgotar a recuperação.
 
 Cada operação agora possui dois limitadores e armazenamento separado:
@@ -21,6 +23,8 @@ A cota por e-mail protege o destinatário de spam, mas alguém que conhece o end
 Chaves específicas são HMAC com segredo aleatório efêmero do processo: e-mails/tokens não são guardados literalmente como chaves e não são registrados. A solução continua com MemoryStore por instância; reinício limpa contadores e múltiplas instâncias não compartilham quotas. Confirmar o proxy e observar 429 na publicação; armazenamento distribuído continua pendente. Não exige Redis, migração, novo APK ou novos headers do app.
 
 ## Configuração e compatibilidade
+
+Continuidade de 30/09: [troca de e-mail](verified-email-change.md) acrescenta operação com contadores independentes por ID autenticado/rede, usando os limites existentes de conta. Nome sem e-mail ignora essa cota; 100 contas no mesmo IP testadas. O fluxo administrativo permanece protegido por ADMIN e fora dessa cota de participante. Contadores continuam locais ao processo.
 
 As variáveis existentes de janela e limite menor continuam válidas, agora com o escopo específico da tabela. Novas variáveis `AUTH_NETWORK_RATE_LIMIT_MAX_FAILURES` e `ACCOUNT_NETWORK_RATE_LIMIT_MAX_REQUESTS` definem os tetos amplos e usam 2.000 quando ausentes/invalidas. Usar somente limites positivos. Não reutilizar 20 como teto amplo do eduroam.
 

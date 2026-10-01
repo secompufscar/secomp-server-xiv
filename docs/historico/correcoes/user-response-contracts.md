@@ -1,5 +1,7 @@
 # Correção de exposição de dados — item 2
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 As respostas de usuários usam uma lista explícita de campos permitidos. Campos novos na entidade não entram automaticamente nos perfis.
 
 | Contexto | Campos de usuário retornados |

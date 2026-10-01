@@ -1,5 +1,7 @@
 # Compatibilidade com o aplicativo — P0
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 ## Escopo
 
 Esta entrega cria o contrato necessário para liberar uma versão segura do aplicativo:

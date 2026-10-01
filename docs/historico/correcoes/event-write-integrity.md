@@ -1,5 +1,7 @@
 # Integridade das escritas de evento e inscrição
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 ## Problema
 
 - A criação de um evento persistia o evento antes de redefinir os status de inscrição dos usuários. Uma falha na segunda escrita deixava o evento criado sem o estado esperado.

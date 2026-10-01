@@ -1,5 +1,7 @@
 # Vínculo entre atividades e edições — item 7
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 Cada atividade passa a possuir `eventId`, relacionando sua agenda e suas inscrições a uma edição específica da SECOMP.
 
 Na criação, o administrador pode informar `eventId`. Quando o campo é omitido, a API associa a atividade ao evento marcado como atual. A criação é recusada se não houver evento explícito válido nem evento atual. Uma atividade legada sem vínculo também recebe o evento atual na próxima edição.

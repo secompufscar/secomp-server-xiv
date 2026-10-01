@@ -1,5 +1,7 @@
 # Endurecimento da API — P1
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 ## Objetivo
 
 Reduzir abuso, vazamento de informações e consumo descontrolado de recursos sem alterar as rotas nem os formatos de sucesso usados pelo aplicativo e pelo site.
@@ -23,7 +25,7 @@ Reduzir abuso, vazamento de informações e consumo descontrolado de recursos se
 
 - Rotas públicas e autenticadas existentes foram preservadas.
 - Respostas de sucesso não mudaram.
-- O login continua aceitando o tamanho de senha legado; novos cadastros e novas senhas mantêm o mínimo de 6 caracteres usado pelo aplicativo e têm limite de 72 caracteres. Revisão identificou que esse limite ainda deve ser convertido para bytes UTF-8 para corresponder ao bcrypt com caracteres multibyte; ver P1-06 do [roadmap](roadmap.md).
+- O login continua aceitando o tamanho de senha legado; novos cadastros e novas senhas mantêm o mínimo de 6 caracteres usado pelo aplicativo e têm limite de 72 caracteres. Revisão identificou que esse limite ainda deve ser convertido para bytes UTF-8 para corresponder ao bcrypt com caracteres multibyte; ver P1-06 do [roadmap](../../roadmap.md).
 - A lista CORS padrão mantém todas as origens que estavam fixas no código.
 - O endpoint genérico da raiz foi preservado nesta etapa para evitar mudança de comportamento sem inventário dos consumidores.
 

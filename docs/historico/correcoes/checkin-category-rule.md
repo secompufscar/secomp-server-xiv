@@ -1,5 +1,7 @@
 # Regra de inscrição prévia no check-in — item 6
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 Categorias agora possuem o campo explícito `requiresEnrollment`. O check-in consulta esse campo em vez de comparar o UUID da categoria com o valor inválido `"1"`.
 
 | Categoria | Inscrição prévia | Registro de presença |

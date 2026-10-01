@@ -1,6 +1,8 @@
 # Correções prioritárias antes do evento — 30/09/2026
 
-Continuidade posterior desta rodada: [cotas para rede compartilhada](shared-network-rate-limits.md) corrigem o bloqueio entre contas/operações no eduroam; [consistência de edição](edition-registration-consistency.md) implementa sincronização de perfis da fila e estados administrativos/encerramento. Pendências indicadas abaixo descrevem o escopo original do PR #17; consultar o [roadmap](roadmap.md) para o estado consolidado atual.
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
+Continuidade posterior desta rodada: [cotas para rede compartilhada](shared-network-rate-limits.md) corrigem o bloqueio entre contas/operações no eduroam; [consistência de edição](edition-registration-consistency.md) implementa sincronização de perfis da fila e estados administrativos/encerramento. Pendências indicadas abaixo descrevem o escopo original do PR #17; consultar o [roadmap](../../roadmap.md) para o estado consolidado atual.
 
 Implementadas na branch `codex/event-critical-fixes`, que integra o trabalho dos PRs #14, #15 e #16 e a revisão por blocos. Código na branch não confirma deploy, migrações nem comportamento online.
 
@@ -42,4 +44,4 @@ Validação final local aprovada: `npm run verify` (89 testes aprovados, cinco i
 
 Aplicar as migrações pendentes antes do código, inclusive `20260930010000_attendance_credit`, seguindo o runbook e conferindo a configuração de segredos já exigida pelo PR #15. Não houve migração em produção, deploy ou rotação de chaves. Não exige novo APK, reset coletivo nem ação dos usuários.
 
-Próximas pendências antes do evento: cotas de cadastro/recuperação em IP compartilhado, estados duplicados da inscrição/edição atual e demais escritas parciais. Ver [revisão por blocos](functional-block-review-2026-09-29.md) e [roadmap](roadmap.md).
+Próximas pendências antes do evento: cotas de cadastro/recuperação em IP compartilhado, estados duplicados da inscrição/edição atual e demais escritas parciais. Ver [revisão por blocos](../auditorias/functional-block-review-2026-09-29.md) e [roadmap](../../roadmap.md).

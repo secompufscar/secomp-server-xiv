@@ -1,5 +1,7 @@
 # Consistência de vagas e inscrições — item 5
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 Cada inscrição em atividade agora é criada dentro de uma transação que bloqueia a linha da atividade com `SELECT ... FOR UPDATE`. Todas as inscrições concorrentes para a mesma atividade são serializadas antes da contagem de vagas e da criação do registro.
 
 A mesma trava protege o cancelamento e a promoção da primeira pessoa da lista de espera. Assim, uma nova inscrição não pode ocupar a vaga ao mesmo tempo em que outra transação promove alguém da fila.

@@ -1,6 +1,8 @@
 # Auditoria das branches XIV — 28/09/2026
 
-Base: `origin/main` em `d764a6a9428dd12a6e73f680804cc05259a4c2ff`, após `git pull --ff-only`. A API do GitHub confirmou que os PRs #10, #11 e #13 foram mergeados, e não havia PR aberto antes desta rodada. O inventário anterior à limpeza está em [branch-inventory-2026-09-28.json](branch-inventory-2026-09-28.json), com SHA completo para recuperação e indicador de ancestralidade.
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
+Base: `origin/main` em `d764a6a9428dd12a6e73f680804cc05259a4c2ff`, após `git pull --ff-only`. A API do GitHub confirmou que os PRs #10, #11 e #13 foram mergeados, e não havia PR aberto antes desta rodada. O inventário anterior à limpeza está em [branch-inventory-2026-09-28.json](evidencias/branch-inventory-2026-09-28.json), com SHA completo para recuperação e indicador de ancestralidade.
 
 ## Critério de encerramento
 
@@ -20,7 +22,7 @@ Em 28/09/2026, a tag de arquivo foi publicada primeiro e as 26 referências remo
 
 ## Limites operacionais
 
-Estar contido em `main` comprova integração de commits, não ausência de bugs, deploy ou execução de migrações. As pendências funcionais e de segurança permanecem no [roadmap](roadmap.md). A nova branch de cancelamento deve permanecer enquanto seu PR estiver aberto. O checkout XIII pai e seus diretórios não rastreados não fazem parte desta limpeza.
+Estar contido em `main` comprova integração de commits, não ausência de bugs, deploy ou execução de migrações. As pendências funcionais e de segurança permanecem no [roadmap](../../roadmap.md). A nova branch de cancelamento deve permanecer enquanto seu PR estiver aberto. O checkout XIII pai e seus diretórios não rastreados não fazem parte desta limpeza.
 
 Esta auditoria não certifica que cada branch histórica melhorou segurança, manutenção ou desempenho. A remoção de referências não desfaz código já integrado. A atribuição de regressões a branches individuais exige revisar os respectivos diffs e testar os fluxos afetados; não foi realizada uma revisão completa de cada branch histórica nesta etapa. Testes funcionais e rollback não substituem medições de desempenho.
 

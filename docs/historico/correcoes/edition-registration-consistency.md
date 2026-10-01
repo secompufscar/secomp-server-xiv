@@ -1,5 +1,7 @@
 # Consistência da edição e inscrições — 30/09/2026
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 Implementação na branch `codex/edition-registration-consistency`, sobre as correções dos PRs #17 e #18. Produção, migrações e comportamento online não foram alterados nesta etapa.
 
 ## Regra funcional e compatibilidade

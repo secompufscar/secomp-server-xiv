@@ -1,16 +1,22 @@
 # Acompanhamento das correções — edição XIV
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
+[Limpeza de branches de 30/09](../auditorias/branch-retirement-2026-09-30.md): removidas sete branches remotas de PRs incorporados; preservadas `main` e a branch do #22. SHAs e critérios registrados; referências locais de recuperação mantidas.
+
+Continuidade de 30/09: [troca de e-mail verificada e senha administrativa](verified-email-change.md) implementa endereço pendente, confirmação vinculada ao endereço/versões e revogação atômica da conta editada. Migração aditiva necessária antes do código novo; sem APK novo ou ação obrigatória geral. PRs #17–20 confirmados mergeados no `main` em `8b221cc`; produção continua sem confirmação.
+
 Continuidade de 30/09: [cadastro recuperável](signup-recovery.md) gera o QR antes da inserção, preserva contas em timeout de e-mail e permite retomada segura de USER pendente com a mesma senha. Sem migração nova ou ação obrigatória dos participantes; produção não confirmada.
 
-Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidado P0–P2](roadmap.md) registra prioridades, pendências, critérios de aceite e evidências. A tabela abaixo preserva a ordem histórica dos achados; seus números não representam níveis P0/P1. Implementação na branch não confirma publicação em produção.
+Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidado P0–P2](../../roadmap.md) registra prioridades, pendências, critérios de aceite e evidências. A tabela abaixo preserva a ordem histórica dos achados; seus números não representam níveis P0/P1. Implementação na branch não confirma publicação em produção.
 
-A [revisão de segurança, integridade e desempenho de 28/09/2026](security-performance-review-2026-09-28.md) registra 22 grupos de achados, reproduções controladas, métricas MySQL e regressões identificadas também nas branches recentes. Merge e CI verde não significam ausência dessas pendências.
+A [revisão de segurança, integridade e desempenho de 28/09/2026](../auditorias/security-performance-review-2026-09-28.md) registra 22 grupos de achados, reproduções controladas, métricas MySQL e regressões identificadas também nas branches recentes. Merge e CI verde não significam ausência dessas pendências.
 
 Atualização de 30/09: [correções prioritárias](event-critical-fixes.md) no PR #17; [limites para eduroam](shared-network-rate-limits.md) no PR #18; [consistência de edição/inscrição](edition-registration-consistency.md) na branch `codex/edition-registration-consistency`. Esta última rodada tem 93 testes locais, build e cinco integrações MySQL aprovados; publicação/CI precisam de verificação própria. Nenhum desses estados confirma deploy ou migração em produção. As revisões datadas preservam os achados originais; o roadmap é o resumo das pendências atuais.
 
 | Prioridade | Tema | Estado | Referência |
 | --- | --- | --- | --- |
-| 1 | Escalada de privilégio no cadastro público | Implementado nesta branch | Testes de cadastro |
+| 1 | Escalada de privilégio no cadastro público | Implementado nesta branch | [Testes de cadastro](../../../tests/signup.test.cjs), [PR #10](https://github.com/secompufscar/secomp-server-xiv/pull/10) |
 | 2 | Exposição de hashes, tokens push e dados pessoais | Implementado nesta branch | [Documento](user-response-contracts.md) |
 | 3 | Acesso indevido a inscrições e check-in | Implementado nesta branch | [Documento](enrollment-authorization.md) |
 | 4 | Senha em texto puro na edição administrativa | Implementado nesta branch | [Documento](admin-password-update.md) |
@@ -23,7 +29,7 @@ Atualização de 30/09: [correções prioritárias](event-critical-fixes.md) no 
 | 11 | Upload sem limite e substituição insegura no Cloudinary | Parcial: limites e MIME implementados; Cloudinary pendente | [Documento](api-hardening-p1.md) |
 | 12 | Exclusão de categoria com verificação incorreta de array | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
 | 13 | Endurecimento de autenticação, validação e reset de senha | Parcial; pendências detalhadas no roadmap | [Documento](api-hardening-p1.md) |
-| 14 | Build, documentação e testes | Parcial: testes e CI adicionados | Documentação deste diretório |
+| 14 | Build, documentação e testes | Parcial: testes e CI adicionados | [Testes e CI](../../operacao/testes.md) |
 | 15 | Limites HTTP, rate limit, rastreabilidade e health checks | Implementado nesta branch | [Documento](api-hardening-p1.md) |
 | 16 | Campos administrativos descartados pela sanitização | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
 

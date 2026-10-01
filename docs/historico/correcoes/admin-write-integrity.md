@@ -1,5 +1,7 @@
 # Escritas administrativas: contratos e integridade
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 ## Problemas e correções
 
 1. **Campos descartados na validação.** A etapa P1 passou a usar o resultado de `schema.parse` no corpo da requisição. O schema incompleto de atividades removia `categoriaId`, `vagas`, `detalhes`, `local` e `points` de atualizações. O schema de eventos removia `isCurrent`. Os campos foram declarados explicitamente, mantendo a remoção de campos desconhecidos. `false`, `0` e `null` têm testes próprios para impedir regressões silenciosas.
@@ -11,12 +13,12 @@
 
 ## Referências no código
 
-- [Schemas de atividades](../src/schemas/activitySchema.ts), [eventos](../src/schemas/eventSchema.ts) e [validador](../src/middlewares/validate.ts).
-- [Rotas de atividades](../src/routes/activities.ts).
-- [Serviço de categorias](../src/services/categoriesService.ts) e [consulta de existência](../src/repositories/categoriesRepository.ts).
-- [Transação de exclusão](../src/repositories/activitiesRepository.ts).
-- [FK original de categorias](../prisma/migrations/20250728195601_init/migration.sql).
-- [Testes HTTP e de repositório](../tests/admin-write-contracts.test.cjs).
+- [Schemas de atividades](../../../src/schemas/activitySchema.ts), [eventos](../../../src/schemas/eventSchema.ts) e [validador](../../../src/middlewares/validate.ts).
+- [Rotas de atividades](../../../src/routes/activities.ts).
+- [Serviço de categorias](../../../src/services/categoriesService.ts) e [consulta de existência](../../../src/repositories/categoriesRepository.ts).
+- [Transação de exclusão](../../../src/repositories/activitiesRepository.ts).
+- [FK original de categorias](../../../prisma/migrations/20250728195601_init/migration.sql).
+- [Testes HTTP e de repositório](../../../tests/admin-write-contracts.test.cjs).
 
 ## Validação e limites
 

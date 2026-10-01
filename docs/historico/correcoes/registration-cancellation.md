@@ -1,5 +1,7 @@
 # Cancelamento de inscrição: atomicidade
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 O cancelamento removia `UserEvent`, os vínculos de atividades e promovia a fila em operações independentes. Uma falha podia deixar a inscrição removida, com vínculos remanescentes ou sem promoção.
 
 `deleteWithActivitiesAndWaitlist` agora verifica o titular e executa todas essas operações na mesma transação Prisma. O filtro de atividades continua limitado ao usuário e ao `eventId` da inscrição. A fila mantém a ordenação por `createdAt` e a promoção de uma inscrição pendente, conforme o comportamento anterior.

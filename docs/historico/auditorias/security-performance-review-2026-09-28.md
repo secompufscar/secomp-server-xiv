@@ -1,15 +1,17 @@
 # Revisão de segurança, integridade e desempenho — XIV
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 Data: 28/09/2026. Código examinado: `109a4bbbba7396357aeb154128e839560a3161b8`, sobre `main` em `d764a6a`, incluindo o cancelamento transacional do PR #14. Esta revisão encontrou falhas reais e regressões recentes; não há base para afirmar que todas as branches melhoraram o sistema em todos os aspectos.
 
 ## Escopo e método
 
-Revisão dos fluxos de rotas, autenticação/autorização, controllers, serviços, repositórios, schemas de entrada, Prisma/migrações, upload, notificações/agendador, respostas, dependências, scripts de teste, build e CI. Foram examinados os módulos atuais que reúnem o trabalho das 25 branches integradas e o diff exclusivo do experimento BLOB. O [inventário](branch-inventory-2026-09-28.json) preserva seus SHAs.
+Revisão dos fluxos de rotas, autenticação/autorização, controllers, serviços, repositórios, schemas de entrada, Prisma/migrações, upload, notificações/agendador, respostas, dependências, scripts de teste, build e CI. Foram examinados os módulos atuais que reúnem o trabalho das 25 branches integradas e o diff exclusivo do experimento BLOB. O [inventário](evidencias/branch-inventory-2026-09-28.json) preserva seus SHAs.
 
 - Inspeção estática, busca de chamadores, `git blame`, `git log -S` e comparação com versões anteriores para distinguir regressão de dívida herdada.
 - `npm run verify`: 61 testes passaram; três integrações são omitidas na suíte comum. Build passou. Os dois checks do PR #14 no commit `109a4bb` passaram, inclusive MySQL rollback.
-- [12 reproduções controladas](../scripts/audit/security-reproductions.cjs), todas confirmando o comportamento defeituoso descrito. Esses testes usam mocks das fronteiras externas; **passar significa reproduzir um defeito**, não aprovar a implementação. Não fazem parte da suíte normal de regressão.
-- [Auditoria MySQL reproduzível](../scripts/audit/mysql-review.cjs): dados sintéticos, MySQL 8.4.11 separado em loopback, schema aleatório, oito migrações e remoção do schema ao final. Confirmou violações de integridade no banco real e mediu seis consultas, com dois tamanhos de base. [Resultados brutos](audit-mysql-results-2026-09-28.json).
+- [12 reproduções controladas](../../../scripts/audit/security-reproductions.cjs), todas confirmando o comportamento defeituoso descrito. Esses testes usam mocks das fronteiras externas; **passar significa reproduzir um defeito**, não aprovar a implementação. Não fazem parte da suíte normal de regressão.
+- [Auditoria MySQL reproduzível](../../../scripts/audit/mysql-review.cjs): dados sintéticos, MySQL 8.4.11 separado em loopback, schema aleatório, oito migrações e remoção do schema ao final. Confirmou violações de integridade no banco real e mediu seis consultas, com dois tamanhos de base. [Resultados brutos](evidencias/audit-mysql-results-2026-09-28.json).
 - `npm audit --omit=dev`: dois alertas moderados na cadeia Bull → uuid; zero altos/críticos nesse levantamento de dependências. Isso não mede vulnerabilidades no código da aplicação.
 - TypeScript com `--noUnusedLocals --noUnusedParameters`: 14 diagnósticos adicionais. Parte são parâmetros obrigatórios de handlers; não são 14 vulnerabilidades.
 - Busca de arquivos de ambiente/chaves no histórico alcançável encontrou somente `.env.example`. Não equivale a uma varredura certificada de todos os tipos de segredo.
@@ -152,7 +154,7 @@ A projeção reduziu o volume serializado em aproximadamente 70,6 vezes e a medi
 
 ## O que as branches fizeram
 
-O [registro de origem](audit-code-origins-2026-09-28.json) traz linhas, último commit que as tocou e histórico por conteúdo. `blame` não prova autoria inicial: commits de formatação e refatoração aparecem como último toque. A tabela abaixo associa os grupos históricos aos fluxos atuais examinados; não atribui cada problema exclusivamente ao último nome de branch que o contém.
+O [registro de origem](evidencias/audit-code-origins-2026-09-28.json) traz linhas, último commit que as tocou e histórico por conteúdo. `blame` não prova autoria inicial: commits de formatação e refatoração aparecem como último toque. A tabela abaixo associa os grupos históricos aos fluxos atuais examinados; não atribui cada problema exclusivamente ao último nome de branch que o contém.
 
 | Branches/grupo do inventário | Resultado da revisão |
 | --- | --- |

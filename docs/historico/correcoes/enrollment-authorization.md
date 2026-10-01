@@ -1,5 +1,7 @@
 # Autorização de inscrições e check-in — item 3
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 As rotas autenticadas aplicam as seguintes regras:
 
 | Operação | Participante | Administrador |

@@ -1,5 +1,7 @@
 # Proteções urgentes de autenticação e compatibilidade web
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 Continuidade da auditoria de 28/09/2026, sobre `main` em `d764a6a`. Esta rodada trata AUD-01, AUD-04 (cadastro/reset públicos), AUD-10 (handler central e envio de e-mail) e AUD-11. Não exige mudança no APK nem migração de banco. O PR #14 mantém separadamente o cancelamento transacional e a configuração aditiva de CORS.
 
 ## Comportamento

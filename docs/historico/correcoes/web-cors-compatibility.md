@@ -1,5 +1,7 @@
 # Compatibilidade CORS do app web XIV
 
+Registro de implementação/auditoria preservado para rastreabilidade. O estado vigente está no [roadmap](../../roadmap.md).
+
 O endereço informado para o iOS é `https://secomp-app-xiv.vercel.app/App/Home`. Sua origem CORS é **`https://secomp-app-xiv.vercel.app`**. O caminho não faz parte da origem.
 
 ## Correção
@@ -16,6 +18,6 @@ Agora a variável acrescenta origens, com remoção de duplicatas, espaços e ba
 - Na Railway, `OPTIONS /api/v1/users/login` retornou 204, `Access-Control-Allow-Origin: https://secomp-app-xiv.vercel.app`, credenciais habilitadas e os headers solicitados permitidos. A leitura de `/api/v1/app/version?platform=web` retornou 200 com CORS, mas corpo genérico da API; isso não comprova que a rota de política de versão esteja publicada.
 - O domínio alternativo `api.secompufscar.com.br` retornou 526 e não chegou a expor headers CORS. A [Cloudflare documenta 526 como falha de validação do certificado de origem](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-526/). Esse domínio não era o utilizado pelo bundle examinado.
 - O acesso HTTP direto a `/App/Home` retornou 404, enquanto `/` retornou a aplicação. Isso pode afetar recarga/deep link e deve ser tratado na configuração de rotas da hospedagem se reproduzido no navegador; não é corrigido por CORS.
-- O bundle examinado não contém os headers `x-app-platform`/`x-app-version`. Não ativar bloqueio por versão sem validar clientes web e links públicos, conforme AUD-11 da [auditoria](security-performance-review-2026-09-28.md).
+- O bundle examinado não contém os headers `x-app-platform`/`x-app-version`. Não ativar bloqueio por versão sem validar clientes web e links públicos, conforme AUD-11 da [auditoria](../auditorias/security-performance-review-2026-09-28.md).
 
 Essas observações são posteriores ao rollback relatado. **Não confirmam a causa da quebra anterior**. A correção evita a exclusão das origens publicadas por uma variável parcial, mas seu merge/CI não comprova deploy na Railway nem correção das rotas da Vercel. Não foi alterada a configuração online, nem é necessário novo APK para esta correção.
