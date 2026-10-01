@@ -15,6 +15,7 @@ const prisma = {
 require('../src/lib/prisma').prisma = prisma;
 const service = require('../src/services/usersService').default;
 const repository = require('../src/repositories/usersRepository').default;
+const emailChanges = require('../src/repositories/emailChangeRepository').default;
 const controller = require('../src/controllers/usersController').default;
 const admin = require('../src/controllers/adminController').default;
 const { authMiddleware } = require('../src/middlewares/authMiddleware');
@@ -61,6 +62,7 @@ test('login, perfil próprio, edição e token push não retornam segredos', asy
 
 for (const operation of ['create', 'update', 'delete']) {
   test(`admin ${operation} não retorna senha, QR ou push token`, async (t) => {
+    if (operation === 'update') t.mock.method(emailChanges, 'saveProfileChanges', async () => user);
     t.mock.method(prisma.user, 'findFirst', async () => operation === 'create' ? null : user);
     t.mock.method(prisma.user, 'findUnique', async () => user);
     t.mock.method(prisma.user, operation, async () => user);

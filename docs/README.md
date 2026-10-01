@@ -1,5 +1,7 @@
 # Acompanhamento das correções — edição XIV
 
+Continuidade de 30/09: [troca de e-mail verificada e senha administrativa](verified-email-change.md) implementa endereço pendente, confirmação vinculada ao endereço/versões e revogação atômica da conta editada. Migração aditiva necessária antes do código novo; sem APK novo ou ação obrigatória geral. PRs #17–20 confirmados mergeados no `main` em `8b221cc`; produção continua sem confirmação.
+
 Continuidade de 30/09: [cadastro recuperável](signup-recovery.md) gera o QR antes da inserção, preserva contas em timeout de e-mail e permite retomada segura de USER pendente com a mesma senha. Sem migração nova ou ação obrigatória dos participantes; produção não confirmada.
 
 Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidado P0–P2](roadmap.md) registra prioridades, pendências, critérios de aceite e evidências. A tabela abaixo preserva a ordem histórica dos achados; seus números não representam níveis P0/P1. Implementação na branch não confirma publicação em produção.

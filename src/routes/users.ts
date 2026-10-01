@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 import usersController from "../controllers/usersController";
 import validate from "../middlewares/validate";
-import { signupRateLimit, recoveryRateLimit, loginRateLimit, refreshRateLimit, passwordResetRateLimit } from "../middlewares/rateLimits";
+import { signupRateLimit, recoveryRateLimit, loginRateLimit, refreshRateLimit, passwordResetRateLimit, emailChangeRateLimit } from "../middlewares/rateLimits";
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -11,6 +11,7 @@ import {
   resetTokenParamsSchema,
   signupSchema,
   updatePasswordSchema,
+  updateProfileSchema,
 } from "../schemas/userSchema";
 
 const routes = Router();
@@ -398,7 +399,7 @@ routes.get("/top50", authMiddleware, usersController.getTop50Ranking);
  * /updateProfile:
  *   patch:
  *     summary: Update user profile
- *     description: Update the authenticated user's name and/or email.
+ *     description: Update the name and/or request an email change. The active email stays unchanged until confirmation at the new address.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -424,7 +425,7 @@ routes.get("/top50", authMiddleware, usersController.getTop50Ranking);
  *       '401':
  *         description: Unauthorized (invalid or missing token)
  */
-routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
+routes.patch("/updateProfile", authMiddleware, emailChangeRateLimit[0], validate(updateProfileSchema), emailChangeRateLimit[1], usersController.updateProfile);
 
 /**
  * @swagger

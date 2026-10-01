@@ -1,0 +1,3 @@
+ALTER TABLE `users`
+  ADD COLUMN `emailVersion` INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN `pendingEmail` VARCHAR(254) NULL;

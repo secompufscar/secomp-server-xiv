@@ -50,7 +50,7 @@ export default {
       const data = await usersService.confirmUser(request.params.token);
 
       if (data) {
-        return response.redirect("/email-confirmado");
+        return response.redirect(data.emailChanged ? "/email-confirmado?alteracao=email" : "/email-confirmado");
       } else {
         return response.redirect("/email-confirmado?erro=usuario-nao-reconhecido");
       }

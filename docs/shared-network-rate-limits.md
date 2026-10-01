@@ -22,6 +22,8 @@ Chaves específicas são HMAC com segredo aleatório efêmero do processo: e-mai
 
 ## Configuração e compatibilidade
 
+Continuidade de 30/09: [troca de e-mail](verified-email-change.md) acrescenta operação com contadores independentes por ID autenticado/rede, usando os limites existentes de conta. Nome sem e-mail ignora essa cota; 100 contas no mesmo IP testadas. O fluxo administrativo permanece protegido por ADMIN e fora dessa cota de participante. Contadores continuam locais ao processo.
+
 As variáveis existentes de janela e limite menor continuam válidas, agora com o escopo específico da tabela. Novas variáveis `AUTH_NETWORK_RATE_LIMIT_MAX_FAILURES` e `ACCOUNT_NETWORK_RATE_LIMIT_MAX_REQUESTS` definem os tetos amplos e usam 2.000 quando ausentes/invalidas. Usar somente limites positivos. Não reutilizar 20 como teto amplo do eduroam.
 
 Rotas, corpos e respostas de sucesso permanecem iguais. Bloqueio mantém 429, `RATE_LIMIT_EXCEEDED`, request ID e Retry-After. CORS permite ler a resposta para o app web publicado. Solicitar recuperação continua voluntário; não há reset coletivo.

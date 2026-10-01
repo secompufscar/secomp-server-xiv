@@ -1,5 +1,7 @@
 # Roadmap técnico da API XIV
 
+Continuidade de 30/09: [troca de e-mail verificada e senha administrativa](verified-email-change.md) trata A2/A3 na branch `codex/verified-email-change`: endereço ativo preservado até confirmação, links vinculados ao endereço/versões e revogação transacional da conta editada. PRs #17–20 confirmados mergeados no `main` `8b221cc`; ainda sem confirmação de produção.
+
 Continuidade de 30/09: [cadastro recuperável](signup-recovery.md) trata o achado A1: QR antes da gravação, conta preservada no timeout de confirmação e retomada com a senha da conta USER pendente. Sem migração nova; envio real e produção continuam sujeitos a validação própria.
 
 Este documento consolida prioridades e evidências do trabalho no `secomp-server-xiv`. A numeração da tabela histórica em `docs/README.md` era uma ordem de itens, não uma classificação P0/P1. A classificação abaixo permite acompanhar o trabalho sem confundir código implementado com publicação em produção.
@@ -44,7 +46,7 @@ Não há P3+ definido nesta etapa. Novos itens devem incluir evidência, impacto
 | P1-03 | Escritas parciais por falta de transação | Parcial: atividade, evento, inscrição, presença/pontos, cancelamento/fila e encerramento/desativação corrigidos nas branches; cadastro/QR recuperável implementado nesta continuidade. Restam patrocinadores/tags e substituição de imagens; e-mail ainda sem fila persistente | [Cadastro](signup-recovery.md), [presença/pontos](event-critical-fixes.md), [edições](edition-registration-consistency.md), [auditoria por blocos](functional-block-review-2026-09-29.md) |
 | P1-04 | Unicidade da edição atual e estado duplicado de inscrição | Implementado na branch: constraint, coordenação de transições, sincronização do perfil e preservação de edição futura/histórica. Conferir duplicatas antes da migração; não houve deploy | [Consistência de edição](edition-registration-consistency.md) |
 | P1-05 | Agendador | Parcial: horários absolutos, disparo único por processo, data nula, cancelamento e falhas assíncronas corrigidos na branch; reinício reconstrói prazos futuros. Restam persistência, entrega e coordenação entre instâncias | [Correções prioritárias](event-critical-fixes.md), `tests/scheduler-safety.test.cjs` |
-| P1-06 | Autenticação, reset e validação | Parcial: proteções urgentes e recuperação voluntária de uso único com revogação atômica implementadas em branches de 29/09. Tokens legados preservados até a recuperação da própria conta; rollback/concorrência testados em MySQL isolado. Restam senha administrativa, troca de e-mail verificada, demais logs e consultas redundantes. Conferir configuração e aplicar migração aditiva antes do deploy; produção não confirmada | [Recuperação voluntária](password-recovery-safety.md), [proteções urgentes](urgent-auth-web-safety.md), [etapa inicial](api-hardening-p1.md) |
+| P1-06 | Autenticação, reset e validação | Parcial: recuperação voluntária, troca de e-mail verificada e senha administrativa com versões/revogação atômicas implementadas. A2/A3 tratados na continuidade; demais logs e consultas redundantes ainda pendentes. Sem reset coletivo; links legados preservados conforme versão e expiração. Conferir configuração e aplicar migrações aditivas antes do deploy; produção não confirmada | [Troca de e-mail/senha administrativa](verified-email-change.md), [recuperação voluntária](password-recovery-safety.md), [proteções urgentes](urgent-auth-web-safety.md) |
 | P1-07 | Imagens e Cloudinary | Parcial: limites e filtro MIME implementados. Falta validar assinatura binária e garantir substituição/remoção sem perda ou arquivo órfão | [Etapa inicial](api-hardening-p1.md); item 11 do índice histórico |
 | P1-08 | Controles HTTP e dependências | Parcial: cotas separadas por identidade/operação e teto amplo por rede implementados no PR #18, com 100 contas no mesmo IP testadas. Validar proxy/tráfego real e armazenamento por instância; reavaliar alerta transitivo do Bull | [Rede compartilhada](shared-network-rate-limits.md), [controles](api-hardening-p1.md) |
 
@@ -60,7 +62,7 @@ Não há P3+ definido nesta etapa. Novos itens devem incluir evidência, impacto
 
 - [PR #17 — presença, agendamento e composição das correções](https://github.com/secompufscar/secomp-server-xiv/pull/17); CI aprovada na verificação de 30/09.
 - [PR #18 — cotas em rede compartilhada](https://github.com/secompufscar/secomp-server-xiv/pull/18); CI aprovada na verificação de 30/09.
-- Continuidade: branch `codex/edition-registration-consistency`, documentada em [consistência](edition-registration-consistency.md). Merge, migração e deploy precisam de confirmação própria.
+- [PR #19 — consistência de edição](https://github.com/secompufscar/secomp-server-xiv/pull/19) e [PR #20 — cadastro recuperável](https://github.com/secompufscar/secomp-server-xiv/pull/20): merge confirmado em `main` `8b221cc` em 30/09. #17/#18 também mergeados; migrações e deploy precisam de confirmação própria.
 
 - [PR #10 — P0](https://github.com/secompufscar/secomp-server-xiv/pull/10).
 - [PR #11 — P1](https://github.com/secompufscar/secomp-server-xiv/pull/11), criado sobre a branch do #10.

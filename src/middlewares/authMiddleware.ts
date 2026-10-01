@@ -37,7 +37,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     }
 
     if (!matchesAuthVersion(authVersion, user.authVersion ?? 0)) {
-      throw new ApiError("Senha alterada; faça login novamente", ErrorsCode.UNAUTHORIZED);
+      throw new ApiError("Dados de acesso alterados; faça login novamente", ErrorsCode.UNAUTHORIZED);
     }
 
     const loggedUser = profileResponse(user);
