@@ -29,7 +29,7 @@ Não há P3+ definido nesta etapa. Novos itens devem incluir evidência, impacto
 
 | ID | Correção | Estado | Evidência |
 | --- | --- | --- | --- |
-| P0-01 | Cadastro público limitado a USER | Mergeado no main (PR #10); produção não confirmada | `tests/signup.test.cjs`; PR #10 |
+| P0-01 | Cadastro público limitado a USER | Mergeado no main (PR #10); produção não confirmada | [Testes de cadastro](../tests/signup.test.cjs), [PR #10](https://github.com/secompufscar/secomp-server-xiv/pull/10) |
 | P0-02 | Projeções de respostas sem hashes, tokens push e dados privados indevidos | Mergeado no main (PR #10); produção não confirmada | [Contratos](user-response-contracts.md) |
 | P0-03 | Autorização de inscrições e check-in | Mergeado no main (PR #10); produção não confirmada | [Autorização](enrollment-authorization.md) |
 | P0-04 | Hash da senha editada por administrador | Mergeado no main (PR #10); produção não confirmada | [Senha administrativa](admin-password-update.md) |
