@@ -1,71 +1,57 @@
 # Roadmap técnico da API XIV
 
-Continuidade de 30/09: [troca de e-mail verificada e senha administrativa](verified-email-change.md) trata A2/A3 na branch `codex/verified-email-change`: endereço ativo preservado até confirmação, links vinculados ao endereço/versões e revogação transacional da conta editada. PRs #17–20 confirmados mergeados no `main` `8b221cc`; ainda sem confirmação de produção.
+Última revisão: 01/10/2026. Esta é a lista consolidada de prioridades e estados. Guias de comportamento e operação estão no [índice](README.md); achados/resultados anteriores no [histórico](historico/README.md).
 
-Continuidade de 30/09: [cadastro recuperável](signup-recovery.md) trata o achado A1: QR antes da gravação, conta preservada no timeout de confirmação e retomada com a senha da conta USER pendente. Sem migração nova; envio real e produção continuam sujeitos a validação própria.
+## Estado verificado
 
-Este documento consolida prioridades e evidências do trabalho no `secomp-server-xiv`. A numeração da tabela histórica em `docs/README.md` era uma ordem de itens, não uma classificação P0/P1. A classificação abaixo permite acompanhar o trabalho sem confundir código implementado com publicação em produção.
+PRs #10, #11, #13, #14–20 e [#22](https://github.com/secompufscar/secomp-server-xiv/pull/22) incorporados ao `main` observado em `ac045eb`. Troca de e-mail verificada e revogação administrativa estão integradas; exigem a migração aditiva correspondente antes da publicação. Sete branches remotas antigas foram removidas com referências de recuperação preservadas: [registro](historico/auditorias/branch-retirement-2026-09-30.md).
 
-Atualização de 28/09/2026: a [revisão abrangente](security-performance-review-2026-09-28.md) identificou 22 grupos de achados. Há problemas herdados e regressões recentes (log de tokens e bloqueio de links web por política de versão), com reproduções e métricas. As correções abaixo não encerram esses achados automaticamente.
+Deploy, migrações de produção e rotas online permanecem **não confirmados**. Merge, CI, migração e deploy são evidências distintas. Nenhuma etapa autoriza reset coletivo, logout geral, recálculo de pontos ou exigência de APK para mudanças que ficam só na API.
 
 ## Critérios e estados
 
-Continuidade de 30/09: [consistência de edição e inscrição](edition-registration-consistency.md) implementa unicidade da atual, perfil por edição, promoção sincronizada, fechamento/desativação atômicos e barreira com inscrições/check-ins/atividades. Migração e testes isolados presentes na branch; produção não confirmada. Não há reconciliação automática de dados históricos.
-
-Atualização de 30/09/2026: [correções prioritárias](event-critical-fixes.md) implementam agendamento seguro, atomicidade de presença/pontos e reversões, consulta de nomes/total de presentes e CORS em erros de parser. A continuidade acima também corrige estados administrativos/desativação e sincronização de perfis da fila. P1-03 continua parcial por patrocinadores/tags e imagens; cadastro/QR tratado na continuidade documentada no início. P1-05 ainda requer persistência e coordenação entre instâncias. Produção não confirmada.
-
-Ainda em 30/09: [cotas em rede compartilhada](shared-network-rate-limits.md) separam cadastro/recuperação e login/refresh/reset, distinguem e-mails/tokens e mantêm teto amplo por rede. Testes simulam 100 contas pelo mesmo IP; topologia real do proxy, tráfego e armazenamento por instância continuam sujeitos a validação operacional. Não exige ação dos usuários.
-
-- **P0:** falhas de privilégio, exposição de credenciais/dados e integridade essenciais antes da publicação.
-- **P1:** confiabilidade, proteção contra abuso, regressões e operações que podem perder dados.
-- **P2:** eficiência, observabilidade e evolução operacional a validar com medições.
-- **Implementado na branch:** código e testes presentes; não confirma merge, migrações nem deploy.
-- **Parcial:** apenas parte do problema foi resolvida; o restante é indicado.
-- **Pendente:** requer implementação ou investigação adicional.
-
-Não há P3+ definido nesta etapa. Novos itens devem incluir evidência, impacto, critério de aceite e referência ao commit/PR.
+- **P0:** privilégio, exposição e integridade essenciais.
+- **P1:** segurança/confiabilidade e operações que podem perder dados.
+- **P2:** eficiência e evolução operacional a medir.
+- **Mergeado:** código integrado ao main; não comprova produção.
+- **Implementado em PR:** código e testes disponíveis para revisão, fora da base indicada.
+- **Parcial/pendente:** falta indicada na linha. Resultados de teste referem-se às rodadas/commits registrados, não a todas as versões futuras.
 
 ## P0
 
 | ID | Correção | Estado | Evidência |
 | --- | --- | --- | --- |
-| P0-01 | Cadastro público limitado a USER | Mergeado no main (PR #10); produção não confirmada | [Testes de cadastro](../tests/signup.test.cjs), [PR #10](https://github.com/secompufscar/secomp-server-xiv/pull/10) |
-| P0-02 | Projeções de respostas sem hashes, tokens push e dados privados indevidos | Mergeado no main (PR #10); produção não confirmada | [Contratos](user-response-contracts.md) |
-| P0-03 | Autorização de inscrições e check-in | Mergeado no main (PR #10); produção não confirmada | [Autorização](enrollment-authorization.md) |
-| P0-04 | Hash da senha editada por administrador | Mergeado no main (PR #10); produção não confirmada | [Senha administrativa](admin-password-update.md) |
-| P0-05 | Capacidade concorrente e unicidade da inscrição | Implementado; integração MySQL exige execução isolada | [Capacidade](activity-capacity.md) |
-| P0-06 | Regra de inscrição por categoria e vínculo atividade/edição | Mergeado no main (PR #10); produção não confirmada | [Categorias](checkin-category-rule.md), [edições](activity-event-link.md) |
-| P0-07 | Sessões renováveis, política de versão e atualização de dependências | Implementado; publicação coordenada pendente de validação operacional | [Compatibilidade](app-p0-compatibility.md), [runbook](p0-deployment-runbook.md) |
+| P0-01 | Cadastro público limitado a USER | Mergeado; produção não confirmada | [Testes de cadastro](../tests/signup.test.cjs), [PR #10](https://github.com/secompufscar/secomp-server-xiv/pull/10) |
+| P0-02 | Respostas sem hashes, tokens push e dados indevidos | Mergeado; produção não confirmada | [Contratos](contratos/respostas.md), [testes](../tests/user-data-exposure.test.cjs) |
+| P0-03 | Autorização de inscrições e check-in | Mergeado; produção não confirmada | [Autorização](historico/correcoes/enrollment-authorization.md), [testes](../tests/enrollment-authorization.test.cjs) |
+| P0-04 | Hash da senha administrativa | Hash e revogação transacional mergeados; produção não confirmada | [Senha administrativa](historico/correcoes/admin-password-update.md), [contas](funcionalidades/contas.md) |
+| P0-05 | Capacidade concorrente e unicidade de inscrição | Mergeado; conferir migrações/produção | [Inscrições](funcionalidades/inscricoes.md), [capacidade](historico/correcoes/activity-capacity.md) |
+| P0-06 | Regra por categoria e vínculo atividade/edição | Mergeado; produção não confirmada | [Categorias](historico/correcoes/checkin-category-rule.md), [vínculo de edição](historico/correcoes/activity-event-link.md) |
+| P0-07 | Sessões, versão e dependências | Código integrado; validação operacional/distribuição do app são etapas separadas | [Compatibilidade](contratos/compatibilidade.md), [publicação](operacao/publicacao.md) |
 
-## P1, na ordem recomendada de continuidade
+## P1
 
-| ID | Tema | Estado e critério de aceite | Evidência |
+| ID | Tema | Estado e pendência | Evidência |
 | --- | --- | --- | --- |
-| P1-01 | Contratos de escrita após sanitização | Corrigido nesta rodada; campos válidos devem chegar ao repositório e entradas inválidas devem falhar antes da escrita | [Escritas administrativas](admin-write-integrity.md) |
-| P1-02 | Exclusão de categorias | Corrigido nesta rodada; vazia retorna 200, ausente 404, ocupada 409, FK protege concorrência | [Escritas administrativas](admin-write-integrity.md) |
-| P1-03 | Escritas parciais por falta de transação | Parcial: atividade, evento, inscrição, presença/pontos, cancelamento/fila e encerramento/desativação corrigidos nas branches; cadastro/QR recuperável implementado nesta continuidade. Restam patrocinadores/tags e substituição de imagens; e-mail ainda sem fila persistente | [Cadastro](signup-recovery.md), [presença/pontos](event-critical-fixes.md), [edições](edition-registration-consistency.md), [auditoria por blocos](functional-block-review-2026-09-29.md) |
-| P1-04 | Unicidade da edição atual e estado duplicado de inscrição | Implementado na branch: constraint, coordenação de transições, sincronização do perfil e preservação de edição futura/histórica. Conferir duplicatas antes da migração; não houve deploy | [Consistência de edição](edition-registration-consistency.md) |
-| P1-05 | Agendador | Parcial: horários absolutos, disparo único por processo, data nula, cancelamento e falhas assíncronas corrigidos na branch; reinício reconstrói prazos futuros. Restam persistência, entrega e coordenação entre instâncias | [Correções prioritárias](event-critical-fixes.md), `tests/scheduler-safety.test.cjs` |
-| P1-06 | Autenticação, reset e validação | Parcial: recuperação voluntária, troca de e-mail verificada e senha administrativa com versões/revogação atômicas implementadas. A2/A3 tratados na continuidade; demais logs e consultas redundantes ainda pendentes. Sem reset coletivo; links legados preservados conforme versão e expiração. Conferir configuração e aplicar migrações aditivas antes do deploy; produção não confirmada | [Troca de e-mail/senha administrativa](verified-email-change.md), [recuperação voluntária](password-recovery-safety.md), [proteções urgentes](urgent-auth-web-safety.md) |
-| P1-07 | Imagens e Cloudinary | Parcial: limites e filtro MIME implementados. Falta validar assinatura binária e garantir substituição/remoção sem perda ou arquivo órfão | [Etapa inicial](api-hardening-p1.md); item 11 do índice histórico |
-| P1-08 | Controles HTTP e dependências | Parcial: cotas separadas por identidade/operação e teto amplo por rede implementados no PR #18, com 100 contas no mesmo IP testadas. Validar proxy/tráfego real e armazenamento por instância; reavaliar alerta transitivo do Bull | [Rede compartilhada](shared-network-rate-limits.md), [controles](api-hardening-p1.md) |
+| P1-01 | Contratos de escrita após sanitização | Correção mergeada; preservar campos válidos e rejeitar inválidos antes da escrita | [Escritas administrativas](historico/correcoes/admin-write-integrity.md) |
+| P1-02 | Exclusão de categorias | Correção mergeada: 200 vazia, 404 ausente, 409 ocupada, FK protege concorrência | [Escritas administrativas](historico/correcoes/admin-write-integrity.md) |
+| P1-03 | Escritas parciais | Parcial: eventos, inscrições, presença/pontos, filas e cadastro/QR corrigidos; restam patrocinadores/tags e imagens. E-mail sem fila persistente | [Inscrições](funcionalidades/inscricoes.md), [presença](funcionalidades/presenca.md), [cadastro](historico/correcoes/signup-recovery.md), [auditoria](historico/auditorias/functional-block-review-2026-09-29.md) |
+| P1-04 | Edição atual e projeção da inscrição | Correção mergeada; conferir duplicatas antes da migração, sem reconciliação histórica automática | [Inscrições](funcionalidades/inscricoes.md), [detalhes](historico/correcoes/edition-registration-consistency.md) |
+| P1-05 | Agendador | Parcial: horários absolutos, disparo único por processo, cancelamento e isolamento corrigidos. Restam persistência, entrega e coordenação entre instâncias | [Implementação](historico/correcoes/event-critical-fixes.md), [testes](../tests/scheduler-safety.test.cjs) |
+| P1-06 | Autenticação e credenciais | Parcial: recuperação voluntária, troca de e-mail e revogação administrativa mergeadas. Restam outros logs/consultas e publicação do protocolo completo | [Contas](funcionalidades/contas.md), [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) |
+| P1-07 | Imagens e Cloudinary | Parcial: limites/MIME presentes; faltam assinatura binária e substituição/remoção sem perda ou órfãos | [Auditoria D1](historico/auditorias/functional-block-review-2026-09-29.md), [etapa inicial](historico/correcoes/api-hardening-p1.md) |
+| P1-08 | Controles HTTP e dependências | Parcial: cotas separadas mergeadas, 100 contas no mesmo IP testadas. Validar proxy/tráfego, armazenamento por instância e alerta do Bull | [Compatibilidade](contratos/compatibilidade.md), [cotas](historico/correcoes/shared-network-rate-limits.md) |
 
 ## P2
 
-| ID | Tema | Estado e critério de aceite |
-| --- | --- | --- |
-| P2-01 | Consultas, paginação e índices | Medição sintética realizada: 1.000/5.000 usuários, seis consultas; resultados e limitações na revisão AUD-14. Implementação pendente; definir paginação compatível antes de alterar listas consumidas pelo app |
-| P2-02 | Observabilidade | Parcial: request ID e health checks disponíveis. Falta definir métricas, timeouts e alertas sem dados sensíveis |
-| P2-03 | Robustez do pipeline | Parcial: testes, TypeScript, build multiplataforma e CI de PRs disponíveis. Integração MySQL isolada de atomicidade adicionada à CI nesta rodada; faltam testes de carga representativos |
+| ID | Tema | Pendência | Evidência |
+| --- | --- | --- | --- |
+| P2-01 | Consultas, paginação e índices | Medições sintéticas disponíveis; otimizações e paginação compatível pendentes | [Auditoria AUD-14](historico/auditorias/security-performance-review-2026-09-28.md), [resultados MySQL](historico/auditorias/evidencias/audit-mysql-results-2026-09-28.json) |
+| P2-02 | Observabilidade | Request ID/health checks presentes; métricas, timeouts, alertas e demais logs pendentes | [Diagnóstico](operacao/diagnostico.md), [auditoria F4](historico/auditorias/functional-block-review-2026-09-29.md) |
+| P2-03 | Pipeline e carga | CI/TypeScript/build e integrações isoladas presentes; carga representativa pendente | [Testes e CI](operacao/testes.md), [workflow](../.github/workflows/ci.yml) |
 
-## Auditoria e publicação
+## Continuidade recomendada
 
-- [PR #17 — presença, agendamento e composição das correções](https://github.com/secompufscar/secomp-server-xiv/pull/17); CI aprovada na verificação de 30/09.
-- [PR #18 — cotas em rede compartilhada](https://github.com/secompufscar/secomp-server-xiv/pull/18); CI aprovada na verificação de 30/09.
-- [PR #19 — consistência de edição](https://github.com/secompufscar/secomp-server-xiv/pull/19) e [PR #20 — cadastro recuperável](https://github.com/secompufscar/secomp-server-xiv/pull/20): merge confirmado em `main` `8b221cc` em 30/09. #17/#18 também mergeados; migrações e deploy precisam de confirmação própria.
+Validar publicação/compatibilidade do que já foi integrado, incluindo login web/iOS e as migrações do #22, e tratar imagens sem perda. Depois, atomicidade/whitelist de patrocinadores e tags, persistência/coordenação de entregas e melhorias medidas de consultas/observabilidade. Consultar [publicação](operacao/publicacao.md) antes de qualquer mudança online.
 
-- [PR #10 — P0](https://github.com/secompufscar/secomp-server-xiv/pull/10).
-- [PR #11 — P1](https://github.com/secompufscar/secomp-server-xiv/pull/11), criado sobre a branch do #10.
-- Commits iniciais P1: `b7b02b3` (código/testes), `0fa23cd` (documentação), `6682398` (CI).
-- Esta revisão de continuidade está documentada em [escritas administrativas](admin-write-integrity.md); seu histórico fica no Git da mesma branch P1.
-- Consultar o GitHub para o estado atual de merge e CI. O estado de produção deve ser confirmado seguindo o runbook; presença nesta tabela não é comprovação de deploy.
+As tabelas do índice anterior eram uma ordem histórica de achados, não prioridades P0/P1. Elas foram preservadas no [acompanhamento arquivado](historico/correcoes/acompanhamento-2026-09-30.md), sem manter uma segunda fonte de estados atuais.

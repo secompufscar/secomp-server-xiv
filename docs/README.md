@@ -1,38 +1,32 @@
-# Acompanhamento das correções — edição XIV
+# Documentação da API SECOMP XIV
 
-[Limpeza de branches de 30/09](branch-retirement-2026-09-30.md): removidas sete branches remotas de PRs incorporados; preservadas `main` e a branch do #22. SHAs e critérios registrados; referências locais de recuperação mantidas.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 01/10/2026, com `main` em `ac045eb`, incluindo as mudanças de contas do [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22). Deploy e migrações desse código em produção não foram confirmados.
 
-Continuidade de 30/09: [troca de e-mail verificada e senha administrativa](verified-email-change.md) implementa endereço pendente, confirmação vinculada ao endereço/versões e revogação atômica da conta editada. Migração aditiva necessária antes do código novo; sem APK novo ou ação obrigatória geral. PRs #17–20 confirmados mergeados no `main` em `8b221cc`; produção continua sem confirmação.
+| O que você procura | Referência |
+| --- | --- |
+| Cadastro, login, recuperação e edição de contas | [Contas](funcionalidades/contas.md) |
+| Cadastro público limitado a USER | [Testes de cadastro](../tests/signup.test.cjs), [PR #10](https://github.com/secompufscar/secomp-server-xiv/pull/10) |
+| Edição atual, inscrições, capacidade, filas e cancelamento | [Inscrições](funcionalidades/inscricoes.md) |
+| Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
+| Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
+| Erros da API e logs no Railway | [Diagnóstico](operacao/diagnostico.md) |
+| CI, testes locais e MySQL isolado | [Testes](operacao/testes.md) |
+| Campos retornados e permissões | [Respostas](contratos/respostas.md) |
+| Compatibilidade com app, web/iOS, CORS e eduroam | [Compatibilidade](contratos/compatibilidade.md) |
+| Pendências e evidências por prioridade | [Roadmap](roadmap.md) |
+| Implementações anteriores, auditorias e resultados originais | [Histórico](historico/README.md) |
 
-Continuidade de 30/09: [cadastro recuperável](signup-recovery.md) gera o QR antes da inserção, preserva contas em timeout de e-mail e permite retomada segura de USER pendente com a mesma senha. Sem migração nova ou ação obrigatória dos participantes; produção não confirmada.
+## Como manter
 
-Esta branch reúne as correções P0 e P1 da edição XIV. O [roadmap consolidado P0–P2](roadmap.md) registra prioridades, pendências, critérios de aceite e evidências. A tabela abaixo preserva a ordem histórica dos achados; seus números não representam níveis P0/P1. Implementação na branch não confirma publicação em produção.
+- Atualizar o guia funcional quando o comportamento mudar. Registrar no roadmap se a mudança está implementada, mergeada ou confirmada em produção; esses estados são independentes.
+- Guias atuais incluem última revisão, evidência e limitações. Resultados de testes ficam associados à rodada/commit de validação, sem transformar uma contagem antiga em garantia para commits futuros.
+- Preservar os relatos de correção e auditoria no histórico. Seus achados descrevem a data examinada; não são uma segunda lista de pendências atuais.
+- Corrigir links ao mover arquivos. Os caminhos Markdown antigos mantêm encaminhamentos e títulos para preservar links e âncoras de PRs. Snapshots JSON antigos mantêm cópias idênticas por compatibilidade; a localização organizada está no histórico.
 
-A [revisão de segurança, integridade e desempenho de 28/09/2026](security-performance-review-2026-09-28.md) registra 22 grupos de achados, reproduções controladas, métricas MySQL e regressões identificadas também nas branches recentes. Merge e CI verde não significam ausência dessas pendências.
+## Acompanhamento das correções — edição XIV
 
-Atualização de 30/09: [correções prioritárias](event-critical-fixes.md) no PR #17; [limites para eduroam](shared-network-rate-limits.md) no PR #18; [consistência de edição/inscrição](edition-registration-consistency.md) na branch `codex/edition-registration-consistency`. Esta última rodada tem 93 testes locais, build e cinco integrações MySQL aprovados; publicação/CI precisam de verificação própria. Nenhum desses estados confirma deploy ou migração em produção. As revisões datadas preservam os achados originais; o roadmap é o resumo das pendências atuais.
-
-| Prioridade | Tema | Estado | Referência |
-| --- | --- | --- | --- |
-| 1 | Escalada de privilégio no cadastro público | Implementado nesta branch | Testes de cadastro |
-| 2 | Exposição de hashes, tokens push e dados pessoais | Implementado nesta branch | [Documento](user-response-contracts.md) |
-| 3 | Acesso indevido a inscrições e check-in | Implementado nesta branch | [Documento](enrollment-authorization.md) |
-| 4 | Senha em texto puro na edição administrativa | Implementado nesta branch | [Documento](admin-password-update.md) |
-| 5 | Duplicidade e corrida na capacidade das atividades | Implementado nesta branch | [Documento](activity-capacity.md) |
-| 6 | ID fixo de categoria no check-in | Implementado nesta branch | [Documento](checkin-category-rule.md) |
-| 7 | Ausência de vínculo entre atividade e edição do evento | Implementado nesta branch | [Documento](activity-event-link.md) |
-| 8 | Múltiplos eventos atuais e estado duplicado de inscrição | Implementado na branch; migração/produção pendentes | [Documento](edition-registration-consistency.md) |
-| 9 | Agendador: fuso, recorrência, persistência e cancelamento | Parcial: horários, data nula, disparo único por processo e cancelamento corrigidos; persistência/coordenação pendentes | [Documento](event-critical-fixes.md) |
-| 10 | Escritas parciais por ausência de transações | Parcial: evento, inscrição, presença/pontos, filas e encerramento transacionados; restam outros fluxos da auditoria | [Presença](event-critical-fixes.md), [edições](edition-registration-consistency.md) |
-| 11 | Upload sem limite e substituição insegura no Cloudinary | Parcial: limites e MIME implementados; Cloudinary pendente | [Documento](api-hardening-p1.md) |
-| 12 | Exclusão de categoria com verificação incorreta de array | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
-| 13 | Endurecimento de autenticação, validação e reset de senha | Parcial; pendências detalhadas no roadmap | [Documento](api-hardening-p1.md) |
-| 14 | Build, documentação e testes | Parcial: testes e CI adicionados | Documentação deste diretório |
-| 15 | Limites HTTP, rate limit, rastreabilidade e health checks | Implementado nesta branch | [Documento](api-hardening-p1.md) |
-| 16 | Campos administrativos descartados pela sanitização | Corrigido nesta rodada | [Documento](admin-write-integrity.md) |
+O [índice anterior](historico/correcoes/acompanhamento-2026-09-30.md) foi preservado como registro. Esta reorganização altera somente documentação.
 
 ## Compatibilidade com o aplicativo
 
-Os bloqueadores P0 identificados na análise do aplicativo têm um plano de publicação próprio em [app-p0-compatibility.md](app-p0-compatibility.md). A exigência de versão permanece desativada por padrão para permitir a publicação coordenada entre API e lojas.
-
-O procedimento operacional para aplicar migrações, validar a API e liberar o aplicativo está em [p0-deployment-runbook.md](p0-deployment-runbook.md).
+Consulte o [guia atual de compatibilidade](contratos/compatibilidade.md) e o [procedimento de publicação](operacao/publicacao.md). Este título preserva a âncora do README anterior.
