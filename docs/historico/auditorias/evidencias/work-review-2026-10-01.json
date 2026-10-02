@@ -1,0 +1,344 @@
+{
+  "reviewDate": "2026-10-01",
+  "timezone": "America/Sao_Paulo",
+  "serverBaseline": "b1faa2b71fec7428bf05c5ec21b39cbbacb26a13",
+  "appBaseline": "821019fd03b2952dcdd8ad38dbd4dc21784a658b",
+  "serverRemoteRetired": [
+    {
+      "name": "codex/docs-navigation",
+      "sha": "b36d5360784ca7f62f6ede8914eb75c318a80650",
+      "pr": 23
+    },
+    {
+      "name": "codex/verified-email-change",
+      "sha": "9013e234257a5890a526a0a7ada986ef1fa461c6",
+      "pr": 22
+    }
+  ],
+  "appRemoteRetired": [
+    {
+      "name": "codex/fix-p0-release-blockers",
+      "sha": "0c08323a383b7a1db50454adea0e88a01102aa24",
+      "pr": 7
+    }
+  ],
+  "appBranchComparisons": [
+    {
+      "name": "activityadmin",
+      "sha": "e2d0e161a81a33110996650439f4cc544bcd104c",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 206,
+      "files": 0
+    },
+    {
+      "name": "admin-notification",
+      "sha": "69cce29318433a5b656c75805a0a40c2a3764bac",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 167,
+      "files": 0
+    },
+    {
+      "name": "codex/fix-p0-release-blockers",
+      "sha": "0c08323a383b7a1db50454adea0e88a01102aa24",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 1,
+      "files": 0
+    },
+    {
+      "name": "credentials-configuration",
+      "sha": "b27d657dc2a11d049ed180a77ccb3c6824ddf635",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 163,
+      "files": 0
+    },
+    {
+      "name": "feat/activitydetails",
+      "sha": "90a43c31a897a320e425444a45b1d35f08166a6e",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 251,
+      "files": 0
+    },
+    {
+      "name": "feat/crud-sponsors",
+      "sha": "68bed64d128a2dd3e58c6021e01852a08257d2ee",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 208,
+      "files": 0
+    },
+    {
+      "name": "feat/event-admin",
+      "sha": "89bee5d63d5ed0a9a6fe530393d0344ecfc65359",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 210,
+      "files": 0
+    },
+    {
+      "name": "feat/lightmode",
+      "sha": "67836714833b4fa6ad004e805e689b22d5b46c71",
+      "status": "diverged",
+      "ahead": 1,
+      "behind": 167,
+      "files": 11
+    },
+    {
+      "name": "feat/notification",
+      "sha": "7cef16ae7d8ae74d8ffc86d16217a1cb6ea38a0e",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 143,
+      "files": 0
+    },
+    {
+      "name": "feat/notification-system-configuration",
+      "sha": "6e5b97b6f6afda79443ee273dd0a229733ab1b22",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 199,
+      "files": 0
+    },
+    {
+      "name": "feat/qr_code",
+      "sha": "ac005eccbbe2c043a7d32ca9eb3fe296cc2a4f4f",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 336,
+      "files": 0
+    },
+    {
+      "name": "feat/registeredParticipants",
+      "sha": "374c66bc6835dfdcfcd8b71c67fe7d24e1396330",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 223,
+      "files": 0
+    },
+    {
+      "name": "feat/subscribedActivity",
+      "sha": "1675c8af92d010e12e5b9383946a5c8a89d0d13c",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 251,
+      "files": 0
+    },
+    {
+      "name": "feature/activityImage-integration",
+      "sha": "8afdb81320c3029e3877f5801f21f1d021c43af7",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 206,
+      "files": 0
+    },
+    {
+      "name": "fix-links",
+      "sha": "36b1e69bcc4b7131ace8c633b8c36dcb832990a5",
+      "status": "diverged",
+      "ahead": 1,
+      "behind": 204,
+      "files": 1
+    },
+    {
+      "name": "fix/event-admin",
+      "sha": "bb01123043cf00b3690dab07fbfc5fd8a65716d2",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 180,
+      "files": 0
+    },
+    {
+      "name": "fix/fix-activityImage-creation",
+      "sha": "e5165e64db1ec9ea3abf95e74e44ab18f5694652",
+      "status": "diverged",
+      "ahead": 2,
+      "behind": 126,
+      "files": 2
+    },
+    {
+      "name": "fix/fix-qr-code-scan-web",
+      "sha": "9c759116bdcdac10470bebbf80b9ee389772e836",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 68,
+      "files": 0
+    },
+    {
+      "name": "fix/fix-user-token-logic",
+      "sha": "b380fc774a77f631902d0715b1732d209d3e20b9",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 290,
+      "files": 0
+    },
+    {
+      "name": "Issue-Password-Recovery-Function-Link",
+      "sha": "8c12ad22cf7427292895d07b274c14213c7d5879",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 294,
+      "files": 0
+    },
+    {
+      "name": "refactor/code-update",
+      "sha": "5216ab13bbe2cff548315e1b90d813b3b756de27",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 117,
+      "files": 0
+    },
+    {
+      "name": "refactor/secomp-xiv",
+      "sha": "44a9456ca7de324562a2d3762310398b7b7653da",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 12,
+      "files": 0
+    },
+    {
+      "name": "refactor/sponsorsAdmin",
+      "sha": "8f671fbbf7cced061675c9d3e43a05b9cd55f519",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 185,
+      "files": 0
+    },
+    {
+      "name": "secomp-app-branch",
+      "sha": "f363f6667295d1a9c1b823918357f39513a9b17a",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 18,
+      "files": 0
+    },
+    {
+      "name": "style/ux-adjustments",
+      "sha": "e779fd99e1b1dbf118b41318055b8ef46021de13",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 74,
+      "files": 0
+    }
+  ],
+  "mainChecks": [
+    {
+      "name": "Tests and TypeScript",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/secompufscar/secomp-server-xiv/actions/runs/36949223905/job/110658185199"
+    },
+    {
+      "name": "MySQL integrity and rollback",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/secompufscar/secomp-server-xiv/actions/runs/36949223905/job/110658185016"
+    }
+  ],
+  "localBranchesArchived": [
+    {
+      "name": "codex/docs-navigation",
+      "sha": "b36d5360784ca7f62f6ede8914eb75c318a80650",
+      "archive": "refs/archive/branch-retirement-20261001/codex/docs-navigation",
+      "mode": "ancestral",
+      "cherry": []
+    },
+    {
+      "name": "codex/docs-organization",
+      "sha": "12b1fa0b91c251bad2c70844da79415861f0e0e3",
+      "archive": "refs/archive/branch-retirement-20261001/codex/docs-organization",
+      "mode": "rascunho de documentacao arquivado",
+      "cherry": [
+        "+ 554fe22146812663f6f8e7572add65c1d18ba77a",
+        "+ 12b1fa0b91c251bad2c70844da79415861f0e0e3"
+      ]
+    },
+    {
+      "name": "codex/edition-registration-consistency",
+      "sha": "f794c00db3d3d4c4cf06304691afea5d0d79f92c",
+      "archive": "refs/archive/branch-retirement-20261001/codex/edition-registration-consistency",
+      "mode": "patch equivalente",
+      "cherry": [
+        "- 97cfa4446c5a59cadc4da16d13e768340d8d7225",
+        "- f794c00db3d3d4c4cf06304691afea5d0d79f92c"
+      ]
+    },
+    {
+      "name": "codex/event-critical-fixes",
+      "sha": "e67f2f1e1c6b7e2bccfde74d91be21a55966aa91",
+      "archive": "refs/archive/branch-retirement-20261001/codex/event-critical-fixes",
+      "mode": "ancestral",
+      "cherry": []
+    },
+    {
+      "name": "codex/functional-block-review",
+      "sha": "aeda6ca9d292c0f5a7d0d48081cabc5d811c2929",
+      "archive": "refs/archive/branch-retirement-20261001/codex/functional-block-review",
+      "mode": "ancestral",
+      "cherry": []
+    },
+    {
+      "name": "codex/p1-registration-cancellation",
+      "sha": "15ee7fccd27849634ff71420b9b3fc4c2734006b",
+      "archive": "refs/archive/branch-retirement-20261001/codex/p1-registration-cancellation",
+      "mode": "ancestral",
+      "cherry": []
+    },
+    {
+      "name": "codex/p1-write-integrity",
+      "sha": "42c6f4dbaf12e6bd2c7f3c34dff41cd47cbf5e24",
+      "archive": "refs/archive/branch-retirement-20261001/codex/p1-write-integrity",
+      "mode": "ancestral",
+      "cherry": []
+    },
+    {
+      "name": "codex/shared-network-rate-limits",
+      "sha": "97cfa4446c5a59cadc4da16d13e768340d8d7225",
+      "archive": "refs/archive/branch-retirement-20261001/codex/shared-network-rate-limits",
+      "mode": "patch equivalente",
+      "cherry": [
+        "- 97cfa4446c5a59cadc4da16d13e768340d8d7225"
+      ]
+    },
+    {
+      "name": "codex/signup-recovery",
+      "sha": "cd73da917e2e30249798965c10ab247a9af69457",
+      "archive": "refs/archive/branch-retirement-20261001/codex/signup-recovery",
+      "mode": "patch equivalente",
+      "cherry": [
+        "- 97cfa4446c5a59cadc4da16d13e768340d8d7225",
+        "- f794c00db3d3d4c4cf06304691afea5d0d79f92c",
+        "- cd73da917e2e30249798965c10ab247a9af69457"
+      ]
+    },
+    {
+      "name": "codex/single-use-password-recovery",
+      "sha": "867c71da1d4bb4e5c739c32b485421df4742b3ad",
+      "archive": "refs/archive/branch-retirement-20261001/codex/single-use-password-recovery",
+      "mode": "ancestral",
+      "cherry": []
+    },
+    {
+      "name": "codex/urgent-auth-web-safety",
+      "sha": "b67c79ea575dc6d28ad783806857a6679c1d6947",
+      "archive": "refs/archive/branch-retirement-20261001/codex/urgent-auth-web-safety",
+      "mode": "ancestral",
+      "cherry": []
+    },
+    {
+      "name": "codex/verified-email-change",
+      "sha": "9013e234257a5890a526a0a7ada986ef1fa461c6",
+      "archive": "refs/archive/branch-retirement-20261001/codex/verified-email-change",
+      "mode": "ancestral",
+      "cherry": []
+    }
+  ],
+  "legacyDocsRemoved": 28,
+  "rootFiles": [
+    "README.md",
+    "roadmap.md"
+  ]
+}

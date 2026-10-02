@@ -1,6 +1,6 @@
 # Server da SECOMP UFSCar
 
-O [roadmap técnico P0–P2](docs/roadmap.md) e o [índice de correções](docs/README.md) registram o andamento das melhorias e suas evidências.
+O [índice da documentação](docs/README.md) reúne guias de funcionalidades, contratos, operação e histórico. O [roadmap técnico P0–P2](docs/roadmap.md) registra prioridades, estado de integração e evidências.
 
 Backend desenvolvido pela equipe de TI da SECOMP UFSCar especialmente para o evento. Tem como objetivo automatizar a gestão da SECOMP garantindo:
 
@@ -91,6 +91,8 @@ npm run dev
 <br>
 
 Modo produção:
+
+Siga o [procedimento de publicação](docs/operacao/publicacao.md) para conferir commit, CI, configuração, migrações versionadas e compatibilidade web/iOS antes de iniciar a versão nova.
 
 ```
 npm start

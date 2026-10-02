@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const { randomBytes, randomUUID } = require('node:crypto');
 const { spawnSync } = require('node:child_process');
-const { writeFileSync } = require('node:fs');
+const { writeFileSync, mkdirSync } = require('node:fs');
 const { performance } = require('node:perf_hooks');
 const { PrismaClient } = require('@prisma/client');
 const path = require('node:path');
@@ -138,7 +138,9 @@ async function run() {
     await admin.$executeRawUnsafe(`DROP DATABASE \`${database}\``);
     result.schemaRemoved = true;
     await admin.$disconnect();
-    writeFileSync('docs/audit-mysql-results-2026-09-28.json', JSON.stringify(result, null, 2) + '\n');
+    mkdirSync('dist/audits', { recursive: true });
+    const output = `dist/audits/mysql-review-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    writeFileSync(output, JSON.stringify(result, null, 2) + '\n');
     console.log('Temporary audit schema removed');
   }
 }

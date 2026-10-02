@@ -4,7 +4,7 @@
 
 ## Estado verificado
 
-PRs #10, #11, #13, #14–20 e [#22](https://github.com/secompufscar/secomp-server-xiv/pull/22) incorporados ao `main` observado em `ac045eb`. Troca de e-mail verificada e revogação administrativa estão integradas; exigem a migração aditiva correspondente antes da publicação. Sete branches remotas antigas foram removidas com referências de recuperação preservadas: [registro](historico/auditorias/branch-retirement-2026-09-30.md).
+PRs #10, #11, #13, #14–20, [#22](https://github.com/secompufscar/secomp-server-xiv/pull/22) e [#23](https://github.com/secompufscar/secomp-server-xiv/pull/23) incorporados ao `main` observado em `b1faa2b`. Troca de e-mail verificada e revogação administrativa estão integradas; exigem a migração aditiva correspondente antes da publicação. Encerramento de branches e revisão da organização registrados em [30/09](historico/auditorias/branch-retirement-2026-09-30.md) e [01/10](historico/auditorias/work-review-2026-10-01.md).
 
 Deploy, migrações de produção e rotas online permanecem **não confirmados**. Merge, CI, migração e deploy são evidências distintas. Nenhuma etapa autoriza reset coletivo, logout geral, recálculo de pontos ou exigência de APK para mudanças que ficam só na API.
 
