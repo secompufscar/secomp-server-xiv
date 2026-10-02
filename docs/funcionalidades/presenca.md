@@ -1,6 +1,6 @@
 # Presença e pontos
 
-Última revisão: 30/09/2026. Implementação integrada em `main` `8b221cc`; produção não confirmada. [Roadmap](../roadmap.md).
+Última revisão: 01/10/2026. Implementação integrada em `main` `ac045eb`; produção não confirmada. [Roadmap](../roadmap.md).
 
 ## Check-in e reversão
 

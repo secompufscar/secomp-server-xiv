@@ -3,6 +3,10 @@ import { prisma as prismaClient } from "../lib/prisma";
 import { adminUserResponse } from "../dtos/userResponses";
 import { hash, hashSync } from "bcrypt";
 import { auth } from "../config/auth";
+import usersService from "../services/usersService";
+import { updatePasswordSchema } from "../schemas/userSchema";
+import { toUserEntity } from "../repositories/usersRepository";
+import { ZodError } from "zod";
 import {
   BadRequestsException,
   NoJWTSecretSpecifiedError,
@@ -60,20 +64,16 @@ export default {
 
       if (!user) throw new BadRequestsException("Email não existe");
 
-      const updateData: { email?: string; nome?: string; senha?: string } = {};
-      if (updatedEmail !== undefined) updateData.email = updatedEmail;
-      if (nome !== undefined) updateData.nome = nome;
-      if (senha !== undefined) updateData.senha = await hash(senha, 10);
-
-      user = await prismaClient.user.update({
-        where: { email },
-        data: updateData,
-      });
-
-      res.status(201).json(adminUserResponse({ ...user, registrationStatus: user.registrationStatus as 0 | 1 | 2 }));
+      const hashedPassword = senha !== undefined ? await hash(updatePasswordSchema.parse({ senha }).senha, 10) : undefined;
+      const saved = await usersService.saveProfileChanges(toUserEntity(user), {
+        ...(updatedEmail !== undefined ? { email: updatedEmail } : {}),
+        ...(nome !== undefined ? { nome } : {}),
+      }, hashedPassword);
+      res.status(201).json(adminUserResponse(saved));
     } catch (error: any) {
-      console.log("Erro em update de usuário: ", error.message);
-      res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
+      console.error("ADMIN_PROFILE_UPDATE_FAILED");
+      const statusCode = error instanceof ZodError ? 400 : error.statusCode || 500;
+      res.status(statusCode).json({ message: statusCode === 500 ? "Erro interno ao atualizar usuário" : error.message, statusCode });
     }
   },
 

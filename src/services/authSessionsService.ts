@@ -46,7 +46,7 @@ export async function rotateSession(refreshToken: string) {
     throw new ApiError("Usuário não autorizado", ErrorsCode.UNAUTHORIZED);
   }
   if (!matchesAuthVersion(session.authVersion, user.authVersion ?? 0)) {
-    throw new ApiError("Senha alterada; faça login novamente", ErrorsCode.UNAUTHORIZED);
+    throw new ApiError("Dados de acesso alterados; faça login novamente", ErrorsCode.UNAUTHORIZED);
   }
   if (session.revokedAt) {
     await refreshSessionsRepository.revokeAllForUser(session.userId, session.authVersion ?? 0);

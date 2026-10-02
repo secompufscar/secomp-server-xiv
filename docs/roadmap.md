@@ -1,10 +1,10 @@
 # Roadmap técnico da API XIV
 
-Última revisão: 30/09/2026. Esta é a lista consolidada de prioridades e estados. Guias de comportamento e operação estão no [índice](README.md); achados/resultados anteriores no [histórico](historico/README.md).
+Última revisão: 01/10/2026. Esta é a lista consolidada de prioridades e estados. Guias de comportamento e operação estão no [índice](README.md); achados/resultados anteriores no [histórico](historico/README.md).
 
 ## Estado verificado
 
-PRs #10, #11, #13 e #14–20 incorporados ao `main` observado em `8b221cc`. O [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) implementa troca de e-mail verificada e revogação administrativa, mas não integra essa base. Sete branches remotas antigas foram removidas com referências de recuperação preservadas: [registro](historico/auditorias/branch-retirement-2026-09-30.md).
+PRs #10, #11, #13, #14–20 e [#22](https://github.com/secompufscar/secomp-server-xiv/pull/22) incorporados ao `main` observado em `ac045eb`. Troca de e-mail verificada e revogação administrativa estão integradas; exigem a migração aditiva correspondente antes da publicação. Sete branches remotas antigas foram removidas com referências de recuperação preservadas: [registro](historico/auditorias/branch-retirement-2026-09-30.md).
 
 Deploy, migrações de produção e rotas online permanecem **não confirmados**. Merge, CI, migração e deploy são evidências distintas. Nenhuma etapa autoriza reset coletivo, logout geral, recálculo de pontos ou exigência de APK para mudanças que ficam só na API.
 
@@ -24,7 +24,7 @@ Deploy, migrações de produção e rotas online permanecem **não confirmados**
 | P0-01 | Cadastro público limitado a USER | Mergeado; produção não confirmada | [Testes de cadastro](../tests/signup.test.cjs), [PR #10](https://github.com/secompufscar/secomp-server-xiv/pull/10) |
 | P0-02 | Respostas sem hashes, tokens push e dados indevidos | Mergeado; produção não confirmada | [Contratos](contratos/respostas.md), [testes](../tests/user-data-exposure.test.cjs) |
 | P0-03 | Autorização de inscrições e check-in | Mergeado; produção não confirmada | [Autorização](historico/correcoes/enrollment-authorization.md), [testes](../tests/enrollment-authorization.test.cjs) |
-| P0-04 | Hash da senha administrativa | Hash mergeado; revogação complementar no PR #22 | [Senha administrativa](historico/correcoes/admin-password-update.md), [contas](funcionalidades/contas.md) |
+| P0-04 | Hash da senha administrativa | Hash e revogação transacional mergeados; produção não confirmada | [Senha administrativa](historico/correcoes/admin-password-update.md), [contas](funcionalidades/contas.md) |
 | P0-05 | Capacidade concorrente e unicidade de inscrição | Mergeado; conferir migrações/produção | [Inscrições](funcionalidades/inscricoes.md), [capacidade](historico/correcoes/activity-capacity.md) |
 | P0-06 | Regra por categoria e vínculo atividade/edição | Mergeado; produção não confirmada | [Categorias](historico/correcoes/checkin-category-rule.md), [vínculo de edição](historico/correcoes/activity-event-link.md) |
 | P0-07 | Sessões, versão e dependências | Código integrado; validação operacional/distribuição do app são etapas separadas | [Compatibilidade](contratos/compatibilidade.md), [publicação](operacao/publicacao.md) |
@@ -38,7 +38,7 @@ Deploy, migrações de produção e rotas online permanecem **não confirmados**
 | P1-03 | Escritas parciais | Parcial: eventos, inscrições, presença/pontos, filas e cadastro/QR corrigidos; restam patrocinadores/tags e imagens. E-mail sem fila persistente | [Inscrições](funcionalidades/inscricoes.md), [presença](funcionalidades/presenca.md), [cadastro](historico/correcoes/signup-recovery.md), [auditoria](historico/auditorias/functional-block-review-2026-09-29.md) |
 | P1-04 | Edição atual e projeção da inscrição | Correção mergeada; conferir duplicatas antes da migração, sem reconciliação histórica automática | [Inscrições](funcionalidades/inscricoes.md), [detalhes](historico/correcoes/edition-registration-consistency.md) |
 | P1-05 | Agendador | Parcial: horários absolutos, disparo único por processo, cancelamento e isolamento corrigidos. Restam persistência, entrega e coordenação entre instâncias | [Implementação](historico/correcoes/event-critical-fixes.md), [testes](../tests/scheduler-safety.test.cjs) |
-| P1-06 | Autenticação e credenciais | Parcial: recuperação voluntária mergeada; troca de e-mail/revogação administrativa implementadas no PR #22. Restam outros logs/consultas e publicação do protocolo completo | [Contas](funcionalidades/contas.md), [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) |
+| P1-06 | Autenticação e credenciais | Parcial: recuperação voluntária, troca de e-mail e revogação administrativa mergeadas. Restam outros logs/consultas e publicação do protocolo completo | [Contas](funcionalidades/contas.md), [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) |
 | P1-07 | Imagens e Cloudinary | Parcial: limites/MIME presentes; faltam assinatura binária e substituição/remoção sem perda ou órfãos | [Auditoria D1](historico/auditorias/functional-block-review-2026-09-29.md), [etapa inicial](historico/correcoes/api-hardening-p1.md) |
 | P1-08 | Controles HTTP e dependências | Parcial: cotas separadas mergeadas, 100 contas no mesmo IP testadas. Validar proxy/tráfego, armazenamento por instância e alerta do Bull | [Compatibilidade](contratos/compatibilidade.md), [cotas](historico/correcoes/shared-network-rate-limits.md) |
 
@@ -52,6 +52,6 @@ Deploy, migrações de produção e rotas online permanecem **não confirmados**
 
 ## Continuidade recomendada
 
-Validar publicação/compatibilidade do que já foi preparado, concluir integração do #22 e tratar imagens sem perda. Depois, atomicidade/whitelist de patrocinadores e tags, persistência/coordenação de entregas e melhorias medidas de consultas/observabilidade. Consultar [publicação](operacao/publicacao.md) antes de qualquer mudança online.
+Validar publicação/compatibilidade do que já foi integrado, incluindo login web/iOS e as migrações do #22, e tratar imagens sem perda. Depois, atomicidade/whitelist de patrocinadores e tags, persistência/coordenação de entregas e melhorias medidas de consultas/observabilidade. Consultar [publicação](operacao/publicacao.md) antes de qualquer mudança online.
 
 As tabelas do índice anterior eram uma ordem histórica de achados, não prioridades P0/P1. Elas foram preservadas no [acompanhamento arquivado](historico/correcoes/acompanhamento-2026-09-30.md), sem manter uma segunda fonte de estados atuais.

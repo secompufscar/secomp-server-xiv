@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 30/09/2026, com `main` em `8b221cc`; mudanças de contas do [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) ainda não integram essa base. Deploy e migrações de produção não foram confirmados.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 01/10/2026, com `main` em `ac045eb`, incluindo as mudanças de contas do [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22). Deploy e migrações desse código em produção não foram confirmados.
 
 | O que você procura | Referência |
 | --- | --- |

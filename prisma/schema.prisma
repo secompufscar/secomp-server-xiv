@@ -25,6 +25,8 @@ model User {
   updatedAt       DateTime?     @updatedAt @db.Timestamp
   confirmed       Boolean       @default(false)
   authVersion     Int           @default(0)
+  emailVersion    Int           @default(0)
+  pendingEmail    String?       @db.VarChar(254)
   userAtActivity  UserAtActivity[]
   points           Int          @default(0)
   registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado

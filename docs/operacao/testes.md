@@ -1,6 +1,6 @@
 # Testes e CI
 
-Última revisão: 30/09/2026. Configuração da base `main` `8b221cc`; incrementos do PR #22 indicados separadamente. [Roadmap](../roadmap.md).
+Última revisão: 01/10/2026. Configuração da base `main` `ac045eb`, incluindo os testes do PR #22. [Roadmap](../roadmap.md).
 
 ## GitHub Actions
 
@@ -24,6 +24,6 @@ Os testes de integração não usam produção. A camada de envio de e-mail é s
 - [Cadastro público](../../tests/signup.test.cjs) testa criação apenas de USER e cadastro recuperável.
 - [Cancelamento](../../tests/registration-cancellation.integration.test.cjs), [presença](../../tests/attendance-integrity.integration.test.cjs) e [edição](../../tests/edition-state-integrity.integration.test.cjs) verificam transações e concorrência.
 - [Recuperação](../../tests/password-recovery.integration.test.cjs) verifica uso único, revogação e isolamento de outras contas.
-- PR #22 acrescenta [troca de e-mail e senha administrativa no MySQL](https://github.com/secompufscar/secomp-server-xiv/blob/b360b574a8db4d3febc8984e6c33ab51e1a41ab9/tests/verified-email-change.integration.test.cjs); essa integração não está no main usado como base deste PR de documentação.
+- [Troca de e-mail e senha administrativa no MySQL](../../tests/verified-email-change.integration.test.cjs), integrada pelo PR #22, verifica confirmação concorrente, revogação e rollback. Também incluída no runner isolado da CI.
 
 Contagens e resultados de cada rodada estão nos [relatos históricos](../historico/README.md). CI aprovada confirma os cenários executados naquele commit; não comprova ausência de outros bugs, entrega real de e-mail, carga de produção, deploy ou aplicação de migrações online.

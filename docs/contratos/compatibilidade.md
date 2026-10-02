@@ -1,6 +1,6 @@
 # Compatibilidade com app e site
 
-Última revisão: 30/09/2026. Referência do código integrado em `main` `8b221cc`, sem confirmação online. [Roadmap](../roadmap.md).
+Última revisão: 01/10/2026. Referência do código integrado em `main` `ac045eb`, sem confirmação online desse código. [Roadmap](../roadmap.md).
 
 ## Web/iOS e CORS
 
@@ -10,7 +10,7 @@ As alterações não comprovaram a causa histórica da falha de login no iOS; a 
 
 ## Login legado e evento
 
-Login legado e links web continuam disponíveis. Recuperação é voluntária; não exigir resets, logout geral, novo APK ou rotação de chaves para essas melhorias na API. Sessões anteriores da própria conta são invalidadas somente ao concluir recuperação ou, se o PR #22 for integrado, alteração de credenciais protegida. Edição apenas do nome preserva acesso.
+Login legado e links web continuam disponíveis. Recuperação é voluntária; não exigir resets, logout geral, novo APK ou rotação de chaves para essas melhorias na API. Sessões anteriores da própria conta são invalidadas somente ao concluir recuperação ou alteração de credenciais protegida, conforme o PR #22 já integrado. Edição apenas do nome preserva acesso.
 
 No evento, participantes compartilham a eduroam. Cotas são separadas por operação/identidade e têm teto amplo por rede. Testes cobrem 100 contas no mesmo IP, sem medir capacidade real da infraestrutura. Proxy, armazenamento por instância e tráfego precisam de validação. [Relato de cotas](../historico/correcoes/shared-network-rate-limits.md).
 

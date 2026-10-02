@@ -1,6 +1,6 @@
 # Respostas e permissões
 
-Última revisão: 30/09/2026. Contratos da base `main` `8b221cc`; produção não confirmada. [Roadmap](../roadmap.md).
+Última revisão: 01/10/2026. Contratos da base `main` `ac045eb`; produção desse código não confirmada. [Roadmap](../roadmap.md).
 
 | Contexto | Campos de usuário |
 | --- | --- |
@@ -15,7 +15,7 @@ Participante acessa suas inscrições; ADMIN tem as permissões administrativas 
 
 Consulta de presentes é aditiva, retorna `totalPresentes` e `presentes` com `userId`/`nome`. A listagem anterior mantém o array. Ver [presença](../funcionalidades/presenca.md).
 
-## Evolução pendente do PR #22
+## Troca de e-mail integrada pelo PR #22
 
 O perfil mantém a mesma projeção pública, mas `email` passa a representar o endereço ativo enquanto o novo aguarda confirmação. Edição administrativa conserva 201. A mudança semântica e o novo login da conta após confirmação estão documentados em [contas](../funcionalidades/contas.md); não exigem novos campos obrigatórios ou APK.
 

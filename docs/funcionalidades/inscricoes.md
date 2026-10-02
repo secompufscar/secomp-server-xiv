@@ -1,6 +1,6 @@
 # Inscrições e edições
 
-Última revisão: 30/09/2026. Implementação integrada em `main` `8b221cc`; migrações e comportamento online não confirmados. [Roadmap](../roadmap.md).
+Última revisão: 01/10/2026. Implementação integrada em `main` `ac045eb`; migrações e comportamento online não confirmados. [Roadmap](../roadmap.md).
 
 ## Regras vigentes no código
 

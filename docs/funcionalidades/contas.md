@@ -1,6 +1,6 @@
 # Contas
 
-Última revisão: 30/09/2026. Escopo: comportamento integrado em `main` `8b221cc`, com evolução do PR #22 indicada separadamente. Estado de produção: não confirmado. [Prioridades e estados](../roadmap.md).
+Última revisão: 01/10/2026. Escopo: comportamento integrado em `main` `ac045eb`, incluindo o PR #22. Estado de produção desse código: não confirmado. [Prioridades e estados](../roadmap.md).
 
 ## Cadastro e login no main
 
@@ -12,16 +12,16 @@ Recuperação é voluntária. Solicitar o link não muda senha ou sessões; conc
 
 Evidências: [cadastro](../../tests/signup.test.cjs), [cadastro MySQL](../../tests/signup-recovery.integration.test.cjs), [recuperação](../../tests/password-recovery.test.cjs), [recuperação MySQL](../../tests/password-recovery.integration.test.cjs). Relatos: [cadastro recuperável](../historico/correcoes/signup-recovery.md), [recuperação voluntária](../historico/correcoes/password-recovery-safety.md).
 
-## Evolução do PR #22
+## Troca de e-mail e edição administrativa
 
-A base deste documento ainda altera e-mail diretamente e não revoga sessões na edição administrativa de senha. O [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) implementa:
+O [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22), já integrado ao main, protege a troca de e-mail e a edição administrativa de credenciais:
 
 - Endereço atual funcionando até confirmar o novo; resposta do perfil conserva o e-mail ativo enquanto há pendência.
 - Confirmação vinculada à conta, aos endereços, à finalidade e às versões; conclusão invalida links/sessões anteriores apenas daquela conta.
 - Edição administrativa de senha com hash, versão e revogação transacionais. Nome sem mudança de credenciais não encerra sessões.
 - Reenvio por nova solicitação, substituição e cancelamento de pendência, validação e cotas próprias por participante/rede.
 
-A pessoa que conclui a troca voluntária entra novamente com o novo e-mail e a senha atual. Não há novo APK, reset obrigatório ou logout geral. A migração aditiva precisa preceder o código novo. Evidência e limitações: [relato do PR #22](../historico/correcoes/verified-email-change.md), [testes no commit da implementação](https://github.com/secompufscar/secomp-server-xiv/blob/b360b574a8db4d3febc8984e6c33ab51e1a41ab9/tests/verified-email-change.test.cjs).
+A pessoa que conclui a troca voluntária entra novamente com o novo e-mail e a senha atual. Não há novo APK, reset obrigatório ou logout geral. A migração aditiva precisa preceder o código novo. Evidência e limitações: [relato do PR #22](../historico/correcoes/verified-email-change.md), [testes de comportamento](../../tests/verified-email-change.test.cjs) e [MySQL isolado](../../tests/verified-email-change.integration.test.cjs).
 
 ## Limitações
 

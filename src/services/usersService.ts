@@ -15,6 +15,8 @@ import { createAccessToken, createSession, revokeSession, rotateSession } from "
 import { randomUUID } from "crypto";
 import { matchesAuthVersion } from "../utils/authVersion";
 import passwordRecoveryRepository from "../repositories/passwordRecoveryRepository";
+import emailChangeRepository, { ConfirmationClaims } from "../repositories/emailChangeRepository";
+import { profileFieldsSchema, updateProfileSchema } from "../schemas/userSchema";
 
 const brevo = new BrevoClient({
   apiKey: process.env.BREVO_API_KEY || "",
@@ -122,16 +124,21 @@ export default {
     }
   },
 
-  async sendConfirmationEmail(user: User): Promise<boolean> {
+  async sendConfirmationEmail(user: User, emailChange = false): Promise<boolean> {
     try {
-      const emailToken = jwt.sign({ userId: user.id }, email.email_secret, { expiresIn: "1d" });
+      const recipient = emailChange ? user.pendingEmail : user.email;
+      if (!recipient) throw new Error("Missing confirmation recipient");
+      const emailToken = jwt.sign({ userId: user.id, email: recipient, emailVersion: user.emailVersion ?? 0,
+        purpose: emailChange ? "email-change" : "email-confirmation",
+        ...(emailChange ? { currentEmail: user.email, authVersion: user.authVersion ?? 0 } : {}),
+      }, email.email_secret, { expiresIn: "1d" });
       const BASE_URL = process.env.NODE_ENV === "production" ? process.env.BASE_URL_PROD : process.env.BASE_URL_DEV;
       const url = `${BASE_URL}/users/confirmation/${emailToken}`;
 
-      const htmlContent = await loadTemplate("email-confirmation.html", { url });
+      const htmlContent = await loadTemplate(emailChange ? "email-change.html" : "email-confirmation.html", { url });
 
       const result = await brevo.transactionalEmails.sendTransacEmail({
-        subject: "SECOMP UFSCar - Confirmação de e-mail",
+        subject: emailChange ? "SECOMP UFSCar - Confirme a alteração de e-mail" : "SECOMP UFSCar - Confirmação de e-mail",
         htmlContent: htmlContent,
         sender: {
           name: "SECOMP UFSCar",
@@ -139,7 +146,7 @@ export default {
         },
         to: [
           {
-            email: user.email,
+            email: recipient,
             name: user.nome,
           },
         ],
@@ -157,19 +164,14 @@ export default {
     try {
       const decoded = jwt.verify(token, email.email_secret) as jwt.JwtPayload;
 
-      if (typeof decoded !== "string" && decoded.userId) {
-        const id = decoded.userId;
-
-        const user = await usersRepository.update(id, { confirmed: true });
-        const confirmedUser = profileResponse(user);
-
-        return {
-          user: confirmedUser,
-        };
+      if (typeof decoded.userId !== "string" || !decoded.userId || typeof decoded.exp !== "number"
+        || (decoded.purpose !== undefined && decoded.purpose !== "email-confirmation" && decoded.purpose !== "email-change")) {
+        throw new ApiError("Token de confirmação inválido", ErrorsCode.UNAUTHORIZED);
       }
-
-      throw new ApiError("token de validacao invalido", ErrorsCode.INTERNAL_ERROR);
+      const user = await emailChangeRepository.confirm(decoded as ConfirmationClaims);
+      return { user: profileResponse(user), emailChanged: decoded.purpose === "email-change" };
     } catch (err) {
+      if (err instanceof ApiError) throw err;
       if (err instanceof jwt.TokenExpiredError) {
         throw new ApiError("Token expirado. Solicite um novo.", ErrorsCode.UNAUTHORIZED);
       }
@@ -320,35 +322,29 @@ export default {
   },
 
   async updateProfile(userId: string, data: UpdateProfileDTO) {
-    const { nome, email } = data;
-    if (!nome && !email) {
-      throw new ApiError("A requisição deve conter 'nome' ou 'email' para ser atualizado.", ErrorsCode.BAD_REQUEST);
-    }
-
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        throw new ApiError("O formato do email é inválido.", ErrorsCode.BAD_REQUEST);
-      }
-    }
-
+    const fields = updateProfileSchema.parse(data);
     const userToUpdate = await usersRepository.findById(userId);
     if (!userToUpdate) {
       throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
     }
 
-    if (email && email !== userToUpdate.email) {
-      const userWithSameEmail = await usersRepository.findByEmail(email);
-      if (userWithSameEmail && userWithSameEmail.id !== userId) {
-        throw new ApiError("Este e-mail já está em uso.", ErrorsCode.BAD_REQUEST);
-      }
+    return profileResponse(await this.saveProfileChanges(userToUpdate, fields));
+  },
+
+  async saveProfileChanges(user: User, data: UpdateProfileDTO, hashedPassword?: string) {
+    const fields = profileFieldsSchema.parse(data);
+    if (fields.email === undefined && hashedPassword === undefined) {
+      return usersRepository.update(user.id, fields);
     }
-
-    const updatedUser = await usersRepository.update(userId, { nome, email });
-
-    const userResult = profileResponse(updatedUser);
-
-    return userResult;
+    const saved = await emailChangeRepository.saveProfileChanges(user, {
+      ...fields, ...(hashedPassword !== undefined ? { senha: hashedPassword } : {}),
+    });
+    if (fields.email !== undefined && saved.pendingEmail) {
+      // Keep the active address and access intact even if delivery times out.
+      const sent = await this.sendConfirmationEmail(saved, true);
+      if (!sent) throw new ApiError("Erro ao enviar email de confirmação!", ErrorsCode.INTERNAL_ERROR);
+    }
+    return saved;
   },
 
   async countUserActivities(userId: string): Promise<number> {

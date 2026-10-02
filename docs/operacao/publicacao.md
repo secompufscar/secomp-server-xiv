@@ -1,6 +1,6 @@
 # Publicação e migrações
 
-Última revisão: 30/09/2026. Produção não inspecionada; procedimento operacional, não registro de deploy. [Roadmap](../roadmap.md).
+Última revisão: 01/10/2026. Deployment e migrações do código atual não confirmados; procedimento operacional, não registro de deploy. [Roadmap](../roadmap.md).
 
 ## Preparação
 
@@ -13,13 +13,13 @@
 
 Aplicar `npm run migrate:deploy` antes do código que depende das colunas novas; conferir `npm run migrate:status` depois. Não usar `migrate dev`, `db push`, reset ou exclusão de registros de migração em produção.
 
-As etapas anteriores incluem sessões renováveis, versão de autenticação, crédito de presença e integridade da edição. O PR #22 acrescenta a migração de e-mail pendente/versão; ela só pertence ao deploy se esse PR estiver no commit publicado. [Detalhes do #22](../historico/correcoes/verified-email-change.md).
+As etapas anteriores incluem sessões renováveis, versão de autenticação, crédito de presença e integridade da edição. O PR #22, já integrado, acrescenta `20260930030000_verified_email_change`, com e-mail pendente/versão. Publicar o main `ac045eb` exige também essa migração. [Detalhes do #22](../historico/correcoes/verified-email-change.md).
 
 Atualizar todas as instâncias antes de declarar proteção por versão/bloqueios confirmada. Misturar código antigo e novo não garante revogação ou coordenação completa. Migração bem-sucedida não comprova atualização da aplicação.
 
 ## Validação após publicação
 
-Com contas controladas, conferir versão informada, login legado/web/iOS, cadastro/QR/e-mail, recuperação voluntária, inscrição/fila/cancelamento e check-in com nomes/total. Conferir CORS e erros, métricas e 429 da rede compartilhada. Quando houver #22, testar confirmação do novo endereço, novo login e recusa de links anteriores; verificar edição só do nome sem logout.
+Com contas controladas, conferir versão informada, login legado/web/iOS, cadastro/QR/e-mail, recuperação voluntária, inscrição/fila/cancelamento e check-in com nomes/total. Conferir CORS e erros, métricas e 429 da rede compartilhada. Testar também confirmação do novo endereço, novo login e recusa de links anteriores; verificar edição só do nome sem logout.
 
 Registrar commit implantado, resultado de migrações, horário, evidência de rotas e problemas encontrados. Estado online só pode ser marcado como confirmado com essa evidência.
 
