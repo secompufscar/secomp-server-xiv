@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 01/10/2026, com `main` em `ac045eb`, incluindo as mudanças de contas do [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22). Deploy e migrações desse código em produção não foram confirmados.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 01/10/2026, com `main` em `b1faa2b`, incluindo as mudanças de contas do [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) e a reorganização do [PR #23](https://github.com/secompufscar/secomp-server-xiv/pull/23). Deploy e migrações desse código em produção não foram confirmados.
 
 | O que você procura | Referência |
 | --- | --- |
@@ -15,13 +15,17 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Compatibilidade com app, web/iOS, CORS e eduroam | [Compatibilidade](contratos/compatibilidade.md) |
 | Pendências e evidências por prioridade | [Roadmap](roadmap.md) |
 | Implementações anteriores, auditorias e resultados originais | [Histórico](historico/README.md) |
+| Revisão do trabalho e encerramento das branches | [Revisão de 01/10](historico/auditorias/work-review-2026-10-01.md) |
+| Encontrar um documento pelo endereço antigo | [Mapa de caminhos](historico/caminhos-antigos.md) |
 
 ## Como manter
 
 - Atualizar o guia funcional quando o comportamento mudar. Registrar no roadmap se a mudança está implementada, mergeada ou confirmada em produção; esses estados são independentes.
 - Guias atuais incluem última revisão, evidência e limitações. Resultados de testes ficam associados à rodada/commit de validação, sem transformar uma contagem antiga em garantia para commits futuros.
 - Preservar os relatos de correção e auditoria no histórico. Seus achados descrevem a data examinada; não são uma segunda lista de pendências atuais.
-- Corrigir links ao mover arquivos. Os caminhos Markdown antigos mantêm encaminhamentos e títulos para preservar links e âncoras de PRs. Snapshots JSON antigos mantêm cópias idênticas por compatibilidade; a localização organizada está no histórico.
+- Manter apenas `README.md` e `roadmap.md` na raiz. Guias ficam nas subpastas por assunto; relatos e snapshots ficam em `historico/`.
+- Corrigir links ao mover arquivos e atualizar o [mapa de caminhos](historico/caminhos-antigos.md). Os encaminhamentos antigos e as cópias JSON da raiz foram retirados por escolha do responsável; os commits anteriores conservam seus endereços e âncoras.
+- Resultados de novas auditorias locais ficam em `dist/audits/`. Publicar somente evidências revisadas no histórico, com o commit e o escopo da rodada; preservar os snapshots anteriores.
 
 ## Acompanhamento das correções — edição XIV
 

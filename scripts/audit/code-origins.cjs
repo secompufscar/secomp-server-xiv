@@ -25,5 +25,7 @@ const origins = targets.map(([finding, file, marker]) => {
   const history = cp.execFileSync('git', ['log', '--reverse', '--format=%h %s', '-S', marker, '--', file], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   return { finding, file, line, lastTouchCommit: blame.split(' ')[0], summary: blame.split('\n').find(text => text.startsWith('summary '))?.slice(8), history };
 });
-fs.writeFileSync('docs/audit-code-origins-2026-09-28.json', JSON.stringify(origins, null, 2) + '\n');
+fs.mkdirSync('dist/audits', { recursive: true });
+const output = `dist/audits/code-origins-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+fs.writeFileSync(output, JSON.stringify(origins, null, 2) + '\n');
 console.log(JSON.stringify(origins, null, 2));
