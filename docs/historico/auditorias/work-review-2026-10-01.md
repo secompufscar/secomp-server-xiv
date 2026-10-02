@@ -8,6 +8,7 @@ Base da API: `b1faa2b71fec7428bf05c5ec21b39cbbacb26a13`, após o merge do PR #23
 - Consistência entre código integrado, guias, roadmap, relatos históricos e links de evidência.
 - Configuração e resultado da CI no main da API, contratos preservados e limites da validação operacional.
 - Inventário das 25 branches não-main do app e commits exclusivos das três branches divergentes.
+- Encerramento das 21 branches antigas do app integralmente incorporadas, após conferir objetos Git locais, ausência de PRs abertos e referências de recuperação.
 
 Esta revisão não equivale a repetir cada auditoria de segurança nem comprova ausência de vulnerabilidades. As [auditorias de segurança/desempenho](security-performance-review-2026-09-28.md) e [por blocos](functional-block-review-2026-09-29.md) conservam seus escopos e reproduções. Os guias atuais e a suíte de regressão descrevem as correções posteriores; relatos antigos não são uma segunda lista de pendências.
 
@@ -35,6 +36,8 @@ As branches dos PRs #22 e #23 permaneciam no remoto mesmo após o merge. Os SHAs
 | API XIV | `codex/verified-email-change` | [#22](https://github.com/secompufscar/secomp-server-xiv/pull/22) | `9013e234257a5890a526a0a7ada986ef1fa461c6` |
 | API XIV | `codex/docs-navigation` | [#23](https://github.com/secompufscar/secomp-server-xiv/pull/23) | `b36d5360784ca7f62f6ede8914eb75c318a80650` |
 | App XIV | `codex/fix-p0-release-blockers` | [#7](https://github.com/secompufscar/secomp-app-xiv/pull/7) | `0c08323a383b7a1db50454adea0e88a01102aa24` |
+
+Também foram encerradas 21 branches históricas do app sem commits exclusivos. Cada SHA foi conferido como ancestral do main `821019f` e preservado no repositório de arquivo antes da exclusão atômica, com uma condição por referência para impedir remoção de uma branch alterada concorrentemente. Nomes e SHAs estão no campo `appRemoteRetired` do [snapshot](evidencias/work-review-2026-10-01.json). Main e as três branches divergentes foram preservados.
 
 Na API, restam main e a branch ativa `codex/docs-root-cleanup` durante a revisão deste PR. Não foram criadas novas branches de implementação da API. A branch desta revisão também deverá ser encerrada depois do merge.
 
@@ -65,9 +68,9 @@ git branch codex/docs-organization refs/archive/branch-retirement-20261001/codex
 
 A referência do app foi preservada no repositório de arquivo local `C:/Users/guilh/secomp-server-xiii/output/app-xiv-branch-archive.git`, sob o mesmo prefixo de referências. Esses arquivos são locais, não backups remotos; os SHAs incorporados também continuam no histórico dos respectivos PRs. Os diretórios anteriores `output/`, `verificador-senhas/` e `server-xiv/` do workspace XIII foram preservados.
 
-## Branches antigas do app que não são deste trabalho
+## Trabalho exclusivo preservado no app
 
-Após retirar a branch do PR #7, permanecem 21 branches antigas integralmente incorporadas ao main e três com commits exclusivos. O inventário e a comparação estão no [snapshot](evidencias/work-review-2026-10-01.json). Não existem PRs abertos no app na consulta. Não foram integradas mudanças antigas ao app durante esta revisão.
+Após encerrar a branch do PR #7 e as 21 incorporadas, permanecem apenas main e três branches com commits exclusivos. O inventário anterior e a comparação estão no [snapshot](evidencias/work-review-2026-10-01.json). Não existem PRs abertos no app na consulta. Não foram integradas mudanças antigas ao app durante esta revisão.
 
 | Branch divergente | Commits exclusivos | Conteúdo | Recomendação |
 | --- | --- | --- | --- |
@@ -75,7 +78,7 @@ Após retirar a branch do PR #7, permanecem 21 branches antigas integralmente in
 | `feat/lightmode` | 1 | Tema claro, ThemeContext, estilos e dependência | Avaliar como evolução visual separada, com regressão web/mobile; não é correção do login |
 | `fix/fix-activityImage-creation` | 2 | Formatação e upload de imagens em criação/edição | Conferir o fluxo atual e complementar a prioridade de integridade de imagens; não presume correção do backend |
 
-As 21 branches incorporadas podem ser tratadas numa limpeza do inventário anterior do app. As três divergentes exigem decisão baseada no código atual; exclusão ou merge indiscriminado ocultaria trabalho ou reintroduziria versões antigas. Nenhuma delas é uma implementação nova minha aguardando entrega.
+As três divergentes exigem decisão baseada no código atual; exclusão ou merge indiscriminado ocultaria trabalho ou reintroduziria versões antigas. Nenhuma delas é uma implementação nova minha aguardando entrega. A recomendação é selecionar somente correções ainda necessárias, em PRs a partir do main atual, e avaliar o tema visual depois das prioridades de compatibilidade e integridade do evento.
 
 ## Organização final e compatibilidade de links
 

@@ -20,6 +20,111 @@
       "name": "codex/fix-p0-release-blockers",
       "sha": "0c08323a383b7a1db50454adea0e88a01102aa24",
       "pr": 7
+    },
+    {
+      "name": "activityadmin",
+      "sha": "e2d0e161a81a33110996650439f4cc544bcd104c",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "admin-notification",
+      "sha": "69cce29318433a5b656c75805a0a40c2a3764bac",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "credentials-configuration",
+      "sha": "b27d657dc2a11d049ed180a77ccb3c6824ddf635",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/activitydetails",
+      "sha": "90a43c31a897a320e425444a45b1d35f08166a6e",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/crud-sponsors",
+      "sha": "68bed64d128a2dd3e58c6021e01852a08257d2ee",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/event-admin",
+      "sha": "89bee5d63d5ed0a9a6fe530393d0344ecfc65359",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/notification",
+      "sha": "7cef16ae7d8ae74d8ffc86d16217a1cb6ea38a0e",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/notification-system-configuration",
+      "sha": "6e5b97b6f6afda79443ee273dd0a229733ab1b22",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/qr_code",
+      "sha": "ac005eccbbe2c043a7d32ca9eb3fe296cc2a4f4f",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/registeredParticipants",
+      "sha": "374c66bc6835dfdcfcd8b71c67fe7d24e1396330",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feat/subscribedActivity",
+      "sha": "1675c8af92d010e12e5b9383946a5c8a89d0d13c",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "feature/activityImage-integration",
+      "sha": "8afdb81320c3029e3877f5801f21f1d021c43af7",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "fix/event-admin",
+      "sha": "bb01123043cf00b3690dab07fbfc5fd8a65716d2",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "fix/fix-qr-code-scan-web",
+      "sha": "9c759116bdcdac10470bebbf80b9ee389772e836",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "fix/fix-user-token-logic",
+      "sha": "b380fc774a77f631902d0715b1732d209d3e20b9",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "Issue-Password-Recovery-Function-Link",
+      "sha": "8c12ad22cf7427292895d07b274c14213c7d5879",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "refactor/code-update",
+      "sha": "5216ab13bbe2cff548315e1b90d813b3b756de27",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "refactor/secomp-xiv",
+      "sha": "44a9456ca7de324562a2d3762310398b7b7653da",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "refactor/sponsorsAdmin",
+      "sha": "8f671fbbf7cced061675c9d3e43a05b9cd55f519",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "secomp-app-branch",
+      "sha": "f363f6667295d1a9c1b823918357f39513a9b17a",
+      "reason": "ancestral do main"
+    },
+    {
+      "name": "style/ux-adjustments",
+      "sha": "e779fd99e1b1dbf118b41318055b8ef46021de13",
+      "reason": "ancestral do main"
     }
   ],
   "appBranchComparisons": [
