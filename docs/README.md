@@ -10,6 +10,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
 | Erros da API e logs no Railway | [Diagnóstico](operacao/diagnostico.md) |
+| Arquivos pessoais, backups e exclusões do upload | [Arquivos locais](operacao/diagnostico.md#arquivos-locais-e-upload) |
 | CI, testes locais e MySQL isolado | [Testes](operacao/testes.md) |
 | Campos retornados e permissões | [Respostas](contratos/respostas.md) |
 | Compatibilidade com app, web/iOS, CORS e eduroam | [Compatibilidade](contratos/compatibilidade.md) |
