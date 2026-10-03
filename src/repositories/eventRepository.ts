@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { withDatabaseConnectionRetry } from "../lib/databaseConnection";
 import { Prisma } from "@prisma/client";
 import { eventResponse, lockEditionState, projectCurrentEdition, requireEdition } from "./editionState";
 import { CreateEventDTOS, UpdateEventDTOS, EventDTOS } from "../dtos/eventDtos";
@@ -19,9 +20,9 @@ export default {
   },
 
   async findCurrent(): Promise<EventDTOS | null> {
-    const response = await prisma.event.findFirst({
+    const response = await withDatabaseConnectionRetry("current-event", () => prisma.event.findFirst({
       where: { isCurrent: true },
-    });
+    }));
     return response ? eventResponse(response) : null;
   },
 

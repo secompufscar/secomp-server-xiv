@@ -57,8 +57,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
       return res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
     }
 
-    console.error("Erro em acesso:", error);
-    return res.status(500).json({ message: "Erro interno no servidor", statusCode: 500 });
+    return next(error);
   }
 }
 

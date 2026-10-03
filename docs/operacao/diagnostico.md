@@ -1,6 +1,6 @@
 # Diagnóstico de erros
 
-Última revisão: 02/10/2026. Guia para investigação; não comprova acesso ou inspeção do serviço publicado. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Guia para investigação; resultados específicos de produção ficam nos relatos de incidentes. [Roadmap](../roadmap.md).
 
 ## Railway
 
@@ -14,7 +14,15 @@ Na CLI vinculada ao projeto, `railway logs` acompanha logs do serviço; `railway
 2. Reproduzir com conta de teste e procurar o mesmo período/identificador nos logs do serviço correto.
 3. Distinguir falha de build/startup, banco/migração, provedor externo, autenticação, validação e cota. CI verde não substitui esse diagnóstico.
 
-O [handler de erros](../../src/middlewares/errorHandler.ts) registra identificador, método, rota e código para erros inesperados. Erros de validação/regras de negócio podem só retornar HTTP, sem linha no console. O serviço também usa códigos como `CONFIRMATION_EMAIL_FAILED`, `PASSWORD_RESET_EMAIL_FAILED` e `SIGNUP_CONFIRMATION_FAILED`; não se pode afirmar que todo erro tem stack trace ou correlação completa.
+O [handler de erros](../../src/middlewares/errorHandler.ts) registra uma linha JSON com identificador, método, rota, código público, tipo de erro permitido e `databaseCode` quando for um código Prisma reconhecido. Não registra mensagem interna, stack, parâmetros de consulta ou corpo. Os middlewares de autenticação encaminham falhas inesperadas para esse handler; falha do banco não significa senha incorreta. Erros de validação/regras de negócio podem só retornar HTTP, sem linha no console. O serviço também usa códigos como `CONFIRMATION_EMAIL_FAILED`, `PASSWORD_RESET_EMAIL_FAILED` e `SIGNUP_CONFIRMATION_FAILED`; não se pode afirmar que todo erro tem stack trace ou correlação completa.
+
+## Conexão intermitente com o banco
+
+As leituras de usuário por ID/e-mail, refresh token, edição atual e readiness repetem até duas vezes após `P1001`/`P1017`, com esperas de 100/250 ms. A criação/rotação de sessão só pode repetir a transação se a falha aconteceu antes da primeira escrita. Não há repetição de escrita ou commit com resultado incerto, nem reset do pool compartilhado. O evento `DATABASE_CONNECTION_RETRY` contém somente operação permitida, código e número da tentativa.
+
+Indisponibilidade reconhecida (`P1001`, `P1002`, `P1008`, `P1017`, `P2024`) que chega ao handler retorna HTTP 503, `DATABASE_UNAVAILABLE`, `Retry-After: 1` e `requestId`; detalhes técnicos ficam no log. Outras falhas continuam com seus contratos anteriores. Readiness mantém HTTP 503 com `{status: "unavailable"}`. Esse mecanismo é limitado aos caminhos indicados e não corrige a infraestrutura nem recupera transações já iniciadas com escrita.
+
+Para novas ocorrências, correlacionar `requestId` e `databaseCode` com logs do MySQL, uptime, conexões, DNS/rede privada e deployment. Não presumir falta de migração, problema de senha ou CORS a partir de um HTTP 500. A [investigação de 03/10](../historico/auditorias/login-database-connection-2026-10-03.md) distingue a desconexão confirmada das causas de infraestrutura ainda não demonstradas.
 
 ## Limites
 

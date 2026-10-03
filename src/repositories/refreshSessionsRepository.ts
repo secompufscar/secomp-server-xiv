@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { withDatabaseConnectionRetry } from "../lib/databaseConnection";
 import { Prisma } from "@prisma/client";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 
@@ -10,21 +11,25 @@ async function lockUserVersion(tx: Prisma.TransactionClient, userId: string, aut
 
 export default {
   findByHash(tokenHash: string) {
-    return prisma.refreshSession.findUnique({ where: { tokenHash } });
+    return withDatabaseConnectionRetry("refresh-lookup", () => prisma.refreshSession.findUnique({ where: { tokenHash } }));
   },
 
   create(userId: string, tokenHash: string, expiresAt: Date, authVersion = 0) {
-    return prisma.$transaction(async tx => {
+    let writeStarted = false;
+    return withDatabaseConnectionRetry("session-create", () => prisma.$transaction(async tx => {
       if (!await lockUserVersion(tx, userId, authVersion)) {
         throw new ApiError("Credenciais alteradas; faça login novamente", ErrorsCode.UNAUTHORIZED);
       }
+      writeStarted = true;
       return tx.refreshSession.create({ data: { userId, tokenHash, expiresAt, authVersion } });
-    });
+    }), () => !writeStarted);
   },
 
   async rotate(id: string, userId: string, tokenHash: string, expiresAt: Date, authVersion = 0) {
-    return prisma.$transaction(async tx => {
+    let writeStarted = false;
+    return withDatabaseConnectionRetry("session-rotate", () => prisma.$transaction(async tx => {
       if (!await lockUserVersion(tx, userId, authVersion)) return false;
+      writeStarted = true;
       const revoked = await tx.refreshSession.updateMany({
         where: { id, userId, authVersion, revokedAt: null, expiresAt: { gt: new Date() } },
         data: { revokedAt: new Date() },
@@ -39,7 +44,7 @@ export default {
         data: { replacedById: replacement.id },
       });
       return true;
-    });
+    }), () => !writeStarted);
   },
 
   revoke(id: string) {

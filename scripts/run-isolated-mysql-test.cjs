@@ -55,6 +55,7 @@ async function main() {
     }
     run([path.join(root, 'node_modules/prisma/build/index.js'), 'migrate', 'deploy']);
     run(['--require', 'ts-node/register', '--test', '--test-concurrency=1',
+      'tests/database-connection.integration.test.cjs',
       'tests/activity-speaker-profile.integration.test.cjs',
       'tests/event-write-atomicity.integration.test.cjs',
       'tests/registration-cancellation.integration.test.cjs',

@@ -9,6 +9,7 @@
 | Análise por blocos funcionais | [Auditoria de 29/09](auditorias/functional-block-review-2026-09-29.md) |
 | Login web, Vercel e Railway | [Investigação de 01/10](auditorias/railway-vercel-login-2026-10-01.md) |
 | Publicação, migrações e login em produção | [Evidência de 03/10](auditorias/production-deployment-2026-10-03.md) |
+| Falhas intermitentes de login e conexão | [Investigação de 03/10](auditorias/login-database-connection-2026-10-03.md) |
 | Revisão do trabalho, branches e organização final | [Revisão de 01/10](auditorias/work-review-2026-10-01.md) |
 | Documentos retirados da raiz | [Mapa de caminhos antigos](caminhos-antigos.md) |
 | Auditoria e limpeza de branches | [28/09](auditorias/branch-audit-2026-09-28.md), [30/09](auditorias/branch-retirement-2026-09-30.md), [03/10](auditorias/branch-retirement-2026-10-03.md) |
