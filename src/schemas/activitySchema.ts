@@ -8,7 +8,7 @@ const activityBaseSchema = z.object({
   eventId: z.string().uuid("ID de evento inválido").optional(),
   categoriaId: z.string().uuid("ID de categoria inválido"),
   vagas: z.number().int().min(0).max(2147483647).nullable().optional(),
-  detalhes: z.string().max(1000).nullable().optional(),
+  detalhes: z.string().max(1500).nullable().optional(),
   local: z.string().max(255),
   localLink: z.string().trim().max(2048).url("Link do local inválido")
     .refine(value => /^https?:\/\//i.test(value), "Use um link http ou https")

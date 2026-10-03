@@ -105,7 +105,7 @@ model Activity {
   nome            String           @db.VarChar(255)
   data            DateTime?        @db.Timestamp(6)
   vagas           Int?
-  detalhes        String?          @db.VarChar(1000)
+  detalhes        String?          @db.VarChar(1500)
   palestranteNome String           @db.VarChar(255)
   palestranteTitulo SpeakerTitle   @default(APRESENTADOR)
   categoriaId     String

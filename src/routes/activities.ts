@@ -125,7 +125,7 @@ routes.get("/:id", activitiesController.findById);
  *               detalhes:
  *                 type: string
  *                 nullable: true
- *                 maxLength: 1000
+ *                 maxLength: 1500
  *               palestranteNome:
  *                 type: string
  *               palestranteTitulo:
@@ -183,7 +183,7 @@ routes.post("/", authMiddleware, adminMiddleware, validate(createActivitySchema)
  *               detalhes:
  *                 type: string
  *                 nullable: true
- *                 maxLength: 1000
+ *                 maxLength: 1500
  *               palestranteNome:
  *                 type: string
  *               palestranteTitulo:

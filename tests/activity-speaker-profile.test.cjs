@@ -58,9 +58,9 @@ test('link do local valida http/https, pode ser removido e não descarta local/h
     assert.equal(updateActivitySchema.safeParse({localLink:value}).success,false);
   }
 });
-test('descrição aceita até 1000 caracteres e rejeita 1001', () => {
-  assert.equal(updateActivitySchema.parse({ detalhes: 'a'.repeat(1000) }).detalhes.length, 1000);
-  assert.equal(updateActivitySchema.safeParse({ detalhes: 'a'.repeat(1001) }).success, false);
+test('descrição aceita até 1500 caracteres e rejeita 1501', () => {
+  assert.equal(updateActivitySchema.parse({ detalhes: 'á'.repeat(1500) }).detalhes.length, 1500);
+  assert.equal(updateActivitySchema.safeParse({ detalhes: 'a'.repeat(1501) }).success, false);
   assert.equal(updateActivitySchema.parse({ detalhes: null }).detalhes, null);
 });
 const request = { params: { id: 'image' }, body: {}, file: { buffer: Buffer.from('photo') } };
