@@ -8,6 +8,18 @@ const activities = require('../src/services/activitiesService').default;
 const repository = require('../src/repositories/activitiesRepository').default;
 const scheduler = require('../src/services/schedulerService').default;
 const { updateActivitySchema } = require('../src/schemas/activitySchema');
+test('resumo inclui total de presenças sem expor nomes dos participantes', async t => {
+  const {prisma}=require('../src/lib/prisma');
+  const enrollments=require('../src/repositories/usersAtActivitiesRepository').default;
+  t.mock.method(prisma.userAtActivity,'findMany',async()=>[
+    {userId:'first',listaEspera:false,presente:true},
+    {userId:'second',listaEspera:false,presente:false},
+    {userId:'third',listaEspera:true,presente:false},
+  ]);
+  assert.deepEqual(await enrollments.getActivityEnrollmentSummary('activity','third'),{
+    occupiedCount:2,presentCount:1,waitlistCount:1,waitlistPosition:1,
+  });
+});
 
 test('seleção de título aceita somente as duas opções e permanece opcional para clientes antigos', () => {
   for (const title of ['APRESENTADOR', 'APRESENTADORA']) {

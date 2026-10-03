@@ -10,6 +10,8 @@ Publicar a API antes do app web. Em 03/10/2026, um backup atualizado foi gerado 
 
 ## Vagas e fila
 
+`GET /userAtActivities/activity/:activityId/summary` inclui `presentCount`, um total agregado sem nomes, para o formulário mostrar o mínimo permitido antes do envio. Os demais campos do resumo permanecem compatíveis.
+
 Quando a capacidade numérica muda, a atualização bloqueia a atividade e ajusta a fila na mesma transação. Os últimos inscritos confirmados sem presença passam para a espera quando há excesso. Havendo vagas, a fila é promovida por `createdAt ASC, id ASC`. Nenhuma inscrição é excluída, e a data original permanece, permitindo restaurar a ordem após aumento de capacidade. Pessoas com presença registrada permanecem confirmadas; uma redução abaixo desse total retorna 409 e reverte toda a edição. Capacidade omitida, inalterada ou indefinida não reorganiza a fila.
 
 Testes em `tests/activity-speaker-profile.test.cjs`: seleção, compatibilidade, descrição, link e upload/persistência/limpeza. O teste MySQL integrado ao CI verifica redução, promoção em ordem, preservação de vínculo/presença/crédito, recusa de capacidade abaixo das presenças, rollback após falha de escrita e inscrição simultânea à mudança de capacidade.
