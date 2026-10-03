@@ -1,6 +1,6 @@
 # Testes e CI
 
-Última revisão: 01/10/2026. Configuração da base `main` `ac045eb`, incluindo os testes do PR #22. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Configuração integrada até `3f4540a`, incluindo os testes dos PRs #22, #27 e #28. O código funcional publicado é `633e8c8`; os commits seguintes atualizam documentação. [Roadmap](../roadmap.md).
 
 ## GitHub Actions
 
@@ -25,5 +25,6 @@ Os testes de integração não usam produção. A camada de envio de e-mail é s
 - [Cancelamento](../../tests/registration-cancellation.integration.test.cjs), [presença](../../tests/attendance-integrity.integration.test.cjs) e [edição](../../tests/edition-state-integrity.integration.test.cjs) verificam transações e concorrência.
 - [Recuperação](../../tests/password-recovery.integration.test.cjs) verifica uso único, revogação e isolamento de outras contas.
 - [Troca de e-mail e senha administrativa no MySQL](../../tests/verified-email-change.integration.test.cjs), integrada pelo PR #22, verifica confirmação concorrente, revogação e rollback. Também incluída no runner isolado da CI.
+- [Apresentação e descrição](../../tests/activity-speaker-profile.test.cjs) verifica seleção, limite de 1.500, link e falhas da substituição de foto. A [integração MySQL de atividades](../../tests/activity-speaker-profile.integration.test.cjs), também no runner, verifica persistência de 1.500 caracteres, redução/promoção de fila, presenças, rollback e concorrência.
 
 Contagens e resultados de cada rodada estão nos [relatos históricos](../historico/README.md). CI aprovada confirma os cenários executados naquele commit; não comprova ausência de outros bugs, entrega real de e-mail, carga de produção, deploy ou aplicação de migrações online.

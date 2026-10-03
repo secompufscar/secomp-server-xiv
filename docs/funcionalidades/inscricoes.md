@@ -1,6 +1,6 @@
 # Inscrições e edições
 
-Última revisão: 01/10/2026. Implementação integrada em `main` `ac045eb`; migrações e comportamento online não confirmados. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Implementação preservada na API publicada `633e8c8`, com ajuste reversível de vagas/fila do PR #27. Deploy e migrações confirmados; concorrência, promoção e rollback exercitados em MySQL isolado. Escritas funcionais online permanecem pendentes na [evidência de produção](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
 
 ## Regras vigentes no código
 

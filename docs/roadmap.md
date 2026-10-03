@@ -56,6 +56,8 @@ Depois dessa rodada, o [PR #28](https://github.com/secompufscar/secomp-server-xi
 
 ## Continuidade recomendada
 
-Completar a validação funcional do código já publicado: renovação/logout web, links de conta e fluxos do evento com contas controladas, sem exigir novo APK ou reset. Acompanhar logs e cotas do eduroam; os avisos de rede da [rodada de publicação](historico/auditorias/production-deployment-2026-10-03.md) ainda não têm causa confirmada. Depois, tratar imagens sem perda, atomicidade/whitelist de patrocinadores e tags, persistência/coordenação de entregas e melhorias medidas de consultas/observabilidade. Consultar [publicação](operacao/publicacao.md) antes de qualquer mudança online.
+Completar a validação funcional do código já publicado: renovação/logout web, links de conta e fluxos do evento com contas controladas, sem exigir novo APK ou reset. Acompanhar logs e cotas do eduroam; os avisos de rede da [rodada de publicação](historico/auditorias/production-deployment-2026-10-03.md) ainda não têm causa confirmada. Depois, tratar assinatura binária/limpeza persistente de órfãos e demais imagens, atomicidade/whitelist de patrocinadores e tags, persistência/coordenação de entregas e melhorias medidas de consultas/observabilidade. A substituição da foto de atividade já preserva a anterior até a nova persistência. Consultar [publicação](operacao/publicacao.md) antes de qualquer mudança online.
+
+A [revisão de branches e documentação de 03/10](historico/auditorias/branch-retirement-2026-10-03.md) registra o encerramento das branches incorporadas e a preservação dos demais trabalhos.
 
 As tabelas do índice anterior eram uma ordem histórica de achados, não prioridades P0/P1. Elas foram preservadas no [acompanhamento arquivado](historico/correcoes/acompanhamento-2026-09-30.md), sem manter uma segunda fonte de estados atuais.
