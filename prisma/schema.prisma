@@ -95,18 +95,25 @@ model Category {
   @@map("category")
 }
 
+enum SpeakerTitle {
+  APRESENTADOR
+  APRESENTADORA
+}
+
 model Activity {
   id              String           @id @default(uuid())
   nome            String           @db.VarChar(255)
   data            DateTime?        @db.Timestamp(6)
   vagas           Int?
-  detalhes        String?          @db.VarChar(500)
+  detalhes        String?          @db.VarChar(1000)
   palestranteNome String           @db.VarChar(255)
+  palestranteTitulo SpeakerTitle   @default(APRESENTADOR)
   categoriaId     String
   eventId         String?
   createdAt       DateTime         @default(now()) @db.DateTime(6)
   updatedAt       DateTime         @updatedAt @db.Timestamp
   local           String           @db.VarChar(255)
+  localLink       String?          @db.VarChar(2048)
   participantes   UserAtActivity[]
   points          Int              @default(0)
 

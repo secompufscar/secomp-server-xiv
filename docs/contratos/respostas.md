@@ -15,6 +15,8 @@ Participante acessa suas inscrições; ADMIN tem as permissões administrativas 
 
 Consulta de presentes é aditiva, retorna `totalPresentes` e `presentes` com `userId`/`nome`. A listagem anterior mantém o array. Ver [presença](../funcionalidades/presenca.md).
 
+O resumo autenticado de atividade retorna `occupiedCount`, `presentCount`, `waitlistCount` e `waitlistPosition`, sem identidades de outros participantes. `presentCount` permite mostrar o mínimo de vagas no formulário administrativo. Atividades acrescentam `palestranteTitulo` e `localLink`; ambos são opcionais nas escritas para preservar clientes anteriores. Descrição aceita até 1.000 caracteres. Ver [atividades](../funcionalidades/apresentacao-atividade.md).
+
 ## Troca de e-mail integrada pelo PR #22
 
 O perfil mantém a mesma projeção pública, mas `email` passa a representar o endereço ativo enquanto o novo aguarda confirmação. Edição administrativa conserva 201. A mudança semântica e o novo login da conta após confirmação estão documentados em [contas](../funcionalidades/contas.md); não exigem novos campos obrigatórios ou APK.
