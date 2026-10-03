@@ -1,5 +1,6 @@
 import { RankingUserResponse } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
+import { withDatabaseConnectionRetry } from "../lib/databaseConnection";
 import { User as PrismaUser, Prisma } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User";
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
@@ -18,7 +19,7 @@ export default {
   },
 
   async findById(id: string): Promise<User | null> {
-    const response = await prisma.user.findUnique({ where: { id } });
+    const response = await withDatabaseConnectionRetry("user-by-id", () => prisma.user.findUnique({ where: { id } }));
     return response ? toUserEntity(response) : null;
   },
 
@@ -28,7 +29,7 @@ export default {
   },
 
   async findByEmail(email: string): Promise<User | null> {
-    const response = await prisma.user.findUnique({ where: { email } });
+    const response = await withDatabaseConnectionRetry("user-by-email", () => prisma.user.findUnique({ where: { email } }));
     return response ? toUserEntity(response) : null;
   },
 

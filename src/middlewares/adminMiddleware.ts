@@ -56,7 +56,6 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
     else if (error instanceof jwt.TokenExpiredError)
       return res.status(401).json({ message: "Token expirado", statusCode: 401 });
 
-    console.error("Erro em acesso administrativo: ", error);
-    return res.status(500).json({ message: "Erro interno no servidor" });
+    return next(error);
   }
 }

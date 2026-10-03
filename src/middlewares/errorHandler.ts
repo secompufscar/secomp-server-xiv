@@ -3,6 +3,7 @@ import multer from "multer";
 import { Prisma } from "@prisma/client";
 import { ZodError } from "zod";
 import { ApiError } from "../utils/api-errors";
+import { databaseErrorCode, isDatabaseUnavailable, safeErrorType } from "../lib/databaseConnection";
 
 const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ZodError) {
@@ -50,18 +51,24 @@ const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunc
   const errorType = typeof err === "object" && err !== null && "type" in err ? err.type : undefined;
   const invalidJson = errorStatus === 400 && errorType === "entity.parse.failed";
   const tooLarge = errorStatus === 413;
-  const statusCode = invalidJson ? 400 : tooLarge ? 413 : 500;
-  console.error({
+  const databaseUnavailable = isDatabaseUnavailable(err);
+  const statusCode = invalidJson ? 400 : tooLarge ? 413 : databaseUnavailable ? 503 : 500;
+  const errorCode = invalidJson ? "INVALID_JSON" : tooLarge ? "PAYLOAD_TOO_LARGE" : databaseUnavailable ? "DATABASE_UNAVAILABLE" : "INTERNAL_SERVER_ERROR";
+  console.error(JSON.stringify({
     requestId: req.requestId,
     method: req.method,
     // The route template excludes path parameters, query strings and provider payloads.
     route: typeof req.route?.path === "string" ? req.route.path : "unmatched",
-    errorCode: invalidJson ? "INVALID_JSON" : tooLarge ? "PAYLOAD_TOO_LARGE" : "INTERNAL_SERVER_ERROR",
-  });
+    errorCode,
+    errorType: safeErrorType(err),
+    databaseCode: databaseErrorCode(err),
+  }));
+
+  if (databaseUnavailable) res.setHeader("Retry-After", "1");
 
   return res.status(statusCode).json({
-    message: invalidJson ? "JSON inválido" : tooLarge ? "Corpo da requisição excede o tamanho permitido" : "Erro interno do servidor",
-    errorCode: invalidJson ? "INVALID_JSON" : tooLarge ? "PAYLOAD_TOO_LARGE" : "INTERNAL_SERVER_ERROR",
+    message: invalidJson ? "JSON inválido" : tooLarge ? "Corpo da requisição excede o tamanho permitido" : databaseUnavailable ? "Serviço temporariamente indisponível. Tente novamente em instantes." : "Erro interno do servidor",
+    errorCode,
     errors: [],
     requestId: req.requestId,
   });

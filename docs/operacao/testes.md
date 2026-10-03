@@ -13,6 +13,8 @@ O [workflow](../../.github/workflows/ci.yml) roda em PRs e pushes ao main:
 
 Os testes de integração não usam produção. A camada de envio de e-mail é substituída para impedir entrega real. O runner exige MySQL local e schema com nome protegido; cria e remove o banco temporário. Outros opt-in, como a integração específica de capacidade, não estão automaticamente incluídos no runner; conferir os arquivos e o workflow.
 
+O runner também inclui [recuperação de conexão no login](../../tests/database-connection.integration.test.cjs): encerra somente o socket do cliente de teste, valida login legado/moderno, preservação da conta e ausência de sessões duplicadas. Os [contratos de conexão](../../tests/database-connection.test.cjs) exercitam indisponibilidade persistente, diagnóstico seguro e proibição de repetir escrita/commit incerto.
+
 ## Execução local
 
 `npm run verify` gera Prisma, verifica TypeScript e executa a suíte padrão. Integrações opt-in aparecem como ignoradas nesse comando; isso não representa sua execução em banco. `npm run build` compila e copia templates.

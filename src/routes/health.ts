@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
+import { withDatabaseConnectionRetry } from "../lib/databaseConnection";
 
-export function createHealthRoutes(checkDatabase = () => prisma.$queryRaw`SELECT 1`) {
+export function createHealthRoutes(checkDatabase = () => withDatabaseConnectionRetry("database-health", () => prisma.$queryRaw`SELECT 1`)) {
   const routes = Router();
 
   routes.get("/live", (_request, response) => {
