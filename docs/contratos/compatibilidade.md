@@ -1,6 +1,6 @@
 # Compatibilidade com app e site
 
-Última revisão: 03/10/2026. API atual `e4ccb68` publicada; login web/iOS e CORS confirmados na rodada anterior `e2080ac`. Correção das rotas web e editor administrativo também publicados. Escopo e limitações na [evidência da publicação](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. API atual `633e8c8` publicada, com descrições de até 1.500 caracteres; login web/iOS e CORS confirmados na rodada anterior `e2080ac`. Correção das rotas web e editor administrativo também publicados. Escopo e limitações na [evidência da publicação](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
 
 ## Web/iOS e CORS
 

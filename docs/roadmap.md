@@ -8,9 +8,11 @@ PRs #10, #11, #13, #14–20, [#22](https://github.com/secompufscar/secomp-server
 
 **Deploy e 12 migrações confirmados em produção em 03/10**, com CI aprovada no commit publicado, health checks/CORS e login web/iOS com conta existente verificados. A correção geral de rotas web do [PR #9 do app](https://github.com/secompufscar/secomp-app-xiv/pull/9) também está publicada: `/SetNewPassword` e `/App/Home` retornam 200 e o documento do app. A conclusão da recuperação de senha continua pendente. Os demais fluxos online continuam pendentes conforme a [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md). Código publicado não equivale a validação funcional de todas as rotas. Nenhuma etapa autoriza reset coletivo, logout geral, recálculo de pontos ou exigência de APK para mudanças que ficam só na API.
 
-## Critérios e estados
-
 A atualização de atividades do [PR #27](https://github.com/secompufscar/secomp-server-xiv/pull/27) foi integrada e publicada depois, no commit `e4ccb68`, com a migração de apresentação aplicada. O ensaio passou de 12 para 13 migrações e preservou os dados originais. O editor do [PR #10 do app](https://github.com/secompufscar/secomp-app-xiv/pull/10) também está publicado na Vercel, com fila reversível e mínimo de vagas por presenças. Escritas reais desse editor em produção ainda não foram exercitadas. [Evidência da atualização](historico/auditorias/production-deployment-2026-10-03.md#atualização-de-atividades-e-editor-administrativo).
+
+Depois dessa rodada, o [PR #28](https://github.com/secompufscar/secomp-server-xiv/pull/28) ampliou descrições para 1.500 caracteres. A API `633e8c8` foi publicada após o merge, e a migração e o código de validação foram conferidos pela conexão privada. O ensaio preservou dados e passou de 13 para 14 migrações. O [PR #11 do app](https://github.com/secompufscar/secomp-app-xiv/pull/11) reúne formulário responsivo e recorte de foto. [Registros da rodada](historico/auditorias/production-deployment-2026-10-03.md#descrição-de-1500-caracteres-e-recorte-de-foto).
+
+## Critérios e estados
 
 - **P0:** privilégio, exposição e integridade essenciais.
 - **P1:** segurança/confiabilidade e operações que podem perder dados.

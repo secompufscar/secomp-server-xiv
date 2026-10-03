@@ -65,7 +65,15 @@ O [PR #10 do app](https://github.com/secompufscar/secomp-app-xiv/pull/10) foi in
 
 O [guia de atividades](../../funcionalidades/apresentacao-atividade.md) descreve a edição exclusiva de admins na web, a fila reversível e o mínimo de presenças. CI, ensaio MySQL e navegador com dados fictícios verificaram os contratos, falhas, promoção/demissão da fila, rollback e bloqueio prévio de capacidade abaixo das presenças. Não foram feitas edições nem uploads de atividade em produção para validar o fluxo completo; a leitura dos campos públicos não comprova essas escritas online.
 
-## Logs e limites da observação
+## Descrição de 1.500 caracteres e recorte de foto
+
+O [PR #28 da API](https://github.com/secompufscar/secomp-server-xiv/pull/28) foi integrado em `633e8c8fa9922b27a0b4d688199ca924c31bda19` antes da publicação. O [deployment `0c148d97-0b0f-4f55-8e0f-41baf265fe24`](https://railway.com/project/531e115f-bfd5-48ad-a87e-af3807c63129/service/42f9f330-bcec-4077-a343-b8cc73553dc1?id=0c148d97-0b0f-4f55-8e0f-41baf265fe24), criado às 16:52:43 BRT, terminou em `SUCCESS`.
+
+Novo backup privado anterior ao deploy, SHA-256 `e38dbb1bd1fd2f0d4c818f6a5322f18880fa423793c929ce83eb43d492b89a47`, foi restaurado em banco local isolado. O ensaio preservou todos os campos originais das 251 contas, 39 atividades, 423 inscrições em atividades, 192 inscrições na edição e 20 sessões de refresh. A migração posterior amplia a coluna, sem modificar a migração já aplicada de 1.000 caracteres; o ensaio passou de 13 para 14 migrações. O pós-deploy privado confirmou a nova migração concluída, limite 1.500 no banco e código de validação correspondente ao commit publicado (finais de linha normalizados).
+
+O [PR #11 do app](https://github.com/secompufscar/secomp-app-xiv/pull/11) amplia formulário e contador para 1.500, ajusta margens e opções de apresentação por largura e acrescenta recorte com prévia circular, zoom e arraste. No navegador com dados fictícios foram verificados 320, 375, 420, 768 e 1.280 px, além de 768×360, sem overflow horizontal e com ações visíveis. O teste confirmou gravação de 1.500 caracteres e um único upload PNG 512×512 somente após Salvar; cancelar o recorte preservou a foto anterior. Nenhuma atividade real foi editada nesses testes.
+
+## Logs da primeira publicação e limites da observação
 
 Recorte HTTP de **12:40:13 a 13:06:26 BRT**: **46 requisições**, com 16 respostas 200, 15 respostas 204, 11 respostas 304, duas 401 e duas 404. Nenhuma 5xx nem erro de upstream informado nesse recorte.
 
