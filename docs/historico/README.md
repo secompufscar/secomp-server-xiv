@@ -1,6 +1,6 @@
 # Histórico e evidências
 
-Última organização: 01/10/2026. Os relatos conservam evidências e limitações de suas rodadas. Pendências atuais estão somente no [roadmap](../roadmap.md); comportamento atual nos [guias do índice](../README.md).
+Última organização: 03/10/2026. Os relatos conservam evidências e limitações de suas rodadas. Pendências atuais estão somente no [roadmap](../roadmap.md); comportamento atual nos [guias do índice](../README.md).
 
 | Conjunto | Referência |
 | --- | --- |
@@ -8,6 +8,7 @@
 | Segurança, integridade e desempenho | [Auditoria de 28/09](auditorias/security-performance-review-2026-09-28.md) |
 | Análise por blocos funcionais | [Auditoria de 29/09](auditorias/functional-block-review-2026-09-29.md) |
 | Login web, Vercel e Railway | [Investigação de 01/10](auditorias/railway-vercel-login-2026-10-01.md) |
+| Publicação, migrações e login em produção | [Evidência de 03/10](auditorias/production-deployment-2026-10-03.md) |
 | Revisão do trabalho, branches e organização final | [Revisão de 01/10](auditorias/work-review-2026-10-01.md) |
 | Documentos retirados da raiz | [Mapa de caminhos antigos](caminhos-antigos.md) |
 | Auditoria e limpeza de branches | [28/09](auditorias/branch-audit-2026-09-28.md), [30/09](auditorias/branch-retirement-2026-09-30.md) |

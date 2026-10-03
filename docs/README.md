@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 01/10/2026, com `main` em `b1faa2b`, incluindo as mudanças de contas do [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) e a reorganização do [PR #23](https://github.com/secompufscar/secomp-server-xiv/pull/23). Deploy e migrações desse código em produção não foram confirmados.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 03/10/2026. API `e4ccb68` publicada no Railway, migração de apresentação aplicada (13 no ensaio), editor administrativo e correção das rotas web publicados na Vercel. O login web/iOS com conta existente foi verificado na rodada anterior `e2080ac`. A [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md) separa esses resultados dos fluxos ainda não exercitados em produção.
 
 | O que você procura | Referência |
 | --- | --- |
@@ -10,11 +10,13 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
+| Deploy, migrações e login web/iOS em produção | [Evidência de 03/10](historico/auditorias/production-deployment-2026-10-03.md) |
 | Erros da API e logs no Railway | [Diagnóstico](operacao/diagnostico.md) |
 | Arquivos pessoais, backups e exclusões do upload | [Arquivos locais](operacao/diagnostico.md#arquivos-locais-e-upload) |
 | CI, testes locais e MySQL isolado | [Testes](operacao/testes.md) |
 | Campos retornados e permissões | [Respostas](contratos/respostas.md) |
 | Compatibilidade com app, web/iOS, CORS e eduroam | [Compatibilidade](contratos/compatibilidade.md) |
+| Link de recuperação, prazo de uma hora e correção do 404 web | [Contas](funcionalidades/contas.md), [evidência online](historico/auditorias/production-deployment-2026-10-03.md#rotas-web-e-recuperação-de-senha) |
 | Pendências e evidências por prioridade | [Roadmap](roadmap.md) |
 | Implementações anteriores, auditorias e resultados originais | [Histórico](historico/README.md) |
 | Revisão do trabalho e encerramento das branches | [Revisão de 01/10](historico/auditorias/work-review-2026-10-01.md) |
