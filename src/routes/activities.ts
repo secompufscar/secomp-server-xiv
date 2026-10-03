@@ -124,8 +124,22 @@ routes.get("/:id", activitiesController.findById);
  *                 type: integer
  *               detalhes:
  *                 type: string
+ *                 nullable: true
+ *                 maxLength: 1000
  *               palestranteNome:
  *                 type: string
+ *               palestranteTitulo:
+ *                 type: string
+ *                 enum: [APRESENTADOR, APRESENTADORA]
+ *                 default: APRESENTADOR
+ *               local:
+ *                 type: string
+ *                 maxLength: 255
+ *               localLink:
+ *                 type: string
+ *                 nullable: true
+ *                 format: uri
+ *                 maxLength: 2048
  *               categoriaId:
  *                 type: string
  *               eventId:
@@ -168,8 +182,21 @@ routes.post("/", authMiddleware, adminMiddleware, validate(createActivitySchema)
  *                 type: integer
  *               detalhes:
  *                 type: string
+ *                 nullable: true
+ *                 maxLength: 1000
  *               palestranteNome:
  *                 type: string
+ *               palestranteTitulo:
+ *                 type: string
+ *                 enum: [APRESENTADOR, APRESENTADORA]
+ *               local:
+ *                 type: string
+ *                 maxLength: 255
+ *               localLink:
+ *                 type: string
+ *                 nullable: true
+ *                 format: uri
+ *                 maxLength: 2048
  *               categoriaId:
  *                 type: string
  *               eventId:

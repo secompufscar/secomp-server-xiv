@@ -8,6 +8,8 @@ O banco permite no máximo uma edição atual. Nenhuma edição atual também é
 
 Inscrição por atividade é única por usuário/atividade. Escritas concorrentes respeitam a capacidade, encaminham excedentes para espera e coordenam usuários/atividades. A categoria define necessidade de inscrição; atividade deve estar vinculada a uma edição, com tratamento documentado de dados legados.
 
+Ao editar vagas, os últimos inscritos confirmados sem presença passam para a fila quando a capacidade diminui. Ao aumentar, a fila ocupa as vagas por ordem de inscrição. A mudança é transacional e preserva vínculos, datas, presenças e pontos. O formulário informa o mínimo permitido a partir do total de presenças, e o servidor recusa capacidade abaixo desse total. Ver [edição de atividades](apresentacao-atividade.md) e [teste MySQL](../../tests/activity-speaker-profile.integration.test.cjs).
+
 Criação, mudança de status, cancelamento, promoção e fechamento relacionados usam transações. Promoção anual atualiza inscrição e perfil da edição atual juntos. Cancelar inscrição pendente ou de edição fechada não promove a fila anual. Cancelamento preserva outras edições e reverte somente créditos conhecidos conforme as regras de presença.
 
 Fechamento mantém a edição para consulta, bloqueia novas inscrições e reativação de inscrições fechadas. Não muda automaticamente qual edição é a atual. A barreira de estado coordena mudanças de edição com inscrição, presença e movimentação de atividade.

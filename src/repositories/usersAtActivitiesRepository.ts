@@ -114,6 +114,7 @@ export default {
       select: {
         userId: true,
         listaEspera: true,
+        presente: true,
       },
     });
 
@@ -122,6 +123,7 @@ export default {
 
     return {
       occupiedCount: enrollments.filter(enrollment => !enrollment.listaEspera).length,
+      presentCount: enrollments.filter(enrollment => enrollment.presente).length,
       waitlistCount: waitlist.length,
       waitlistPosition: waitlistIndex >= 0 ? waitlistIndex + 1 : null,
     };

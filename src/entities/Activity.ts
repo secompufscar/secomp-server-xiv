@@ -5,7 +5,9 @@ export interface Activity {
   vagas: number | null;
   detalhes: string | null;
   palestranteNome: string;
+  palestranteTitulo?: "APRESENTADOR" | "APRESENTADORA";
   categoriaId: string;
   eventId: string | null;
+  localLink?: string | null;
   points: number;
 }

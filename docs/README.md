@@ -7,6 +7,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Cadastro, login, recuperação e edição de contas | [Contas](funcionalidades/contas.md) |
 | Cadastro público limitado a USER | [Testes de cadastro](../tests/signup.test.cjs), [PR #10](https://github.com/secompufscar/secomp-server-xiv/pull/10) |
 | Edição atual, inscrições, capacidade, filas e cancelamento | [Inscrições](funcionalidades/inscricoes.md) |
+| Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
 | Deploy, migrações e login web/iOS em produção | [Evidência de 03/10](historico/auditorias/production-deployment-2026-10-03.md) |
