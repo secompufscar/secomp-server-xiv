@@ -1,6 +1,6 @@
 # Diagnóstico de erros
 
-Última revisão: 30/09/2026. Guia para investigação; não comprova acesso ou inspeção do serviço publicado. [Roadmap](../roadmap.md).
+Última revisão: 02/10/2026. Guia para investigação; não comprova acesso ou inspeção do serviço publicado. [Roadmap](../roadmap.md).
 
 ## Railway
 
@@ -19,3 +19,15 @@ O [handler de erros](../../src/middlewares/errorHandler.ts) registra identificad
 ## Limites
 
 Não incluir senhas, tokens, corpo de recuperação ou credenciais em relatos/logs compartilhados. Sanitização dos demais logs, métricas, timeouts e alertas ainda têm pendências no roadmap. Tráfego real e topologia do proxy devem ser conferidos antes de interpretar cotas; os testes locais não reproduzem a eduroam inteira.
+
+## Arquivos locais e upload
+
+O [`.gitignore`](../../.gitignore) exclui o script pessoal `backup-production.ps1`, dumps SQL (inclusive compactados ou parciais), diretórios de backup, logs, variações de `.env`, chaves privadas e resultados locais. A exceção `.env.example` conserva o modelo público. Os arquivos `prisma/migrations/**/migration.sql` continuam versionáveis: são instruções de migração, não cópias de dados.
+
+O [`.railwayignore`](../../.railwayignore) também protege esses arquivos no upload por `railway up` e retira documentação, testes, exemplos HTTP e ferramentas de auditoria do pacote. Permanecem incluídos código, templates, dependências declaradas, configuração TypeScript, migrações e `scripts/copy-views.cjs`. Essa regra se aplica ao upload da CLI; não comprova o conteúdo de deployments anteriores ou de outras formas de publicação. [Referência oficial](https://docs.railway.com/cli/up#file-handling).
+
+O [`api.http`](../../api.http) é um exemplo versionado, com destino local padrão. Tokens, senha de teste, token push e identificador de usuário são obtidos de variáveis do ambiente local (`SECOMP_ACCESS_TOKEN`, `SECOMP_TEST_PASSWORD`, `SECOMP_TEST_PUSH_TOKEN`, `SECOMP_TEST_USER_ID`). Não salvar credenciais reais no exemplo. [Sintaxe do REST Client](https://github.com/Huachao/vscode-restclient#system-variables).
+
+Na revisão de 02/10/2026 sobre a base `f8d6b5c`, o script de backup estava não rastreado; foi preservado. Foram removidos do exemplo quatro JWTs literais cujo payload indicava expiração em 2025, além de dados literais de conta/push/identificador. O histórico do Git conserva as versões anteriores. A busca por padrões de JWT, chave privada, chaves de provedores e hashes bcrypt não encontrou outras ocorrências literais nos arquivos rastreados atuais; isso não equivale a uma verificação de todos os segredos possíveis.
+
+Regras de ignore não removem arquivos já rastreados e não impedem inclusão forçada com `git add -f`. Conferir `git status` e o conjunto de arquivos antes de publicar. A exportação do backup e sua restauração precisam de evidência própria; estas exclusões não comprovam sua execução.

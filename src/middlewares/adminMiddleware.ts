@@ -4,7 +4,7 @@ import {
   UnauthorizedUserError,
   UserNotFoundError,
 } from "../utils/exceptions";
-import { auth } from "../config/auth";
+import { verifySecurityToken } from "../config/securitySecrets";
 import * as jwt from "jsonwebtoken";
 import { ApiError } from "../utils/api-errors";
 import userRepository from "../repositories/usersRepository"; 
@@ -15,8 +15,6 @@ type jwtPayload = {
   authVersion?: number;
 };
 
-const JWT_SECRET = auth.secret_token;
-
 export async function adminMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     const { authorization } = req.headers;
@@ -25,7 +23,7 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
     }
 
     const token = authorization.split(" ")[1];
-    const { userId, authVersion } = jwt.verify(token, JWT_SECRET) as jwtPayload;
+    const { userId, authVersion } = verifySecurityToken(token, "JWT_SECRET") as jwtPayload;
 
     if (!userId) {
       throw new BadRequestsException("Bad request");

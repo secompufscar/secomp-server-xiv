@@ -8,7 +8,7 @@ process.env.JWT_RESET_SECRET = 'test-reset-secret-with-at-least-32-bytes';
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { hashSync } = require('bcrypt');
-const { validateSecuritySecrets } = require('../src/config/securitySecrets');
+const { validateSecuritySecrets, getSigningSecret, verifySecurityToken } = require('../src/config/securitySecrets');
 const { email } = require('../src/config/sendEmail');
 const appVersion = require('../src/middlewares/appVersionMiddleware').default;
 const errorHandler = require('../src/middlewares/errorHandler').default;
@@ -38,6 +38,37 @@ test('segredos ausentes, padrão, curtos ou compartilhados são rejeitados sem r
     const other = Object.keys(valid).find(key => key !== name);
     assert.throws(() => validateSecuritySecrets({ ...valid, [name]: valid[other] }), /distintos/);
   }
+});
+
+test('novos tokens usam segredos fortes sem invalidar tokens legados', t => {
+  const names = ['JWT_SECRET', 'JWT_RESET_SECRET', 'EMAIL_SECRET', 'JWT_SIGNING_SECRET', 'JWT_RESET_SIGNING_SECRET', 'EMAIL_SIGNING_SECRET'];
+  const previous = Object.fromEntries(names.map(name => [name, process.env[name]]));
+  t.after(() => { for (const name of names) {
+    if (previous[name] === undefined) delete process.env[name];
+    else process.env[name] = previous[name];
+  } });
+  Object.assign(process.env, {
+    JWT_SECRET: 'legacy-access-01', JWT_RESET_SECRET: 'legacy-reset--02', EMAIL_SECRET: 'legacy-email--03',
+    JWT_SIGNING_SECRET: 'new-access-signing-secret-with-32-bytes',
+    JWT_RESET_SIGNING_SECRET: 'new-reset-signing-secret-with-32-bytes',
+    EMAIL_SIGNING_SECRET: 'new-email-signing-secret-with-32-bytes',
+  });
+  assert.doesNotThrow(() => validateSecuritySecrets());
+  const issuedAccess = require('../src/services/authSessionsService').createAccessToken('synthetic-user');
+  assert.equal(jwt.verify(issuedAccess, process.env.JWT_SIGNING_SECRET).userId, 'synthetic-user');
+  assert.equal(email.email_secret, process.env.EMAIL_SIGNING_SECRET);
+  for (const name of ['JWT_SECRET', 'JWT_RESET_SECRET', 'EMAIL_SECRET']) {
+    const claims = { userId: 'synthetic-user' };
+    const oldToken = jwt.sign(claims, process.env[name], { expiresIn: '1h' });
+    const newToken = jwt.sign(claims, getSigningSecret(name), { expiresIn: '1h' });
+    assert.equal(verifySecurityToken(oldToken, name).userId, claims.userId);
+    assert.equal(verifySecurityToken(newToken, name).userId, claims.userId);
+    assert.throws(() => jwt.verify(newToken, process.env[name]), /invalid signature/);
+  }
+  const expired = jwt.sign({ userId: 'synthetic-user' }, getSigningSecret('JWT_SECRET'), { expiresIn: -1 });
+  assert.throws(() => verifySecurityToken(expired, 'JWT_SECRET'), jwt.TokenExpiredError);
+  assert.throws(() => validateSecuritySecrets({ ...process.env, JWT_RESET_SIGNING_SECRET: process.env.JWT_SIGNING_SECRET }), /distintos/);
+  assert.throws(() => validateSecuritySecrets({ ...process.env, EMAIL_SIGNING_SECRET: undefined }), /EMAIL_SIGNING_SECRET/);
 });
 
 test('entrypoint recusa configuração insegura antes de abrir a porta', () => {

@@ -1,0 +1,53 @@
+# Local files must stay out of CLI uploads, even with --no-gitignore.
+.git/
+node_modules/
+dist/
+.vscode/
+.env
+.env.*
+.npmrc
+.pypirc
+.local/
+backup-production.ps1
+*.local.ps1
+backups/
+backup/
+output/
+verificador-senhas/
+*.sql
+*.sql.*
+!prisma/migrations/**/migration.sql
+*.dump
+*.dump.*
+*.bak
+*.backup
+*.backup.*
+*.db
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.log
+logs/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# Keep development and audit artifacts in Git, outside the deployment archive.
+.github/
+docs/
+tests/
+scripts/audit/
+scripts/run-isolated-mysql-test.cjs
+api.http
+README.md
+nodemon.json
+.prettierrc
+
+# Required for build and migrations: src/, prisma/, package*.json,
+# tsconfig.json and scripts/copy-views.cjs remain included.

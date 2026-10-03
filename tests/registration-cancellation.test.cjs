@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
 require('express-async-errors');
-process.env.JWT_SECRET = 'cancellation-test-secret';
+process.env.JWT_SECRET = 'cancellation-test-secret-with-32-bytes';
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const prismaModule = require('../src/lib/prisma');

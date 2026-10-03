@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "crypto";
 import * as jwt from "jsonwebtoken";
-import { auth } from "../config/auth";
+import { getSigningSecret } from "../config/securitySecrets";
 import refreshSessionsRepository from "../repositories/refreshSessionsRepository";
 import usersRepository from "../repositories/usersRepository";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
@@ -24,7 +24,7 @@ function expirationDate() {
 
 export function createAccessToken(userId: string, lifetime?: jwt.SignOptions["expiresIn"], authVersion = 0) {
   const expiresIn = lifetime ?? (process.env.ACCESS_TOKEN_EXPIRES_IN || "15m") as jwt.SignOptions["expiresIn"];
-  return jwt.sign({ userId, authVersion }, auth.secret_token, { expiresIn });
+  return jwt.sign({ userId, authVersion }, getSigningSecret("JWT_SECRET"), { expiresIn });
 }
 
 export async function createSession(userId: string, authVersion = 0) {

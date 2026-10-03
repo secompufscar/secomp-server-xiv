@@ -1,67 +1,72 @@
-## Testando criação de usuário
+@baseUrl = http://localhost:3000
 
-POST https://secomp-server-xiv-production.up.railway.app/api/v1/users/signup
+# Exemplos para teste local. Credenciais e identificadores devem vir do ambiente local.
+# Nao cole tokens reais neste arquivo rastreado.
+
+### Testando criação de usuário
+
+POST {{baseUrl}}/api/v1/users/signup
 Content-Type: application/json
 
 {
-    "email": "teste@teste.com.br",
-    "nome": "teste jr",
-    "senha": "senha1"
+    "email": "participante@example.com",
+    "nome": "Participante de teste",
+    "senha": "{{$processEnv SECOMP_TEST_PASSWORD}}"
 }
 
 ### Testando login de usuário já cadastrado
-POST http://localhost:3333/api/v1/users/login
+POST {{baseUrl}}/api/v1/users/login
 Content-Type: application/json
 
 {
-    "email": "teste@teste.com",
-    "senha": "senha1"
+    "email": "participante@example.com",
+    "senha": "{{$processEnv SECOMP_TEST_PASSWORD}}"
 }
 
 ### Testando login de usuário não cadastrado
-POST http://localhost:3000/api/auth/login
+POST {{baseUrl}}/api/v1/users/login
 Content-Type: application/json
 
 {
-    "email": "erro@teste.com",
-    "senha": "senha_erro"
+    "email": "participante@example.com",
+    "senha": "{{$processEnv SECOMP_TEST_PASSWORD}}"
 }
 
 ### Testando login de usuário com senha errada
-POST http://localhost:3000/api/auth/login
+POST {{baseUrl}}/api/v1/users/login
 Content-Type: application/json
 
 {
-    "email": "teste@teste.com",
-    "senha": "senha_errada"
+    "email": "participante@example.com",
+    "senha": "{{$processEnv SECOMP_TEST_PASSWORD}}"
 }
 
 ### Testando login com sucesso
-POST http://localhost:3000/api/auth/login
+POST {{baseUrl}}/api/v1/users/login
 Content-Type: application/json
 
 {
-    "email": "teste@teste.com",
-    "senha": "senha1"
+    "email": "participante@example.com",
+    "senha": "{{$processEnv SECOMP_TEST_PASSWORD}}"
 }
 
 ### Testando registro de token de push
-POST http://localhost:3333/api/v1/users/registerPushToken
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTE0OTY0OTUsImV4cCI6MTc1MTUwMDA5NX0.i3b1LCjQ8yP5nbJl529Tdg7PFaqO45HzldmK_OFPZnc
+POST {{baseUrl}}/api/v1/users/registerPushToken
+Authorization: Bearer {{$processEnv SECOMP_ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
-    "token": "ExponentPushToken[exemplo123]"
+    "token": "{{$processEnv SECOMP_TEST_PUSH_TOKEN}}"
 }
 
 
 ### Enviar notificação push para um usuário
-POST http://localhost:3333/api/v1/notifications/send
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTcwMzEwMTUsImV4cCI6MTc1NzAzNDYxNX0.nbt_Xh_PPogTS0pZUDVrcxl2ZI2Pr3k3LCmok-VkUKU
+POST {{baseUrl}}/api/v1/notifications/send
+Authorization: Bearer {{$processEnv SECOMP_ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
-  "recipientIds": ["a7fa1209-eb53-4053-8796-3e7bf46893fe"],
+  "recipientIds": ["{{$processEnv SECOMP_TEST_USER_ID}}"],
   "title": "SECOMP UFSCar",
   "message": "Você acabou de receber uma notificação!",
   "data": {
@@ -72,8 +77,8 @@ Content-Type: application/json
 }
 
 ### Enviar notificação push para todos os usuários
-POST http://localhost:3333/api/v1/notifications/send-to-all
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTM5MDg4MDcsImV4cCI6MTc1MzkxMjQwN30.cNLogeg6zuffZksSczMinSx_CP2zE0c-TmCPkr-shbU
+POST {{baseUrl}}/api/v1/notifications/send-to-all
+Authorization: Bearer {{$processEnv SECOMP_ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
@@ -87,10 +92,10 @@ Content-Type: application/json
 }
 
 ### Obter histórico de notificações por usuário
-GET http://localhost:3333/api/v1/notifications/history
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTM5MjMwMzYsImV4cCI6MTc1MzkyNjYzNn0.MQ_tTFWWjdV88rv9zaonDlxGJSFoCVBGn7dCrmofGso
+GET {{baseUrl}}/api/v1/notifications/history
+Authorization: Bearer {{$processEnv SECOMP_ACCESS_TOKEN}}
 Content-Type: application/json
 
 {
-  "userId": "a7fa1209-eb53-4053-8796-3e7bf46893fe"
+  "userId": "{{$processEnv SECOMP_TEST_USER_ID}}"
 }

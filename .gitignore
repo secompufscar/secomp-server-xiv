@@ -9,3 +9,44 @@ dist/
 
 # IDE and Environment Settings
 .vscode
+# Local credentials; keep only the public template
+.env.*
+!.env.example
+
+# Local backup/export tools and data
+backup-production.ps1
+*.local.ps1
+backups/
+backup/
+output/
+verificador-senhas/
+*.sql
+*.sql.*
+!prisma/migrations/**/migration.sql
+*.dump
+*.dump.*
+*.bak
+*.backup
+*.backup.*
+*.db
+*.sqlite
+*.sqlite3
+
+# Private keys and local credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+.npmrc
+.pypirc
+.local/
+
+# Logs, coverage and caches
+*.log
+logs/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db

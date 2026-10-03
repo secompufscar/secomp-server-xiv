@@ -1,11 +1,11 @@
 # Publicação e migrações
 
-Última revisão: 01/10/2026. Deployment e migrações do código atual não confirmados; procedimento operacional, não registro de deploy. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Deployment e migrações do código atual não confirmados; procedimento operacional, não registro de deploy. [Roadmap](../roadmap.md).
 
 ## Preparação
 
 1. Identificar commit, PRs integrados, ambiente e serviço da API. Fazer pull antes de publicar e verificar CI no commit que será usado.
-2. Confirmar backup restaurável e configuração existente de segredos, sem rotação automática ou exposição em logs.
+2. Fazer um backup atualizado da produção, restaurá-lo em banco isolado e ensaiar as migrações com os dados atuais. Conferir configuração dos segredos sem expor valores.
 3. Manter a exigência de versão desativada para esta continuidade da API. Confirmar origem `https://secomp-app-xiv.vercel.app` e configuração do proxy.
 4. Conferir migrações pendentes e edições atuais duplicadas. A constraint não resolve duplicatas automaticamente. Consultar [consistência de edição](../historico/correcoes/edition-registration-consistency.md).
 
@@ -13,7 +13,13 @@
 
 Aplicar `npm run migrate:deploy` antes do código que depende das colunas novas; conferir `npm run migrate:status` depois. Não usar `migrate dev`, `db push`, reset ou exclusão de registros de migração em produção.
 
-As etapas anteriores incluem sessões renováveis, versão de autenticação, crédito de presença e integridade da edição. O PR #22, já integrado, acrescenta `20260930030000_verified_email_change`, com e-mail pendente/versão. Publicar o main `ac045eb` exige também essa migração. [Detalhes do #22](../historico/correcoes/verified-email-change.md).
+As etapas anteriores incluem sessões renováveis, versão de autenticação, crédito de presença e integridade da edição. O PR #22, já integrado, acrescenta `20260930030000_verified_email_change`, com e-mail pendente/versão. Publicar o código atual exige também essa migração. [Detalhes do #22](../historico/correcoes/verified-email-change.md).
+
+O ensaio de 03/10/2026 restaurou o backup de 02/10 em MySQL local 8.4.11 (origem 9.7.2), aplicou as 12 migrações e terminou com `prisma migrate status` atualizado. Preservou as 227 contas e todos os campos originais; removeu apenas uma inscrição duplicada, mantendo o registro de presença. O relatório local registra `migrationRehearsalCompleted: true` e todas as verificações de integridade como `true`. Esse ensaio não substitui um backup e uma conferência feitos imediatamente antes do deploy, nem comprova execução na versão exata do MySQL de produção.
+
+## Segredos e continuidade das sessões
+
+Preservar exatamente os valores existentes de `JWT_SECRET`, `JWT_RESET_SECRET` e `EMAIL_SECRET`: eles validam tokens de acesso, recuperação e confirmação já emitidos. Se algum tiver menos de 32 bytes, fornecer o correspondente `JWT_SIGNING_SECRET`, `JWT_RESET_SIGNING_SECRET` ou `EMAIL_SIGNING_SECRET` com pelo menos 32 bytes aleatórios. Os novos tokens usam a chave de assinatura; as chaves antigas são aceitas apenas para validação durante a transição. Todos os valores devem ser distintos. O startup recusa chave curta sem chave de assinatura forte. Testar login web, token legado e links pendentes antes de considerar a publicação concluída. Remover a validação pelas chaves antigas requer uma mudança posterior planejada, após expiração dos tokens.
 
 Atualizar todas as instâncias antes de declarar proteção por versão/bloqueios confirmada. Misturar código antigo e novo não garante revogação ou coordenação completa. Migração bem-sucedida não comprova atualização da aplicação.
 
