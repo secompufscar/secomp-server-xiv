@@ -73,6 +73,8 @@ Novo backup privado anterior ao deploy, SHA-256 `e38dbb1bd1fd2f0d4c818f6a5322f18
 
 O [PR #11 do app](https://github.com/secompufscar/secomp-app-xiv/pull/11) amplia formulário e contador para 1.500, ajusta margens e opções de apresentação por largura e acrescenta recorte com prévia circular, zoom e arraste. No navegador com dados fictícios foram verificados 320, 375, 420, 768 e 1.280 px, além de 768×360, sem overflow horizontal e com ações visíveis. O teste confirmou gravação de 1.500 caracteres e um único upload PNG 512×512 somente após Salvar; cancelar o recorte preservou a foto anterior. Nenhuma atividade real foi editada nesses testes.
 
+O PR do app foi integrado em `cdee8cde111aa064ffa9b1ac81eeb68d572fdc98`, com TypeScript/exportação web e preview aprovados. A Vercel concluiu o deploy automático às 17:20:10 BRT. A leitura do domínio público às 17:20:19 BRT confirmou o bundle com editor, limite de 1.500, recorte e aviso do mínimo de vagas. O botão de cancelamento do recorte exibe **Cancelar** em uma linha, mantendo a identificação acessível **Cancelar recorte**.
+
 ## Logs da primeira publicação e limites da observação
 
 Recorte HTTP de **12:40:13 a 13:06:26 BRT**: **46 requisições**, com 16 respostas 200, 15 respostas 204, 11 respostas 304, duas 401 e duas 404. Nenhuma 5xx nem erro de upstream informado nesse recorte.
