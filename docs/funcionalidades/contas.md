@@ -1,6 +1,6 @@
 # Contas
 
-Última revisão: 01/10/2026. Escopo: comportamento integrado em `main` `ac045eb`, incluindo o PR #22. Estado de produção desse código: não confirmado. [Prioridades e estados](../roadmap.md).
+Última revisão: 03/10/2026. Escopo: comportamento da API publicada no commit `e2080ac`, incluindo os PRs #22 e #25. Login web/iOS com conta existente confirmado; os demais fluxos funcionais permanecem pendentes conforme a [evidência de produção](../historico/auditorias/production-deployment-2026-10-03.md). [Prioridades e estados](../roadmap.md).
 
 ## Cadastro e login no main
 
@@ -8,9 +8,11 @@ Cadastro público aceita nome, e-mail e senha, cria apenas USER e ignora privil�
 
 Login exige confirmação do e-mail e senha correta. Clientes legados mantêm token de acesso; o fluxo com refresh é opt-in pelo contrato existente. Perfil próprio mantém o QR; hashes, versões internas e tokens push não entram nas respostas.
 
-Recuperação é voluntária. Solicitar o link não muda senha ou sessões; concluir a recuperação grava senha, versão de autenticação e revogação em transação. Um link antigo não pode ser reutilizado após a troca. Tokens legados de versão zero continuam aceitos conforme regras e expiração até a recuperação da própria conta. Nenhum reset coletivo é exigido.
+Recuperação é voluntária. Os novos links expiram em **uma hora a partir da geração**, conforme `expiresIn: "1h"` no [serviço de contas](../../src/services/usersService.ts). Solicitar o link não muda senha ou sessões; concluir a recuperação grava senha, versão de autenticação e revogação em transação. Um link antigo não pode ser reutilizado após a troca. Tokens legados de versão zero continuam aceitos conforme regras e expiração até a recuperação da própria conta. Nenhum reset coletivo é exigido.
 
 Evidências: [cadastro](../../tests/signup.test.cjs), [cadastro MySQL](../../tests/signup-recovery.integration.test.cjs), [recuperação](../../tests/password-recovery.test.cjs), [recuperação MySQL](../../tests/password-recovery.integration.test.cjs). Relatos: [cadastro recuperável](../historico/correcoes/signup-recovery.md), [recuperação voluntária](../historico/correcoes/password-recovery-safety.md).
+
+A correção geral de hospedagem do [PR #9 do app](https://github.com/secompufscar/secomp-app-xiv/pull/9) já está publicada: o endereço `/SetNewPassword?token=...` do e-mail entrega o app, preservando o token. Links já enviados continuam sujeitos à expiração e à versão da conta; a correção do 404 não exige mudar o endereço. A troca efetiva de senha e o login com a nova senha ainda não foram confirmados em produção. [Evidência e limitações](../historico/auditorias/production-deployment-2026-10-03.md#rotas-web-e-recuperação-de-senha).
 
 ## Troca de e-mail e edição administrativa
 

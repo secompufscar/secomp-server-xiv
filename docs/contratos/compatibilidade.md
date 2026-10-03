@@ -1,12 +1,14 @@
 # Compatibilidade com app e site
 
-Última revisão: 01/10/2026. Referência do código integrado em `main` `ac045eb`, sem confirmação online desse código. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Código da API `e2080ac` publicado, com login web/iOS e CORS confirmados; correção das rotas web do app também publicada. Escopo e limitações na [evidência da publicação](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
 
 ## Web/iOS e CORS
 
 A origem do app web é `https://secomp-app-xiv.vercel.app`; `/App/Home` é caminho, não parte da origem. A lista publicada permanece permitida, e origens extras são configuráveis sem autorizar qualquer site. CORS precede parsers para erros 400/413 serem legíveis nas origens autorizadas. Preflight e tratamento de versão preservam clientes web sem header mobile. [Relato CORS](../historico/correcoes/web-cors-compatibility.md), [proteções de login web](../historico/correcoes/urgent-auth-web-safety.md).
 
-As alterações não comprovaram a causa histórica da falha de login no iOS; a validação do deployment continua necessária.
+Login com conta existente no iOS foi confirmado pelo responsável, e os preflights da origem pública passaram no deployment atual. Isso não comprova a causa histórica do incidente antigo de login/CORS.
+
+O [PR #9 do app](https://github.com/secompufscar/secomp-app-xiv/pull/9), mergeado e publicado, configura a regra geral de hospedagem para acesso direto/recarga das rotas da SPA, preservando caminhos, parâmetros e arquivos estáticos. A raiz, `/SetNewPassword` e `/App/Home` retornaram 200 e o documento do app no domínio público. Essa correção trata o 404 da hospedagem antes do JavaScript; CORS continua sendo verificado separadamente nas chamadas à API. [Validação e limites](../historico/auditorias/production-deployment-2026-10-03.md#rotas-web-e-recuperação-de-senha).
 
 ## Login legado e evento
 

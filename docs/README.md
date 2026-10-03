@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 03/10/2026. Código `e2080ac` publicado no Railway, 12 migrações confirmadas e login web/iOS com conta existente verificado. A [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md) separa esses resultados dos fluxos ainda não exercitados em produção.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 03/10/2026. Código `e2080ac` publicado no Railway, 12 migrações confirmadas, login web/iOS com conta existente verificado e correção das rotas web publicada na Vercel. A [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md) separa esses resultados dos fluxos ainda não exercitados em produção.
 
 | O que você procura | Referência |
 | --- | --- |
@@ -15,6 +15,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | CI, testes locais e MySQL isolado | [Testes](operacao/testes.md) |
 | Campos retornados e permissões | [Respostas](contratos/respostas.md) |
 | Compatibilidade com app, web/iOS, CORS e eduroam | [Compatibilidade](contratos/compatibilidade.md) |
+| Link de recuperação, prazo de uma hora e correção do 404 web | [Contas](funcionalidades/contas.md), [evidência online](historico/auditorias/production-deployment-2026-10-03.md#rotas-web-e-recuperação-de-senha) |
 | Pendências e evidências por prioridade | [Roadmap](roadmap.md) |
 | Implementações anteriores, auditorias e resultados originais | [Histórico](historico/README.md) |
 | Revisão do trabalho e encerramento das branches | [Revisão de 01/10](historico/auditorias/work-review-2026-10-01.md) |

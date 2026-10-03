@@ -39,6 +39,18 @@ A produção não recebeu restauração, seed ou cópia do banco local. As alter
 - Preflight de login respondeu **204**, com `Access-Control-Allow-Origin: https://secomp-app-xiv.vercel.app`, credenciais permitidas e os cabeçalhos solicitados no teste.
 - O responsável confirmou **login com conta existente em aba privada no iOS**, pelo domínio público do app. Os logs HTTP registram `POST /api/v1/users/login` **200** às **12:41:25 BRT**, em **93 ms**, e outro **200** às **13:06:21 BRT**, em **108 ms**. O dispositivo foi confirmado pelo responsável, não inferido desses logs.
 
+## Rotas web e recuperação de senha
+
+O [PR #9 do app](https://github.com/secompufscar/secomp-app-xiv/pull/9) foi mergeado no commit `6d6cc1c2b2f4f033e3287e2936608d7217c824eb` em 03/10, às **14:22:09 BRT**. A correção adiciona a regra geral de hospedagem `/:path*` para servir o documento da SPA sem mudar o caminho ou a query. Configuração e validação local estão no [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/6d6cc1c2b2f4f033e3287e2936608d7217c824eb/docs/web-routing.md).
+
+Após o merge, consultas de leitura no domínio público `https://secomp-app-xiv.vercel.app` confirmaram **200** e o documento do app na raiz, em `/SetNewPassword?token=diagnostic-invalid-token` e em `/App/Home`, sem redirecionamento para login da Vercel. Isso confirma a publicação da correção do 404 da hospedagem. A regra é geral para os caminhos web; não cria telas, parâmetros ou permissões novos no frontend.
+
+Antes do merge, CI e build do preview da Vercel passaram. No navegador local, o formulário abriu por link direto e recarregou, preservando o token fictício; a chamada de atualização foi interceptada e os arquivos estáticos foram preservados. O preview exigiu autenticação na Vercel; respostas 200 da página de login não foram consideradas evidência do app.
+
+Os novos links de recuperação expiram em **uma hora a partir da geração**, conforme [`expiresIn: "1h"`](../../../src/services/usersService.ts). Concluir a recuperação invalida os links da versão anterior da conta, mesmo antes do prazo; apenas solicitar um link não altera senha ou sessões. Links já enviados mantêm o mesmo endereço e podem funcionar após a correção se ainda válidos.
+
+A leitura das páginas públicas utilizou somente token fictício. **Troca efetiva de senha e login com a nova senha em produção ainda não foram confirmados**. Nenhuma conta foi redefinida por este procedimento.
+
 ## Logs e limites da observação
 
 Recorte HTTP de **12:40:13 a 13:06:26 BRT**: **46 requisições**, com 16 respostas 200, 15 respostas 204, 11 respostas 304, duas 401 e duas 404. Nenhuma 5xx nem erro de upstream informado nesse recorte.
@@ -52,7 +64,7 @@ Logs de fluxo e logs HTTP têm escopos diferentes. A [referência oficial da CLI
 ## Ainda não confirmado
 
 - Renovação real em `/users/refresh` e logout no novo deployment: nenhuma chamada dessas rotas apareceu no recorte HTTP examinado.
-- Cadastro/QR, recuperação voluntária, confirmação/troca de e-mail, inscrição/fila/cancelamento e check-in com nomes/total em produção. Testes isolados/CI não comprovam esses fluxos online.
+- Cadastro/QR, conclusão da recuperação voluntária com login pela nova senha, confirmação/troca de e-mail, inscrição/fila/cancelamento e check-in com nomes/total em produção. A abertura HTTP do link de recuperação já foi confirmada; testes isolados/CI não comprovam os demais fluxos online.
 - Carga representativa do eduroam, limites compartilhados e entregas externas.
 - Causa do incidente antigo de login/CORS. A publicação atual funcionando não identifica, por si só, qual código/configuração estava no upload antigo via CLI.
 
