@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 01/10/2026, com `main` em `b1faa2b`, incluindo as mudanças de contas do [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) e a reorganização do [PR #23](https://github.com/secompufscar/secomp-server-xiv/pull/23). Deploy e migrações desse código em produção não foram confirmados.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 03/10/2026. Código `e2080ac` publicado no Railway, 12 migrações confirmadas e login web/iOS com conta existente verificado. A [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md) separa esses resultados dos fluxos ainda não exercitados em produção.
 
 | O que você procura | Referência |
 | --- | --- |
@@ -9,6 +9,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição atual, inscrições, capacidade, filas e cancelamento | [Inscrições](funcionalidades/inscricoes.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
+| Deploy, migrações e login web/iOS em produção | [Evidência de 03/10](historico/auditorias/production-deployment-2026-10-03.md) |
 | Erros da API e logs no Railway | [Diagnóstico](operacao/diagnostico.md) |
 | Arquivos pessoais, backups e exclusões do upload | [Arquivos locais](operacao/diagnostico.md#arquivos-locais-e-upload) |
 | CI, testes locais e MySQL isolado | [Testes](operacao/testes.md) |

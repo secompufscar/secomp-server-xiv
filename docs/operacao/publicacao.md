@@ -1,6 +1,6 @@
 # Publicação e migrações
 
-Última revisão: 03/10/2026. Deployment e migrações do código atual não confirmados; procedimento operacional, não registro de deploy. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Este guia descreve o procedimento operacional. A publicação do código `e2080ac`, as 12 migrações e o login web/iOS estão confirmados na [evidência de 03/10](../historico/auditorias/production-deployment-2026-10-03.md); outros fluxos online permanecem pendentes. [Roadmap](../roadmap.md).
 
 ## Preparação
 
@@ -15,7 +15,9 @@ Aplicar `npm run migrate:deploy` antes do código que depende das colunas novas;
 
 As etapas anteriores incluem sessões renováveis, versão de autenticação, crédito de presença e integridade da edição. O PR #22, já integrado, acrescenta `20260930030000_verified_email_change`, com e-mail pendente/versão. Publicar o código atual exige também essa migração. [Detalhes do #22](../historico/correcoes/verified-email-change.md).
 
-O ensaio de 03/10/2026 restaurou o backup de 02/10 em MySQL local 8.4.11 (origem 9.7.2), aplicou as 12 migrações e terminou com `prisma migrate status` atualizado. Preservou as 227 contas e todos os campos originais; removeu apenas uma inscrição duplicada, mantendo o registro de presença. O relatório local registra `migrationRehearsalCompleted: true` e todas as verificações de integridade como `true`. Esse ensaio não substitui um backup e uma conferência feitos imediatamente antes do deploy, nem comprova execução na versão exata do MySQL de produção.
+Um ensaio anterior de 03/10/2026 restaurou o backup de 02/10 em MySQL local 8.4.11 (origem 9.7.2), aplicou as 12 migrações e terminou com `prisma migrate status` atualizado. Preservou as 227 contas e todos os campos originais; removeu apenas uma inscrição duplicada, mantendo o registro de presença. O relatório local registra `migrationRehearsalCompleted: true` e todas as verificações de integridade como `true`. Esse ensaio não substitui um backup e uma conferência feitos imediatamente antes do deploy, nem comprova execução na versão exata do MySQL de produção.
+
+Antes da publicação efetiva de 03/10, foi feito outro backup atualizado, com 247 contas, 39 atividades e 387 inscrições em atividades. Restauração e ensaio passaram no commit `e2080ac`; a deduplicação prevista deixou 386 inscrições. A produção aplicou nove migrações pendentes, totalizando 12, e a conferência posterior confirmou esses totais e o status atualizado. Não houve restauração ou seed em produção. [Resultados e limitações](../historico/auditorias/production-deployment-2026-10-03.md).
 
 ## Segredos e continuidade das sessões
 
