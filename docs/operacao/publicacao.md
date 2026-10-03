@@ -1,6 +1,6 @@
 # Publicação e migrações
 
-Última revisão: 03/10/2026. Este guia descreve o procedimento operacional. A publicação do código `e2080ac`, as 12 migrações e o login web/iOS estão confirmados na [evidência de 03/10](../historico/auditorias/production-deployment-2026-10-03.md); outros fluxos online permanecem pendentes. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Este guia descreve o procedimento operacional. A API atual `e4ccb68` e a migração de apresentação estão publicadas; a rodada anterior `e2080ac` confirmou 12 migrações e login web/iOS. O novo ensaio passou para 13 migrações. Consulte o escopo de cada rodada na [evidência de 03/10](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
 
 ## Preparação
 

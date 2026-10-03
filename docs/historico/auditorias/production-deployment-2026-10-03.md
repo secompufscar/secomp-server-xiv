@@ -4,6 +4,8 @@ Esta rodada confirma a publicação da API e os fluxos explicitamente verificado
 
 ## Código e deployment
 
+Esta seção registra a primeira publicação do dia. A atualização de atividades foi publicada depois, conforme a seção abaixo.
+
 - Commit publicado: [`e2080ac858fe1af9e897581738c638bd45de0a08`](https://github.com/secompufscar/secomp-server-xiv/commit/e2080ac858fe1af9e897581738c638bd45de0a08), que incorpora o [PR #25](https://github.com/secompufscar/secomp-server-xiv/pull/25). Checkout limpo e pull realizado antes do upload.
 - CI desse commit aprovada: [testes e TypeScript](https://github.com/secompufscar/secomp-server-xiv/actions/runs/37130505067/job/111224491928) e [integridade/rollback MySQL](https://github.com/secompufscar/secomp-server-xiv/actions/runs/37130505067/job/111224492037).
 - Ambiente `production`, serviço `secomp-server-xiv`: [deployment `554f6864-2f73-4790-8a23-de03eba45550`](https://railway.com/project/531e115f-bfd5-48ad-a87e-af3807c63129/service/42f9f330-bcec-4077-a343-b8cc73553dc1?id=554f6864-2f73-4790-8a23-de03eba45550), via CLI, estado `SUCCESS`.
@@ -50,6 +52,18 @@ Antes do merge, CI e build do preview da Vercel passaram. No navegador local, o 
 Os novos links de recuperação expiram em **uma hora a partir da geração**, conforme [`expiresIn: "1h"`](../../../src/services/usersService.ts). Concluir a recuperação invalida os links da versão anterior da conta, mesmo antes do prazo; apenas solicitar um link não altera senha ou sessões. Links já enviados mantêm o mesmo endereço e podem funcionar após a correção se ainda válidos.
 
 A leitura das páginas públicas utilizou somente token fictício. **Troca efetiva de senha e login com a nova senha em produção ainda não foram confirmados**. Nenhuma conta foi redefinida por este procedimento.
+
+## Atualização de atividades e editor administrativo
+
+O [PR #27 da API](https://github.com/secompufscar/secomp-server-xiv/pull/27) foi integrado antes do upload do commit `e4ccb682d7efb28bbb282467095094de16b7926f`. O [deployment `0d0e0710-bd22-4d8b-a285-6829d2ef2b01`](https://railway.com/project/531e115f-bfd5-48ad-a87e-af3807c63129/service/42f9f330-bcec-4077-a343-b8cc73553dc1?id=0d0e0710-bd22-4d8b-a285-6829d2ef2b01), criado às 16:03:49 BRT, terminou em `SUCCESS`. A API não iniciou publicação automática com o merge; o upload foi feito pela CLI a partir do checkout limpo do commit integrado.
+
+O backup anterior a essa atualização foi obtido pela conexão privada, dentro do serviço MySQL, sem mudar a exposição da rede. SHA-256: `9a067f3f167ba1304c432887eef87eabf53ac681c5e146daaa257464c09c6d6f`. A restauração e o ensaio em banco local isolado preservaram os dados originais: 250 contas, 39 atividades, 423 inscrições em atividades, 191 inscrições na edição e 16 sessões de refresh. O ledger do ensaio passou de 12 para 13 migrações. Nenhum backup, dado pessoal ou relatório privado foi enviado ao GitHub ou ao deployment.
+
+A conferência privada posterior ao deploy confirmou a migração `20261003180000_activity_speaker_title` concluída, `detalhes` com limite 1.000, o enum de apresentação e `localLink` com limite 2.048. Os dois repositórios compilados responsáveis por capacidade/fila e resumo de inscrições corresponderam ao build do commit publicado após normalizar finais de linha. Essa comparação cobre esses dois arquivos, não todo o container. A listagem pública respondeu 200 com as 39 atividades e os novos campos.
+
+O [PR #10 do app](https://github.com/secompufscar/secomp-app-xiv/pull/10) foi integrado em `69498d8fbe81db7d08a895d97cb3a978758e2789`. A publicação automática GitHub → Vercel terminou com sucesso. O bundle do domínio público contém o editor, descrição de 1.000 caracteres, seleção de apresentação, foto e aviso de mínimo de vagas.
+
+O [guia de atividades](../../funcionalidades/apresentacao-atividade.md) descreve a edição exclusiva de admins na web, a fila reversível e o mínimo de presenças. CI, ensaio MySQL e navegador com dados fictícios verificaram os contratos, falhas, promoção/demissão da fila, rollback e bloqueio prévio de capacidade abaixo das presenças. Não foram feitas edições nem uploads de atividade em produção para validar o fluxo completo; a leitura dos campos públicos não comprova essas escritas online.
 
 ## Logs e limites da observação
 

@@ -10,6 +10,8 @@ PRs #10, #11, #13, #14–20, [#22](https://github.com/secompufscar/secomp-server
 
 ## Critérios e estados
 
+A atualização de atividades do [PR #27](https://github.com/secompufscar/secomp-server-xiv/pull/27) foi integrada e publicada depois, no commit `e4ccb68`, com a migração de apresentação aplicada. O ensaio passou de 12 para 13 migrações e preservou os dados originais. O editor do [PR #10 do app](https://github.com/secompufscar/secomp-app-xiv/pull/10) também está publicado na Vercel, com fila reversível e mínimo de vagas por presenças. Escritas reais desse editor em produção ainda não foram exercitadas. [Evidência da atualização](historico/auditorias/production-deployment-2026-10-03.md#atualização-de-atividades-e-editor-administrativo).
+
 - **P0:** privilégio, exposição e integridade essenciais.
 - **P1:** segurança/confiabilidade e operações que podem perder dados.
 - **P2:** eficiência e evolução operacional a medir.
@@ -39,7 +41,7 @@ PRs #10, #11, #13, #14–20, [#22](https://github.com/secompufscar/secomp-server
 | P1-04 | Edição atual e projeção da inscrição | Migração aplicada; uma edição atual e zero atividades sem edição na conferência. Escritas online não exercitadas | [Inscrições](funcionalidades/inscricoes.md), [detalhes](historico/correcoes/edition-registration-consistency.md) |
 | P1-05 | Agendador | Parcial: horários absolutos, disparo único por processo, cancelamento e isolamento corrigidos. Restam persistência, entrega e coordenação entre instâncias | [Implementação](historico/correcoes/event-critical-fixes.md), [testes](../tests/scheduler-safety.test.cjs) |
 | P1-06 | Autenticação e credenciais | Parcial: recuperação voluntária, troca de e-mail e revogação administrativa mergeadas. Restam outros logs/consultas e validação online dos demais fluxos; protocolo publicado com chaves legadas preservadas. Link web acessível; troca efetiva de senha online não confirmada | [Contas](funcionalidades/contas.md), [PR #22](https://github.com/secompufscar/secomp-server-xiv/pull/22) |
-| P1-07 | Imagens e Cloudinary | Parcial: limites/MIME presentes; faltam assinatura binária e substituição/remoção sem perda ou órfãos | [Auditoria D1](historico/auditorias/functional-block-review-2026-09-29.md), [etapa inicial](historico/correcoes/api-hardening-p1.md) |
+| P1-07 | Imagens e Cloudinary | Parcial: limites/MIME presentes; substituição da foto de atividade preserva a anterior até a nova persistência. Faltam assinatura binária, limpeza persistente de órfãos e revisão dos demais tipos de imagem | [Atividades](funcionalidades/apresentacao-atividade.md), [auditoria D1](historico/auditorias/functional-block-review-2026-09-29.md), [etapa inicial](historico/correcoes/api-hardening-p1.md) |
 | P1-08 | Controles HTTP e dependências | Parcial: cotas separadas mergeadas, 100 contas no mesmo IP testadas. Validar proxy/tráfego, armazenamento por instância e alerta do Bull | [Compatibilidade](contratos/compatibilidade.md), [cotas](historico/correcoes/shared-network-rate-limits.md) |
 
 ## P2
