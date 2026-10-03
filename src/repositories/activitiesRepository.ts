@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma"; 
 import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/activitiesDtos";
 import { lockEditionState } from "./editionState";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
 
 export default {
   async list(): Promise<ActivityDTOS[]> {
@@ -34,7 +35,39 @@ export default {
   async update(id: string, data: UpdateActivityDTOS): Promise<ActivityDTOS> {
     return prisma.$transaction(async tx => {
       await lockEditionState(tx);
-      return tx.activity.update({ data, where: { id } });
+      const rows = await tx.$queryRaw<Array<{ vagas: number | null }>>`
+        SELECT vagas FROM atividades WHERE id = ${id} FOR UPDATE`;
+      if (!rows.length) throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
+      const updated = await tx.activity.update({ data, where: { id } });
+      if (data.vagas !== undefined && data.vagas !== null && data.vagas !== rows[0].vagas) {
+        const enrollments = await tx.userAtActivity.findMany({
+          where: { activityId: id },
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          select: { id: true, presente: true, listaEspera: true },
+        });
+        const presentCount = enrollments.filter(row => row.presente).length;
+        if (data.vagas < presentCount) {
+          throw new ApiError(`Não é possível reduzir abaixo de ${presentCount} pessoas com presença registrada.`, ErrorsCode.CONFLICT);
+        }
+        const confirmed = enrollments.filter(row => !row.listaEspera && !row.presente);
+        const confirmedLimit = data.vagas - presentCount;
+        const excess = confirmed.slice(confirmedLimit);
+        if (excess.length) {
+          await tx.userAtActivity.updateMany({
+            where: { id: { in: excess.map(row => row.id) } },
+            data: { listaEspera: true },
+          });
+        }
+        const available = Math.max(0, confirmedLimit - confirmed.length);
+        const promoted = enrollments.filter(row => row.listaEspera && !row.presente).slice(0, available);
+        if (promoted.length) {
+          await tx.userAtActivity.updateMany({
+            where: { id: { in: promoted.map(row => row.id) } },
+            data: { listaEspera: false, inscricaoPrevia: true },
+          });
+        }
+      }
+      return updated;
     });
   },
 
