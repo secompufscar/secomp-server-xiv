@@ -145,11 +145,8 @@ export default {
                 const serviceResponse = await activityImageService.updateById(id, newData);
                 return response.status(200).json(serviceResponse);
             } else {
-                // Deleta imagem anterior
+                // Preserve a foto atual até o upload e a persistência terminarem.
                 const publicId = extractPublicIdFromUrl(previousImage.imageUrl);
-                await cloudinary.uploader.destroy(publicId);
-
-                // Faz upload da nova imagem
                 const result = await uploadToCloudinary(file.buffer, "uploads");
 
                 const { activityId, typeOfImage } = request.body;
@@ -159,7 +156,18 @@ export default {
                     imageUrl: result.secure_url,
                 };
 
-                const serviceResponse = await activityImageService.updateById(id, newData);
+                let serviceResponse;
+                try {
+                    serviceResponse = await activityImageService.updateById(id, newData);
+                } catch (error) {
+                    await cloudinary.uploader.destroy(result.public_id).catch(cleanupError => {
+                        console.error("Falha ao limpar novo upload não persistido:", cleanupError);
+                    });
+                    throw error;
+                }
+                await cloudinary.uploader.destroy(publicId).catch(cleanupError => {
+                    console.error("Foto substituída, mas a limpeza da foto antiga falhou:", cleanupError);
+                });
                 return response.status(200).json(serviceResponse);
             }
         } catch (error) {

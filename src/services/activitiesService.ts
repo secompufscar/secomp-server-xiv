@@ -35,7 +35,7 @@ export default {
     return activities;
   },
 
-  async create({ nome, data, palestranteNome, categoriaId, eventId, vagas, detalhes, local, points }: CreateActivityDTOS): Promise<ActivityDTOS> {
+  async create({ nome, data, palestranteNome, palestranteTitulo, categoriaId, eventId, vagas, detalhes, local, localLink, points }: CreateActivityDTOS): Promise<ActivityDTOS> {
     const newData = data ? new Date(data) : null;
     const resolvedEventId = await resolveEventId(eventId);
 
@@ -43,11 +43,13 @@ export default {
       nome,
       data: newData,
       palestranteNome,
+      ...(palestranteTitulo === undefined ? {} : { palestranteTitulo }),
       categoriaId,
       eventId: resolvedEventId,
       vagas,
       detalhes,
       local,
+      ...(localLink === undefined ? {} : { localLink }),
       points,
     });
 
@@ -58,7 +60,7 @@ export default {
 
   async update(
     id: string,
-    { nome, data, palestranteNome, vagas, categoriaId, eventId, detalhes, local, points }: UpdateActivityDTOS,
+    { nome, data, palestranteNome, palestranteTitulo, vagas, categoriaId, eventId, detalhes, local, localLink, points }: UpdateActivityDTOS,
   ): Promise<ActivityDTOS> {
     const existingAtividade = await activitiesRepository.findById(id);
 
@@ -75,10 +77,12 @@ export default {
       data,
       vagas,
       palestranteNome,
+      ...(palestranteTitulo === undefined ? {} : { palestranteTitulo }),
       categoriaId,
       eventId: resolvedEventId,
       detalhes,
       local,
+      ...(localLink === undefined ? {} : { localLink }),
       points,
     });
 
