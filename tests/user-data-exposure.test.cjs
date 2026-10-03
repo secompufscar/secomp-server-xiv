@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-process.env.JWT_SECRET = 'data-exposure-test-secret';
+process.env.JWT_SECRET = 'data-exposure-test-secret-with-32-bytes';
 const jwt = require('jsonwebtoken');
 const { hashSync } = require('bcrypt');
 // Replace the Prisma boundary before loading consumers; never connect to a database.

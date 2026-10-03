@@ -2,7 +2,7 @@ import { profileResponse } from "../dtos/userResponses";
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedUserError } from "../utils/exceptions";
 import { User } from "../entities/User";
-import { JWT_SECRET } from "../secrets";
+import { verifySecurityToken } from "../config/securitySecrets";
 import * as jwt from "jsonwebtoken";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import userRepository from "../repositories/usersRepository"; // Importa o repositório
@@ -22,7 +22,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     }
 
     const token = authorization.split(" ")[1];
-    const { userId, authVersion } = jwt.verify(token, JWT_SECRET) as jwtPayload;
+    const { userId, authVersion } = verifySecurityToken(token, "JWT_SECRET") as jwtPayload;
 
     // Usa o repositório para buscar o usuário.
     const user = await userRepository.findById(userId);

@@ -2,6 +2,7 @@ import * as jwt from "jsonwebtoken";
 import { adminUserResponse, profileResponse, RankingUserResponse } from "../dtos/userResponses";
 import { compare, hash } from "bcrypt";
 import { email } from "../config/sendEmail";
+import { getSigningSecret, verifySecurityToken } from "../config/securitySecrets";
 import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { generateQRCode } from "../utils/qrCode";
@@ -162,7 +163,7 @@ export default {
 
   async confirmUser(token: string) {
     try {
-      const decoded = jwt.verify(token, email.email_secret) as jwt.JwtPayload;
+      const decoded = verifySecurityToken(token, "EMAIL_SECRET") as jwt.JwtPayload;
 
       if (typeof decoded.userId !== "string" || !decoded.userId || typeof decoded.exp !== "number"
         || (decoded.purpose !== undefined && decoded.purpose !== "email-confirmation" && decoded.purpose !== "email-change")) {
@@ -186,12 +187,8 @@ export default {
         return;
       }
 
-      if (!process.env.JWT_RESET_SECRET) {
-        throw new Error("JWT_RESET_SECRET não está definido");
-      }
-
       const emailToken = jwt.sign({ userId: user.id, authVersion: user.authVersion ?? 0, purpose: "password-reset" },
-        process.env.JWT_RESET_SECRET, { expiresIn: "1h", jwtid: randomUUID() });
+        getSigningSecret("JWT_RESET_SECRET"), { expiresIn: "1h", jwtid: randomUUID() });
 
       // Link com protocolo personalizado que é interpretado pelo app mobile
       const url = `https://secomp-app-xiv.vercel.app/SetNewPassword?token=${emailToken}`;
@@ -221,11 +218,7 @@ export default {
 
   async updatePassword(token: string, newPassword: string) {
     try {
-      if (!process.env.JWT_RESET_SECRET) {
-        throw new Error("JWT_RESET_SECRET não está definido");
-      }
-
-      const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET);
+      const decoded = verifySecurityToken(token, "JWT_RESET_SECRET");
       if (typeof decoded === "string" || typeof decoded.userId !== "string" || !decoded.userId
         || typeof decoded.exp !== "number" || (decoded.purpose !== undefined && decoded.purpose !== "password-reset")) {
         throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
