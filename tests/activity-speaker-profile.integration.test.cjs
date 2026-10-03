@@ -28,8 +28,8 @@ test('MySQL: edição move os últimos inscritos para a fila e restaura em ordem
     const all=()=>prisma.userAtActivity.findMany({where:{activityId},orderBy:[{createdAt:'asc'},{id:'asc'}]});
     const identity=rows=>rows.map(({id,userId,createdAt,presente,creditedPoints})=>({id,userId,createdAt,presente,creditedPoints}));
     const before=await all();
-    const updated=await activities.update(activityId,{palestranteTitulo:'APRESENTADORA',detalhes:'á'.repeat(1000),local:'Auditório',localLink:'https://maps.google.com/?q=UFSCar',vagas:1,data:new Date('2030-01-02T14:30:00Z')});
-    assert.equal(updated.detalhes.length,1000);
+    const updated=await activities.update(activityId,{palestranteTitulo:'APRESENTADORA',detalhes:'á'.repeat(1500),local:'Auditório',localLink:'https://maps.google.com/?q=UFSCar',vagas:1,data:new Date('2030-01-02T14:30:00Z')});
+    assert.equal(updated.detalhes.length,1500);
     assert.equal(updated.palestranteTitulo,'APRESENTADORA');
     assert.equal(updated.localLink,'https://maps.google.com/?q=UFSCar');
     assert.equal(updated.data.toISOString(),'2030-01-02T14:30:00.000Z');
@@ -61,7 +61,7 @@ test('MySQL: edição move os últimos inscritos para a fila e restaura em ordem
     const restored=await prisma.activity.findUniqueOrThrow({where:{id:activityId}});
     assert.equal(restored.vagas,5);
     assert.equal(restored.palestranteTitulo,'APRESENTADORA');
-    assert.equal(restored.detalhes.length,1000);
+    assert.equal(restored.detalhes.length,1500);
     const registrations=require('../src/repositories/usersAtActivitiesRepository').default;
     const concurrent=await Promise.all([activities.update(activityId,{vagas:2}),registrations.createWithCapacity(users[5],activityId)]);
     assert.equal(concurrent[1].status,'created');
