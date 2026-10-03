@@ -11,7 +11,7 @@
 | Publicação, migrações e login em produção | [Evidência de 03/10](auditorias/production-deployment-2026-10-03.md) |
 | Revisão do trabalho, branches e organização final | [Revisão de 01/10](auditorias/work-review-2026-10-01.md) |
 | Documentos retirados da raiz | [Mapa de caminhos antigos](caminhos-antigos.md) |
-| Auditoria e limpeza de branches | [28/09](auditorias/branch-audit-2026-09-28.md), [30/09](auditorias/branch-retirement-2026-09-30.md) |
+| Auditoria e limpeza de branches | [28/09](auditorias/branch-audit-2026-09-28.md), [30/09](auditorias/branch-retirement-2026-09-30.md), [03/10](auditorias/branch-retirement-2026-10-03.md) |
 | Inventário de branches | [Snapshot JSON](auditorias/evidencias/branch-inventory-2026-09-28.json) |
 | Origem do código | [Snapshot JSON](auditorias/evidencias/audit-code-origins-2026-09-28.json) |
 | Dependências | [Snapshot JSON](auditorias/evidencias/audit-dependencies-2026-09-28.json) |

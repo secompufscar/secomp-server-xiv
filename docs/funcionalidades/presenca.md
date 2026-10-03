@@ -1,6 +1,6 @@
 # Presença e pontos
 
-Última revisão: 01/10/2026. Implementação integrada em `main` `ac045eb`; produção não confirmada. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Implementação preservada na API publicada `633e8c8`, com deploy e migrações confirmados. Check-in/reversão e listagem nominal online ainda não foram exercitados; testes isolados e seus limites estão na [evidência de produção](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
 
 ## Check-in e reversão
 

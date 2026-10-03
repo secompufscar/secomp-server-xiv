@@ -56,9 +56,9 @@ npm install
 
 3. Edite o _.env_ com suas credenciais do MySQL (usuário, senha):
 
-4. Executar migrações do Prisma
+4. Aplicar as migrações já versionadas ao banco local e gerar o cliente Prisma:
    ```bash
-   npx prisma migrate dev --name init
+   npx prisma migrate deploy
    npx prisma generate
    ```
 
