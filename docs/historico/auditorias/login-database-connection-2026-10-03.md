@@ -19,3 +19,15 @@ A API passa a recuperar até duas falhas de conexão em leituras do caminho de l
 O teste MySQL isolado encerra uma conexão real antes do login legado e moderno, verifica recuperação, tokens válidos, exatamente uma sessão moderna e usuário integralmente preservado. Testes de contrato verificam limite de tentativas, ausência de dados privados nos logs, ausência de repetição após escrita/commit e resposta 503 pelos middlewares de usuário/admin.
 
 Não foi identificada a origem física do encerramento dos sockets. A nova classificação deve ser usada para correlacionar novas ocorrências; sucesso de leitura ou CI não comprova estabilidade de todos os logins reais. Evidência de publicação e validação posterior deve ser registrada separadamente.
+
+## Publicação e limites posteriores
+
+O [PR #31](https://github.com/secompufscar/secomp-server-xiv/pull/31) foi integrado em `3fa481f3663c69a1dc95108776b7e6ce84dd15c0` antes do upload. CI do PR e desse merge aprovado. Railway concluiu o deployment `d41dedf2-e474-461a-adec-3dee8cc9edc6`, criado em 03/10 às 23:45:55 UTC (20:45:55 BRT). A correção não altera schema/migrações nem o app.
+
+Backup novo pela conexão privada, SHA-256 `f1cac597640ce14eeafedd0c380aa9473434e0f855f37374492352f806223560`, foi restaurado em MySQL isolado. Migrações conferidas, todos os campos originais preservados: 254 contas, 39 atividades, 429 inscrições em atividades, 194 na edição e 33 sessões. Nenhum dump foi incluído no Git ou no upload.
+
+Após a publicação: `/health/live`, `/health/ready` e `/event/current` retornaram 200; login com endereço fictício inexistente retornou 404, conforme o contrato. Inspeção privada confirmou banco acessível, geração de tokens e módulo atualizado de sessões. Não foi usado acesso de participante real. A tentativa de repetir a queda simulada pela CLI após deploy expirou na conexão de diagnóstico; a recuperação foi comprovada na integração MySQL isolada, mas essa tentativa remota não é evidência de sucesso.
+
+Fluxos de rede próximos aos IDs originais mostram três descartes `NO_SOCKET` às 21:03:07, 21:03:29 e 21:03:42 UTC, de origem 3306 para portas temporárias da API. A proximidade com os erros reforça a investigação de conexão, sem identificar causa física nem vincular cada pacote a um requestId HTTP.
+
+Às 23:50:28 UTC, após o novo deploy, houve `P1017` em `activityImage.findMany`, caminho fora da proteção de leituras selecionadas do login. O incidente de infraestrutura e a revisão de outros leitores continuam abertos; não se declara eliminação global das desconexões. Não há necessidade de reset de contas, troca de senhas, revogação coletiva ou novo APK para esta correção.
