@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 03/10/2026. API `633e8c8` publicada no Railway com limite de descrição de 1.500 caracteres; migrações de apresentação e ampliação aplicadas (14 no ensaio). Editor administrativo e correção das rotas web publicados na Vercel. O login web/iOS com conta existente foi verificado na rodada anterior `e2080ac`. A [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md) separa esses resultados dos fluxos ainda não exercitados em produção.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 03/10/2026. API `3fa481f` publicada no Railway após o PR #31, com recuperação limitada de leituras após desconexão e diagnóstico seguro. O limite de descrição de 1.500 e as 14 migrações da rodada `633e8c8` permanecem; editor administrativo e rotas web estão publicados na Vercel. O login web/iOS com conta existente foi verificado na rodada anterior `e2080ac`. A [investigação de conexão](historico/auditorias/login-database-connection-2026-10-03.md) e a [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md) separam os resultados dos fluxos ainda não exercitados em produção.
 
 | O que você procura | Referência |
 | --- | --- |

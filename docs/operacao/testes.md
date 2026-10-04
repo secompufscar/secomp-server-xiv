@@ -1,6 +1,6 @@
 # Testes e CI
 
-Última revisão: 03/10/2026. Configuração integrada até `3f4540a`, incluindo os testes dos PRs #22, #27 e #28. O código funcional publicado é `633e8c8`; os commits seguintes atualizam documentação. [Roadmap](../roadmap.md).
+Última revisão: 03/10/2026. Configuração integrada e publicada em `3fa481f`, incluindo os testes dos PRs #22, #27, #28 e #31. Na rodada #31 passaram 122 testes padrão (dez integrações opt-in ignoradas), nove integrações MySQL, TypeScript e build. CI do PR e do merge aprovado. Esses números descrevem essa rodada, não uma garantia de estabilidade de produção. [Roadmap](../roadmap.md).
 
 ## GitHub Actions
 
