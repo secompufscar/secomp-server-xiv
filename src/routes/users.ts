@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 import usersController from "../controllers/usersController";
+import { participantDirectory } from "../controllers/participantDirectoryController";
 import validate from "../middlewares/validate";
 import { signupRateLimit, recoveryRateLimit, loginRateLimit, refreshRateLimit, passwordResetRateLimit, emailChangeRateLimit } from "../middlewares/rateLimits";
 import {
@@ -169,6 +170,9 @@ routes.get("/me", authMiddleware, usersController.getAuthenticatedUser);
  *         description: Unauthorized
  */
 routes.get("/getProfile", authMiddleware, usersController.getProfile);
+
+// All accounts, regardless of enrollment or credentialing; contacts are admin-only.
+routes.get("/directory", authMiddleware, isAdmin, participantDirectory);
 
 /**
  * @swagger

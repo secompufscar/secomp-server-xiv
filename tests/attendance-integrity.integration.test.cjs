@@ -112,9 +112,13 @@ test('MySQL: presença, pontos e fila são atômicos sob concorrência', {
     await attendance.checkIn(id, lecture.id);
     await rollbackAfter('user', 'updateMany', () => attendance.update(row.id, { presente: false }));
     await attendance.update(row.id, { presente: false });
+    assert.equal((await prisma.userAtActivity.findUniqueOrThrow({ where: { id: row.id } })).checkedInAt, null);
     assert.equal(await points(id), 0);
     await attendance.update(row.id, { presente: true });
+    const firstCheckedInAt = (await prisma.userAtActivity.findUniqueOrThrow({ where: { id: row.id } })).checkedInAt;
+    assert.ok(firstCheckedInAt instanceof Date);
     await attendance.update(row.id, { presente: true });
+    assert.equal((await prisma.userAtActivity.findUniqueOrThrow({ where: { id: row.id } })).checkedInAt.toISOString(), firstCheckedInAt.toISOString());
     assert.equal(await points(id), 10, 'repeating the administrative state is idempotent');
     await prisma.activity.update({ where: { id: lecture.id }, data: { points: 27 } });
     await attendance.update(row.id, { presente: false });

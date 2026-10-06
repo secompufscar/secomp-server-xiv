@@ -43,9 +43,10 @@ export default {
       if (activity.categoria.requiresEnrollment && !row) throw new ApiError("Usuário não está cadastrado na atividade", ErrorsCode.BAD_REQUEST);
       if (row?.listaEspera) throw new ApiError("Usuário está na lista de espera e não pode realizar o check-in", ErrorsCode.FORBIDDEN);
       const creditedPoints = Math.max(0, activity.points);
+      const checkedInAt = new Date();
       const result = row
-        ? await tx.userAtActivity.update({ where: { id: row.id }, data: { presente: true, creditedPoints } })
-        : await tx.userAtActivity.create({ data: { userId, activityId, presente: true, inscricaoPrevia: false, listaEspera: false, creditedPoints } });
+        ? await tx.userAtActivity.update({ where: { id: row.id }, data: { presente: true, creditedPoints, checkedInAt } })
+        : await tx.userAtActivity.create({ data: { userId, activityId, presente: true, inscricaoPrevia: false, listaEspera: false, creditedPoints, checkedInAt } });
       await adjustPoints(tx, userId, creditedPoints);
       return attendanceResponse(result);
     });
@@ -76,7 +77,9 @@ export default {
           creditedPoints = 0;
         }
       }
-      const result = await tx.userAtActivity.update({ where: { id }, data: { presente: present, listaEspera: waiting, inscricaoPrevia: data.inscricaoPrevia ?? row.inscricaoPrevia, creditedPoints } });
+      const result = await tx.userAtActivity.update({ where: { id }, data: { presente: present, listaEspera: waiting, inscricaoPrevia: data.inscricaoPrevia ?? row.inscricaoPrevia, creditedPoints,
+        ...(present !== row.presente ? { checkedInAt: present ? new Date() : null } : {}),
+      } });
       await adjustPoints(tx, row.userId, delta);
       return attendanceResponse(result);
     });
