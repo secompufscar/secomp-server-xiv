@@ -61,6 +61,7 @@ async function main() {
       'tests/registration-cancellation.integration.test.cjs',
       'tests/password-recovery.integration.test.cjs',
       'tests/attendance-integrity.integration.test.cjs',
+      'tests/participant-directory.integration.test.cjs',
       'tests/edition-state-integrity.integration.test.cjs',
       'tests/signup-recovery.integration.test.cjs',
       'tests/verified-email-change.integration.test.cjs']);

@@ -28,6 +28,7 @@ test('palestra aberta registra presença sem inscrição prévia e mantém respo
   const row = await service.checkIn('user', 'activity');
   assert.equal(row.presente, true);
   assert.equal(row.inscricaoPrevia, false);
+  assert.ok(row.checkedInAt instanceof Date);
   assert.equal(db.points, 10);
   assert.equal('creditedPoints' in row, false);
   await assert.rejects(service.checkIn('user', 'activity'), err => err.statusCode === 409);
@@ -47,6 +48,7 @@ test('minicurso confirmado marca inscrição existente e credita apenas uma vez'
   const row = await service.checkIn('user', 'activity');
   assert.equal(row.id, 'enrollment');
   assert.equal(row.presente, true);
+  assert.ok(row.checkedInAt instanceof Date);
   assert.equal(db.points, 10);
 });
 

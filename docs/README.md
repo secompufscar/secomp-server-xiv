@@ -9,6 +9,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição atual, inscrições, capacidade, filas e cancelamento | [Inscrições](funcionalidades/inscricoes.md) |
 | Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
+| Todas as contas, busca, status e instante do credenciamento | [Diretório de participantes](contratos/participantes.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
 | Deploy, migrações e login web/iOS em produção | [Evidência de 03/10](historico/auditorias/production-deployment-2026-10-03.md) |
 | Erros da API e logs no Railway | [Diagnóstico](operacao/diagnostico.md) |
