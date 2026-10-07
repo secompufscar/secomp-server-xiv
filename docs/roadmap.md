@@ -1,8 +1,12 @@
 # Roadmap técnico da API XIV
 
-Última revisão: 03/10/2026. Esta é a lista consolidada de prioridades e estados. Guias de comportamento e operação estão no [índice](README.md); achados/resultados anteriores no [histórico](historico/README.md).
+Última revisão: 07/10/2026. Esta é a lista consolidada de prioridades e estados. Guias de comportamento e operação estão no [índice](README.md); achados/resultados anteriores no [histórico](historico/README.md).
 
 ## Estado verificado
+
+A API do [PR #33](https://github.com/secompufscar/secomp-server-xiv/pull/33), commit `dea590e2`, foi mergeada e depois publicada na Railway. A migração do instante de presença teve conclusão/checksum conferidos; consultas online validaram autorização ADMIN, todas as contas, busca, filtros e paginação. O app do [PR #21](https://github.com/secompufscar/secomp-app-xiv/pull/21), commit `96f1b712`, foi publicado automaticamente na Vercel após essa validação. Testes visuais no domínio publicado usaram API fictícia, sem registrar presenças ou excluir participantes reais. [Evidência de 06/10 e revisão de branches](historico/auditorias/participant-directory-release-2026-10-06.md).
+
+### Rodadas anteriores
 
 PRs #10, #11, #13, #14–20, [#22](https://github.com/secompufscar/secomp-server-xiv/pull/22), [#23](https://github.com/secompufscar/secomp-server-xiv/pull/23) e [#25](https://github.com/secompufscar/secomp-server-xiv/pull/25) incorporados ao código publicado `e2080ac`. Troca de e-mail e revogação administrativa estão integradas, com a migração aditiva aplicada. Encerramento anterior de branches e revisão da organização registrados em [30/09](historico/auditorias/branch-retirement-2026-09-30.md) e [01/10](historico/auditorias/work-review-2026-10-01.md).
 
@@ -11,6 +15,8 @@ PRs #10, #11, #13, #14–20, [#22](https://github.com/secompufscar/secomp-server
 A atualização de atividades do [PR #27](https://github.com/secompufscar/secomp-server-xiv/pull/27) foi integrada e publicada depois, no commit `e4ccb68`, com a migração de apresentação aplicada. O ensaio passou de 12 para 13 migrações e preservou os dados originais. O editor do [PR #10 do app](https://github.com/secompufscar/secomp-app-xiv/pull/10) também está publicado na Vercel, com fila reversível e mínimo de vagas por presenças. Escritas reais desse editor em produção ainda não foram exercitadas. [Evidência da atualização](historico/auditorias/production-deployment-2026-10-03.md#atualização-de-atividades-e-editor-administrativo).
 
 Depois dessa rodada, o [PR #28](https://github.com/secompufscar/secomp-server-xiv/pull/28) ampliou descrições para 1.500 caracteres. A API `633e8c8` foi publicada após o merge, e a migração e o código de validação foram conferidos pela conexão privada. O ensaio preservou dados e passou de 13 para 14 migrações. O [PR #11 do app](https://github.com/secompufscar/secomp-app-xiv/pull/11), integrado e publicado na Vercel, reúne formulário responsivo e recorte de foto. [Registros da rodada](historico/auditorias/production-deployment-2026-10-03.md#descrição-de-1500-caracteres-e-recorte-de-foto).
+
+A recuperação limitada de leituras após desconexão e o diagnóstico seguro do PR #31 foram publicados em `3fa481f`, sem nova migração. [Investigação e limites](historico/auditorias/login-database-connection-2026-10-03.md). Essas evidências anteriores não substituem uma validação dos mesmos fluxos em deployments posteriores.
 
 ## Critérios e estados
 
@@ -50,7 +56,7 @@ Depois dessa rodada, o [PR #28](https://github.com/secompufscar/secomp-server-xi
 
 | ID | Tema | Pendência | Evidência |
 | --- | --- | --- | --- |
-| P2-01 | Consultas, paginação e índices | Medições sintéticas disponíveis; otimizações e paginação compatível pendentes | [Auditoria AUD-14](historico/auditorias/security-performance-review-2026-09-28.md), [resultados MySQL](historico/auditorias/evidencias/audit-mysql-results-2026-09-28.json) |
+| P2-01 | Consultas, paginação e índices | Parcial: lista geral administrativa paginada e validada online. Medições sintéticas disponíveis; otimizações e paginação das demais listas pendentes | [Lista geral](contratos/participantes.md), [auditoria AUD-14](historico/auditorias/security-performance-review-2026-09-28.md), [resultados MySQL](historico/auditorias/evidencias/audit-mysql-results-2026-09-28.json) |
 | P2-02 | Observabilidade | Request ID/health checks presentes; métricas, timeouts, alertas e demais logs pendentes | [Diagnóstico](operacao/diagnostico.md), [auditoria F4](historico/auditorias/functional-block-review-2026-09-29.md) |
 | P2-03 | Pipeline e carga | CI/TypeScript/build e integrações isoladas presentes; carga representativa pendente | [Testes e CI](operacao/testes.md), [workflow](../.github/workflows/ci.yml) |
 
@@ -61,5 +67,7 @@ A investigação de login de 03/10 confirmou falhas intermitentes `P1017` na aut
 Completar a validação funcional do código já publicado: renovação/logout web, links de conta e fluxos do evento com contas controladas, sem exigir novo APK ou reset. Acompanhar logs e cotas do eduroam; os avisos de rede da [rodada de publicação](historico/auditorias/production-deployment-2026-10-03.md) ainda não têm causa confirmada. Depois, tratar assinatura binária/limpeza persistente de órfãos e demais imagens, atomicidade/whitelist de patrocinadores e tags, persistência/coordenação de entregas e melhorias medidas de consultas/observabilidade. A substituição da foto de atividade já preserva a anterior até a nova persistência. Consultar [publicação](operacao/publicacao.md) antes de qualquer mudança online.
 
 A [revisão de branches e documentação de 03/10](historico/auditorias/branch-retirement-2026-10-03.md) registra o encerramento das branches incorporadas e a preservação dos demais trabalhos.
+
+A [revisão de 07/10](historico/auditorias/participant-directory-release-2026-10-06.md#revisão-e-limpeza-de-0710) atualiza esse inventário: nenhum PR aberto antes da revisão documental, somente `main` na API e três branches com trabalho não integrado preservadas no app.
 
 As tabelas do índice anterior eram uma ordem histórica de achados, não prioridades P0/P1. Elas foram preservadas no [acompanhamento arquivado](historico/correcoes/acompanhamento-2026-09-30.md), sem manter uma segunda fonte de estados atuais.

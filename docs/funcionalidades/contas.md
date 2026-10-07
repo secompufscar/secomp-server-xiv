@@ -1,6 +1,6 @@
 # Contas
 
-Última revisão: 03/10/2026. Escopo: comportamento integrado dos PRs #22 e #25, preservado na API atual `633e8c8`. Login web/iOS com conta existente confirmado na rodada anterior `e2080ac`; os demais fluxos funcionais permanecem pendentes conforme a [evidência de produção](../historico/auditorias/production-deployment-2026-10-03.md). [Prioridades e estados](../roadmap.md).
+Última revisão funcional: 03/10/2026. Escopo: comportamento integrado dos PRs #22 e #25, preservado na publicação `633e8c8` daquela rodada. Login web/iOS com conta existente confirmado em `e2080ac`; os demais fluxos funcionais permanecem pendentes conforme a [evidência de produção](../historico/auditorias/production-deployment-2026-10-03.md). A publicação da lista geral de 06/10 não repetiu esses fluxos. [Estado atual e prioridades](../roadmap.md).
 
 ## Cadastro e login no main
 
