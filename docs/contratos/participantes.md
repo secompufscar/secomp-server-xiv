@@ -8,6 +8,8 @@ Filtros: `q` (nome/e-mail, até 120 caracteres), `credentialed=all|yes|no`, `pag
 
 `checkedInAt` registra o instante real da transição para presença, tanto pelo leitor como pela atualização administrativa. A transação mantém presença, horário e pontos juntos; repetir presença sem transição preserva a data. Desmarcar presença limpa o horário; excluir o vínculo elimina o credenciamento, sem excluir a conta. O app mostra esse timestamp em São Paulo, separado do horário programado da atividade.
 
+Após aplicar `20261007010000_require_attendance_timestamp`, o banco também garante horário para toda nova presença: gera UTC automaticamente quando omitido. O campo não é uma entrada obrigatória no formulário nem na requisição do cliente. O valor nulo continua permitido somente para ausência ou horário legado desconhecido mantido, conforme a [regra de presença](../funcionalidades/presenca.md#horário-obrigatório-em-novas-presenças).
+
 A migração recupera `createdAt` apenas de check-ins diretos com presença, sem inscrição prévia e cujos timestamps diferem no máximo um segundo (variação de relógios na mesma inserção). Para os demais registros antigos, `credentialedAt` permanece nulo: o credenciamento é confirmado, mas o instante exato é desconhecido. Não se usa data da inscrição nem última alteração como data de credenciamento.
 
 Os registros são ordenados por nome, com desempate por ID. Uma página além do fim é ajustada para a última página; sem resultados, a resposta indica página 1 e lista vazia. A busca ignora espaços nas extremidades. Filtros inválidos retornam 400; autenticação ausente/inválida retorna 401, e conta autenticada sem papel ADMIN retorna 403. A consulta não cria, exclui ou modifica contas, inscrições ou presenças.
