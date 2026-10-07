@@ -1,12 +1,12 @@
 # Compatibilidade com app e site
 
-Última revisão: 03/10/2026. API atual `633e8c8` publicada, com descrições de até 1.500 caracteres; login web/iOS e CORS confirmados na rodada anterior `e2080ac`. Correção das rotas web e editor administrativo também publicados. Escopo e limitações na [evidência da publicação](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
+Última revisão documental: 07/10/2026. A API `dea590e2` e o app `96f1b712` estão publicados, com a lista administrativa aditiva validada. [Evidência atual](../historico/auditorias/participant-directory-release-2026-10-06.md). Login web/iOS, CORS, rotas web e editor mantêm as evidências e os limites da [rodada de 03/10](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
 
 ## Web/iOS e CORS
 
 A origem do app web é `https://secomp-app-xiv.vercel.app`; `/App/Home` é caminho, não parte da origem. A lista publicada permanece permitida, e origens extras são configuráveis sem autorizar qualquer site. CORS precede parsers para erros 400/413 serem legíveis nas origens autorizadas. Preflight e tratamento de versão preservam clientes web sem header mobile. [Relato CORS](../historico/correcoes/web-cors-compatibility.md), [proteções de login web](../historico/correcoes/urgent-auth-web-safety.md).
 
-Login com conta existente no iOS foi confirmado pelo responsável, e os preflights da origem pública passaram no deployment atual. Isso não comprova a causa histórica do incidente antigo de login/CORS.
+Na rodada de 03/10, login com conta existente no iOS foi confirmado pelo responsável, e os preflights da origem pública passaram naquele deployment. Esses testes não foram repetidos na rodada da lista geral e não comprovam a causa histórica do incidente antigo de login/CORS.
 
 O [PR #9 do app](https://github.com/secompufscar/secomp-app-xiv/pull/9), mergeado e publicado, configura a regra geral de hospedagem para acesso direto/recarga das rotas da SPA, preservando caminhos, parâmetros e arquivos estáticos. A raiz, `/SetNewPassword` e `/App/Home` retornaram 200 e o documento do app no domínio público. Essa correção trata o 404 da hospedagem antes do JavaScript; CORS continua sendo verificado separadamente nas chamadas à API. [Validação e limites](../historico/auditorias/production-deployment-2026-10-03.md#rotas-web-e-recuperação-de-senha).
 

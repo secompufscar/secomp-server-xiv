@@ -1,10 +1,10 @@
 # Publicação e migrações
 
-Última revisão: 03/10/2026. Este guia descreve o procedimento operacional. A API atual `3fa481f` foi publicada após merge do PR #31 e CI aprovado, com recuperação limitada de conexão e diagnóstico seguro. Essa correção não acrescenta migração; permanecem as 14 da rodada `633e8c8`, incluindo descrição de 1.500. A rodada anterior `e2080ac` confirmou login web/iOS. Consulte a [investigação de conexão](../historico/auditorias/login-database-connection-2026-10-03.md) e a [evidência de 03/10](../historico/auditorias/production-deployment-2026-10-03.md). [Roadmap](../roadmap.md).
+Última revisão: 07/10/2026. Este guia descreve o procedimento operacional. A API `dea590e2` foi publicada após merge do PR #33 e CI aprovado, com a migração de instante de presença aplicada e a lista geral validada online. O app do PR #21 foi mergeado depois e publicado automaticamente na Vercel. [Evidência de 06/10](../historico/auditorias/participant-directory-release-2026-10-06.md). As [rodadas de 03/10](../historico/auditorias/production-deployment-2026-10-03.md) conservam as verificações anteriores de login e migrações. [Roadmap](../roadmap.md).
 
 ## Preparação
 
-1. Identificar commit, PRs integrados, ambiente e serviço da API. Fazer pull antes de publicar e verificar CI no commit que será usado.
+1. Identificar commit, PRs, ambiente e serviço da API. Aprovar a CI e mergear o PR da API no GitHub antes de publicar; atualizar a cópia local e conferir o commit usado. Quando o app depender dessa API, validar o serviço publicado antes de mergear o PR do app que dispara a Vercel.
 2. Fazer um backup atualizado da produção, restaurá-lo em banco isolado e ensaiar as migrações com os dados atuais. Conferir configuração dos segredos sem expor valores.
 3. Manter a exigência de versão desativada para esta continuidade da API. Confirmar origem `https://secomp-app-xiv.vercel.app` e configuração do proxy.
 4. Conferir migrações pendentes e edições atuais duplicadas. A constraint não resolve duplicatas automaticamente. Consultar [consistência de edição](../historico/correcoes/edition-registration-consistency.md).
@@ -12,6 +12,8 @@
 ## Banco e aplicação
 
 Aplicar `npm run migrate:deploy` antes do código que depende das colunas novas; conferir `npm run migrate:status` depois. Não usar `migrate dev`, `db push`, reset ou exclusão de registros de migração em produção.
+
+A lista geral requer `20261006090000_attendance_timestamp`, aplicada antes da API do PR #33. O backup atualizado foi feito por SSH/conexão privada, sem tornar o banco público. O ensaio preservou os campos originais e a conferência privada confirmou término/checksum da migração. A recuperação conservadora de horários legados compara os tipos DATETIME/TIMESTAMP com a sessão SQL em UTC e restaura o fuso anterior. [Evidência](../historico/auditorias/participant-directory-release-2026-10-06.md).
 
 As etapas anteriores incluem sessões renováveis, versão de autenticação, crédito de presença e integridade da edição. O PR #22, já integrado, acrescenta `20260930030000_verified_email_change`, com e-mail pendente/versão. Publicar o código atual exige também essa migração. [Detalhes do #22](../historico/correcoes/verified-email-change.md).
 

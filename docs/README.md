@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 03/10/2026. API `3fa481f` publicada no Railway após o PR #31, com recuperação limitada de leituras após desconexão e diagnóstico seguro. O limite de descrição de 1.500 e as 14 migrações da rodada `633e8c8` permanecem; editor administrativo e rotas web estão publicados na Vercel. O login web/iOS com conta existente foi verificado na rodada anterior `e2080ac`. A [investigação de conexão](historico/auditorias/login-database-connection-2026-10-03.md) e a [evidência da publicação](historico/auditorias/production-deployment-2026-10-03.md) separam os resultados dos fluxos ainda não exercitados em produção.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 07/10/2026. A API `dea590e2`, do PR #33, está publicada na Railway; a migração do instante de presença foi aplicada e a lista geral administrativa foi validada online. O app `96f1b712`, do PR #21, foi publicado automaticamente na Vercel. [Evidência de publicação e revisão de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md). Os resultados anteriores de login, migrações e editor permanecem nas [evidências de 03/10](historico/auditorias/production-deployment-2026-10-03.md); cada rodada mantém seu escopo e limitações.
 
 | O que você procura | Referência |
 | --- | --- |
@@ -10,6 +10,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Todas as contas, busca, status e instante do credenciamento | [Diretório de participantes](contratos/participantes.md) |
+| Publicação da lista geral e revisão de branches/documentação | [Evidência de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
 | Deploy, migrações e login web/iOS em produção | [Evidência de 03/10](historico/auditorias/production-deployment-2026-10-03.md) |
 | Erros da API e logs no Railway | [Diagnóstico](operacao/diagnostico.md) |
