@@ -27,11 +27,11 @@ test('MySQL: diretório inclui ausentes/sem inscrição e isola edição; horár
     await attendance.checkIn(userIds[0], activityIds[0]);
     await prisma.userAtActivity.create({ data: { userId: userIds[1], activityId: activityIds[1], presente: true, inscricaoPrevia: false, listaEspera: false, checkedInAt: new Date() } });
     await prisma.userAtActivity.create({ data: { userId: userIds[2], activityId: activityIds[0], presente: false, inscricaoPrevia: true, listaEspera: false } });
-    const legacy = await prisma.userAtActivity.create({ data: { userId: userIds[3], activityId: activityIds[0], presente: true, inscricaoPrevia: true, listaEspera: false } });
+    const direct = await prisma.userAtActivity.create({ data: { userId: userIds[3], activityId: activityIds[0], presente: true, inscricaoPrevia: true, listaEspera: false } });
     const first = await listParticipantDirectory({ page: 1, q: prefix, credentialed: 'all' });
     assert.equal(first.total, 4); assert.equal(first.credentialedCount, 2); assert.equal(first.notCredentialedCount, 2);
     assert.equal(first.users.find(u => u.id === userIds[1]).credentialed, false);
-    assert.equal(first.users.find(u => u.id === userIds[3]).credentialedAt, null);
+    assert.ok(first.users.find(u => u.id === userIds[3]).credentialedAt instanceof Date, 'database timestamps new presence even without an API-supplied time');
     const when = first.users.find(u => u.id === userIds[0]).credentialedAt;
     assert.ok(when instanceof Date);
     const link = await prisma.userAtActivity.findUniqueOrThrow({ where: { userId_activityId: { userId: userIds[0], activityId: activityIds[0] } } });
@@ -40,7 +40,7 @@ test('MySQL: diretório inclui ausentes/sem inscrição e isola edição; horár
     assert.equal(second.total, 2); assert.equal(second.users.find(u => u.id === userIds[0]).credentialedAt.toISOString(), when.toISOString());
     await attendance.update(link.id, { presente: false });
     assert.equal((await listParticipantDirectory({ page: 1, q: prefix, credentialed: 'no' })).total, 3);
-    await prisma.userAtActivity.delete({ where: { id: legacy.id } });
+    await prisma.userAtActivity.delete({ where: { id: direct.id } });
     assert.equal((await listParticipantDirectory({ page: 1, q: prefix, credentialed: 'all' })).total, 4, 'removal never hides the account');
   } finally {
     await prisma.userAtActivity.deleteMany({ where: { activityId: { in: activityIds } } });

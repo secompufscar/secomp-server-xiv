@@ -22,6 +22,7 @@ test('diretório inclui contas sem vínculo, filtra presença da edição atual 
         findMany: async args => { assert.equal(args.skip, 50); assert.equal(args.take, 50); assert.deepEqual(args.select.userAtActivity.where, { activityId: 'checkin', presente: true }); assert.equal('senha' in args.select, false); return [
           { id: 'green', nome: 'Ana', email: 'a@example.invalid', userAtActivity: [{ checkedInAt: when }], senha: 'never-return' },
           { id: 'red', nome: 'Bruno', email: 'b@example.invalid', userAtActivity: [] },
+          { id: 'legacy', nome: 'Legacy', email: 'l@example.invalid', userAtActivity: [{ checkedInAt: null }] },
         ]; },
       },
     });
@@ -29,6 +30,7 @@ test('diretório inclui contas sem vínculo, filtra presença da edição atual 
   const result = await repository.listParticipantDirectory({ page: 999, q: 'Silva', credentialed: 'all' });
   assert.equal(result.page, 2); assert.equal(result.users[0].credentialed, true); assert.equal(result.users[0].credentialedAt, when);
   assert.equal(result.users[1].credentialed, false); assert.equal(result.users[1].credentialedAt, null);
+  assert.equal(result.users[2].credentialed, true); assert.equal(result.users[2].credentialedAt, null, 'unknown legacy time is still represented honestly');
   assert.deepEqual(Object.keys(result.users[0]).sort(), ['credentialed', 'credentialedAt', 'email', 'id', 'nome']);
   assert.equal('userAtActivity' in calls[0], false); assert.equal('userEvents' in calls[0], false);
   assert.deepEqual(calls[1].userAtActivity, { some: { activityId: 'checkin', presente: true } });

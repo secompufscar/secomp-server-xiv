@@ -6,6 +6,8 @@
 
 A API do [PR #33](https://github.com/secompufscar/secomp-server-xiv/pull/33), commit `dea590e2`, foi mergeada e depois publicada na Railway. A migração do instante de presença teve conclusão/checksum conferidos; consultas online validaram autorização ADMIN, todas as contas, busca, filtros e paginação. O app do [PR #21](https://github.com/secompufscar/secomp-app-xiv/pull/21), commit `96f1b712`, foi publicado automaticamente na Vercel após essa validação. Testes visuais no domínio publicado usaram API fictícia, sem registrar presenças ou excluir participantes reais. [Evidência de 06/10 e revisão de branches](historico/auditorias/participant-directory-release-2026-10-06.md).
 
+A garantia de horário no próprio banco está implementada por `20261007010000_require_attendance_timestamp`, com testes isolados de novas presenças e preservação do legado. Sua aplicação online deve ser conferida separadamente; [comportamento e requisitos](funcionalidades/presenca.md#horário-obrigatório-em-novas-presenças).
+
 ### Rodadas anteriores
 
 PRs #10, #11, #13, #14–20, [#22](https://github.com/secompufscar/secomp-server-xiv/pull/22), [#23](https://github.com/secompufscar/secomp-server-xiv/pull/23) e [#25](https://github.com/secompufscar/secomp-server-xiv/pull/25) incorporados ao código publicado `e2080ac`. Troca de e-mail e revogação administrativa estão integradas, com a migração aditiva aplicada. Encerramento anterior de branches e revisão da organização registrados em [30/09](historico/auditorias/branch-retirement-2026-09-30.md) e [01/10](historico/auditorias/work-review-2026-10-01.md).

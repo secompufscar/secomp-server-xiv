@@ -10,6 +10,12 @@ Novas presenças registram internamente o valor concedido em `creditedPoints`. R
 
 `checkedInAt` registra o instante real ao passar de ausência para presença, junto dos pontos na mesma transação. Repetir presença preserva o instante; desmarcar limpa o campo. Registros legados podem não ter data confiável. A [lista geral](../contratos/participantes.md) expõe esse instante como `credentialedAt` somente para o credenciamento da edição atual; ele é diferente do horário programado da atividade.
 
+## Horário obrigatório em novas presenças
+
+A API preenche o horário automaticamente; o administrador não precisa digitá-lo. A migração `20261007010000_require_attendance_timestamp` acrescenta dois triggers MySQL que garantem horário não nulo em novas presenças, inclusive em inserções ou transições de ausência para presença feitas por outro escritor. Se o horário for omitido, o banco usa `UTC_TIMESTAMP(6)`; o horário válido enviado pela API é preservado.
+
+Desmarcar presença limpa o horário. Tentar apagar um horário conhecido mantendo presença conserva o valor anterior. Presenças antigas sem horário continuam desconhecidas enquanto a presença é mantida: a instalação dos triggers e alterações de outros campos não atribuem uma data inventada. `checkedInAt` permanece nullable no schema para ausências e esses registros legados. O [teste MySQL](../../tests/attendance-timestamp.integration.test.cjs) cobre criação, transição, reversão, rollback, sessão fora de UTC e preservação de dados anteriores. Aplicar a migração após merge do PR e backup/ensaio; conferir os triggers antes de declarar a garantia publicada.
+
 ## Nomes e total de presentes
 
 Rota aditiva para ADMIN: `GET /api/v1/checkIn/presentes/:activityId`.
