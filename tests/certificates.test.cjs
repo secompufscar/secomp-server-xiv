@@ -25,6 +25,28 @@ test('duração ou fonte ausente/inválida bloqueia toda emissão; nenhuma prese
   assert.throws(() => certificateActivities('xiv', [credential, row('talk', { durationSource: ' ' })]), e => e.statusCode === 409);
   assert.throws(() => certificateActivities('xiv', [credential]), e => e.statusCode === 409);
 });
+test('exclusões não somam horas nem bloqueiam por duração ausente; abertura/encerramento ficam fora', () => {
+  const excluded = ['Feira da Comp + Enterprise Day', 'Camisetas', 'Coffe', 'Lual DAComp'].map(nome => row(nome, { certificateExcluded: true, durationMinutes: null, durationSource: null }));
+  const result = certificateActivities('xiv', [credential, ...excluded, row('opening', { nome: ' ABERTURA ' }), row('closing', { nome: 'Encerramento' }), row('lecture')]);
+  assert.deepEqual(result.map(a => a.id), ['lecture']);
+  assert.throws(() => certificateActivities('xiv', [credential, ...excluded]), e => e.statusCode === 409);
+  assert.throws(() => certificateActivities('xiv', [...excluded, row('lecture')]), e => e.statusCode === 403);
+});
+test('plano aprovado: palestras de 60min, minicursos de 180min, Karina/Maratona de 150min e nove exclusões', () => {
+  const plan = require('../scripts/certificates/xiv-durations.json');
+  assert.equal(plan.year, 2026);
+  assert.equal(new Set(plan.activities.map(a => a.id)).size, 37);
+  assert.equal(plan.activities.filter(a => a.excluded).length, 9);
+  assert.equal(plan.activities.filter(a => a.minutes === 180).length, 4);
+  assert.equal(plan.activities.filter(a => a.minutes === 150).length, 2);
+  for (const name of ['Empreendedorismo e Soberania', 'Tendências e Inovações em computação com Monks', 'Como se constrói software sem dono? A história do desenvolvimento do Bitcoin']) {
+    assert.equal(plan.activities.find(a => a.name === name).minutes, 60);
+  }
+  assert.equal(plan.activities.find(a => a.name.startsWith('Comunidade e networking')).minutes, 60);
+  assert.equal(plan.activities.find(a => a.name.startsWith('Mesa-redonda: Curricularização')).minutes, 60);
+  assert.equal(plan.activities.find(a => a.name === 'Mesa Monks').minutes, 90);
+  for (const entry of plan.activities) assert.ok(entry.excluded ? entry.minutes === null : Number.isInteger(entry.minutes) && entry.minutes > 0);
+});
 test('emissão persiste snapshot, soma e URL; é idempotente e flag desligada impede novos certificados', async t => {
   const original = prismaModule.prisma, enabled = process.env.CERTIFICATES_ENABLED;
   t.after(() => { prismaModule.prisma = original; if (enabled === undefined) delete process.env.CERTIFICATES_ENABLED; else process.env.CERTIFICATES_ENABLED = enabled; });
@@ -79,9 +101,11 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   const url = base + '/activities/af80c0cc-bb7d-4e71-8a7f-731562b0b270/duration';
   assert.equal((await fetch(url, { method: 'PUT', headers, body: '{}' })).status, 403);
   role = 'ADMIN';
-  for (const body of [{ durationMinutes: 30 }, { durationMinutes: null, durationSource: 'ref' }, { durationMinutes: 0, durationSource: 'ref' }]) {
+  for (const body of [{ durationMinutes: 30 }, { durationMinutes: null, durationSource: 'ref' }, { durationMinutes: 0, durationSource: 'ref' }, { durationMinutes: 60, durationSource: 'ref', certificateExcluded: true }]) {
     assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) })).status, 400);
   }
   assert.equal(duration.mock.callCount(), 0);
   assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ durationMinutes: 150, durationSource: 'Organização' }) })).status, 200);
+  assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ durationMinutes: null, durationSource: null, certificateExcluded: true }) })).status, 200);
+  assert.deepEqual(duration.mock.calls[1].arguments.slice(1), [null, null, true]);
 });

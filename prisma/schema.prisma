@@ -120,6 +120,7 @@ model Activity {
   points          Int              @default(0)
   durationMinutes Int?
   durationSource  String?          @db.VarChar(500)
+  certificateExcluded Boolean     @default(false)
 
   // Relacionamentos
   categoria Category @relation(fields: [categoriaId], references: [id])

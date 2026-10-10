@@ -28,12 +28,14 @@ routes.post("/mine", authMiddleware, rateLimit({ windowMs: 60000, limit: 20, sta
 const durationSchema = z.object({
   durationMinutes: z.number().int().min(1).max(10080).nullable(),
   durationSource: z.string().trim().min(1).max(500).nullable(),
-}).strict().refine(value => (value.durationMinutes === null) === (value.durationSource === null));
+  certificateExcluded: z.boolean().default(false),
+}).strict().refine(value => (value.durationMinutes === null) === (value.durationSource === null))
+  .refine(value => !value.certificateExcluded || value.durationMinutes === null);
 routes.put("/activities/:id/duration", authMiddleware, isAdmin, async (req, res) => {
   const data = durationSchema.safeParse(req.body);
   if (!z.string().uuid().safeParse(req.params.id).success || !data.success) {
     return res.status(400).json({ message: "Informe os minutos e a fonte oficial da duração, ou ambos nulos para limpar." });
   }
-  res.json(await setActivityDuration(req.params.id, data.data.durationMinutes, data.data.durationSource));
+  res.json(await setActivityDuration(req.params.id, data.data.durationMinutes, data.data.durationSource, data.data.certificateExcluded));
 });
 export default routes;

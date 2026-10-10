@@ -1,42 +1,31 @@
-# Durações para revisão antes da liberação
+# Durações confirmadas da XIV SECOMP
 
-Programação pública consultada em 09/10/2026. Os horários abaixo seguem os componentes de data usados no app (sem conversão de fuso). Esta tabela é um plano revisável, não uma atualização do banco. Não habilitar emissão enquanto houver duração pendente nas atividades certificáveis.
+Definições finais da organização recebidas em 10/10/2026, sobre a programação consultada em 09/10. Não há duração pendente nessa programação. As definições não equivalem à aplicação no banco nem à habilitação da emissão.
 
-## Valores determinados
+| Atividades | Minutos certificados |
+| --- | --- |
+| Palestras em geral, incluindo Monks, Bitcoin e as das 11h | 60 cada, sem almoço |
+| SDD (Rogério), Running Bitcoin, PET Cibersegurança, Arquitetura de soluções (Bruno) | 180 cada |
+| Workshop da Karina: A Nova Fronteira do Cyber é a Proteção Humana | 150 |
+| Maratona M@U | 150 |
+| Mesa-redonda de curricularização da extensão | 60 |
+| Empreendedorismo & Tecnologia | 60 |
+| Mesa Monks | 90, intervalo 19h–20h30 no mesmo local, conforme regra anterior |
+| Credenciamento, Feira da Comp, Camisetas, Coffee, Lual, abertura e encerramento | Excluídos da soma e do anexo |
 
-Aplicam a regra autorizada de intervalo de início entre atividades consecutivas no mesmo local e dia, incluindo a marcação de início do Coffee/Camisetas como limite da atividade anterior. Esses controles não são automaticamente incluídos na carga horária.
+A regra final de palestras de 60 minutos substitui a estimativa anterior de 80 minutos da palestra de Bitcoin. Intervalos de almoço não são contabilizados. Os quatro minicursos ocorreram simultaneamente ao workshop, mas cada atividade mantém sua duração aprovada. O credenciamento continua obrigatório para comprovar a doação.
 
-| Dia | Atividade | Início / próxima atividade | Minutos |
-| --- | --- | --- | --- |
-| 05/10 | Segurança da informação e inteligência artificial (Alessandra) | 13:30 / 14:30 | 60 |
-| 05/10 | Mulheres em STEM (Sarita) | 14:30 / 15:30 | 60 |
-| 05/10 | Guerra de Chips (Rafael Aroca) | 16:00 / 17:00 | 60 |
-| 05/10 | Engenharia de Dados (Cezar) | 17:00 / 18:00 | 60 |
-| 05/10 | IA não vai substituir você (Jean) | 18:00 / 19:00 | 60 |
-| 06/10 | Como se constrói software sem dono? (Vinteum) | 09:40 / 11:00 | 80 |
-| 06/10 | A Nova Fronteira do Cyber (Karina) | Confirmação expressa da organização | 150 |
-| 06/10 | Computação Quântica (Tito) | 17:00 / 18:00 | 60 |
-| 06/10 | IA aplicada à Qualidade de Software (Gabriela) | 18:00 / 19:00 | 60 |
-| 06/10 | Mesa Monks | 19:00 / 20:30 | 90 |
-| 07/10 | Estatística e Ciência de Dados (Cibele) | 10:00 / 11:00 | 60 |
-| 07/10 | Empreendedorismo & Tecnologia | 14:00 / 15:00 | 60 |
-| 07/10 | Acessibilidade em ambientes digitais inclusivos | 15:00 / 16:00 | 60 |
-| 07/10 | Chatbots de apoio à saúde mental (Vânia) | 16:30 / 17:30 | 60 |
-| 08/10 | Desenvolvimento Java para IA e ML (Carlos) | 10:00 / 11:00 | 60 |
-| 08/10 | Desenvolvimento de jogos e apps independentes (Yuri) | 13:30 / 14:30 | 60 |
-| 08/10 | Interfaces Líquidas (Dhiogo) | 14:30 / 15:30 | 60 |
-| 08/10 | Cibersegurança, regulação das plataformas digitais | 16:00 / 17:00 | 60 |
-| 08/10 | Determinismo vs probabilística (Víctor) | 17:00 / 18:00 | 60 |
+## Aplicação controlada
 
-## Aguardam resposta
+O arquivo [xiv-durations.json](../../scripts/certificates/xiv-durations.json) contém os 37 IDs e nomes conferidos, com 28 atividades certificáveis e nove registros excluídos (três Camisetas, três Coffee, Feira, Lual e Encerramento). Credenciamento tem regra própria de exclusão. Abertura não tinha registro separado na consulta; caso exista com o nome `Abertura`, a política a exclui independentemente de duração, ignorando caixa/espaços externos. Outros nomes de abertura devem receber marcação explícita de exclusão.
 
-- Quatro minicursos simultâneos de terça às 13h: SDD (Rogério), Running Bitcoin, PET Cibersegurança e Arquitetura de soluções (Bruno).
-- Feira da Comp + Enterprise Day, terça às 9h, Vão da BCo (local distinto de Auditório 1).
-- Tendências e Inovações com Monks, terça às 11h, Auditório 1.
-- Mesa-redonda de curricularização da extensão, quarta às 11h, Bento Prado.
-- Maratona M@U, quarta às 19h, DC.
-- Encerramento, quinta às 18h, Bento Prado.
-- Empreendedorismo e Soberania, segunda às 11h, e Comunidade e networking, quinta às 11h: confirmar se o intervalo até 13h30 inclui almoço.
-- Definir inclusão/exclusão de Camisetas, Coffee e Lual DAComp. Coffee tem blocos de 30 minutos; Camisetas e Lual não têm sucessora definida. Até a decisão, a API não os exclui por suposição e a duração nula bloqueia a emissão de quem tem essas presenças.
+Após merge/publicação da API e aplicação das migrações, no ambiente autorizado:
 
-Credenciamento é sempre excluído da soma e comprova a doação quando há presença registrada na edição.
+```sh
+node scripts/certificates/configure-durations.cjs --check
+node scripts/certificates/configure-durations.cjs --apply
+```
+
+Sem argumento ou com `--check`, nenhuma escrita é realizada. A aplicação exige a edição 2026, todos os IDs/nomes do plano e valores vazios ou já idênticos ao plano. Se encontrar atividade removida, renomeada ou configuração divergente, recusa todas as alterações. A transação usa a barreira de edição/presença; execuções repetidas são idempotentes. Atividades fora do plano são relatadas para revisão e não recebem duração presumida.
+
+O plano não altera horário, categoria, pontuação, presença ou certificados já emitidos. As migrações apenas adicionam armazenamento/restrições. `CERTIFICATES_ENABLED` continua falso até a revisão e publicação da validação pública.

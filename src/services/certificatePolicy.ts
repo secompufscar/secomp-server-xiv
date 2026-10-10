@@ -8,6 +8,7 @@ export interface CertificateActivity {
   data: Date | null;
   durationMinutes: number | null;
   durationSource: string | null;
+  certificateExcluded?: boolean;
   categoria: { nome: string; slug: string };
 }
 
@@ -22,7 +23,9 @@ export function certificateActivities(eventId: string, rows: { presente: boolean
   if (!present.some(row => isCredentialingCategory(row.activity.categoria))) {
     throw new ApiError("É necessário ter credenciamento confirmado nesta edição para emitir o certificado.", ErrorsCode.FORBIDDEN);
   }
-  const activities = [...new Map(present.filter(row => !isCredentialingCategory(row.activity.categoria))
+  const activities = [...new Map(present.filter(row => !isCredentialingCategory(row.activity.categoria)
+    && !row.activity.certificateExcluded
+    && !["abertura", "encerramento"].includes(row.activity.nome.trim().toLocaleLowerCase("pt-BR")))
     .map(row => [row.activity.id, row.activity])).values()];
   if (!activities.length) throw new ApiError("Não há atividades com presença registrada para certificar.", ErrorsCode.CONFLICT);
   if (activities.some(a => !Number.isInteger(a.durationMinutes) || a.durationMinutes! <= 0 || a.durationMinutes! > 10080 || !a.durationSource?.trim())) {

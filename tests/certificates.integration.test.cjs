@@ -45,3 +45,47 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
     await prisma.$disconnect();
   }
 });
+
+test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idempotente e preserva correções', { skip: process.env.RUN_DATABASE_INTEGRATION !== '1' }, async () => {
+  const url = new URL(process.env.DATABASE_URL || '');
+  assert.match(url.pathname.slice(1), /^secomp_xiv_codex_test_[a-f0-9]{12}$/);
+  assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(url.hostname));
+  const { prisma } = require('../src/lib/prisma');
+  const { configureDurations } = require('../scripts/certificates/configure-durations.cjs');
+  const { certificateActivities } = require('../src/services/certificatePolicy');
+  const plan = require('../scripts/certificates/xiv-durations.json');
+  let event, category;
+  const ids = [];
+  try {
+    event = await prisma.event.create({ data: { year: 2026, isCurrent: false, startDate: new Date('2026-10-05'), endDate: new Date('2026-10-08') } });
+    category = await prisma.category.create({ data: { nome: 'Palestras', slug: `test-${randomUUID()}` } });
+    for (const entry of plan.activities) {
+      const activity = await prisma.activity.create({ data: { id: entry.id, nome: entry.name, eventId: event.id, categoriaId: category.id, palestranteNome: 'Equipe', local: 'Teste' } }); ids.push(activity.id);
+    }
+    const preview = await configureDurations(prisma);
+    assert.equal(preview.applied, false); assert.equal(preview.changes, 37);
+    assert.equal(await prisma.activity.count({ where: { eventId: event.id, durationMinutes: { not: null } } }), 0);
+    const applied = await configureDurations(prisma, true);
+    assert.equal(applied.changes, 37);
+    assert.equal((await configureDurations(prisma, true)).changes, 0);
+    const activities = await prisma.activity.findMany({ where: { eventId: event.id }, include: { categoria: true } });
+    assert.equal(activities.filter(a => a.certificateExcluded).length, 9);
+    const credential = { presente: true, activity: { eventId: event.id, nome: 'Credenciamento', categoria: { nome: 'Credenciamento', slug: 'credenciamento' } } };
+    const snapshot = certificateActivities(event.id, [credential, ...activities.map(activity => ({ presente: true, activity }))]);
+    assert.equal(snapshot.length, 28);
+    assert.equal(snapshot.reduce((sum, a) => sum + a.minutes, 0), plan.activities.reduce((sum, a) => sum + (a.minutes || 0), 0));
+    const first = plan.activities[0], second = plan.activities[1];
+    await prisma.activity.update({ where: { id: first.id }, data: { durationMinutes: null, durationSource: null } });
+    await prisma.activity.update({ where: { id: second.id }, data: { durationMinutes: 75 } });
+    await assert.rejects(configureDurations(prisma, true), /value-conflict/);
+    assert.equal((await prisma.activity.findUnique({ where: { id: first.id } })).durationMinutes, null);
+    await prisma.activity.update({ where: { id: second.id }, data: { durationMinutes: second.minutes, nome: 'Nome alterado' } });
+    await assert.rejects(configureDurations(prisma, true), /name-conflict/);
+    await assert.rejects(prisma.activity.update({ where: { id: first.id }, data: { certificateExcluded: true, durationMinutes: 60, durationSource: 'inválido' } }));
+  } finally {
+    await prisma.activity.deleteMany({ where: { id: { in: ids } } });
+    if (category) await prisma.category.delete({ where: { id: category.id } });
+    if (event) await prisma.event.delete({ where: { id: event.id } });
+    await prisma.$disconnect();
+  }
+});

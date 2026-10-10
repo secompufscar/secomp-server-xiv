@@ -46,12 +46,12 @@ export async function findCertificate(code: string) {
   return certificate;
 }
 
-export async function setActivityDuration(id: string, durationMinutes: number | null, durationSource: string | null) {
+export async function setActivityDuration(id: string, durationMinutes: number | null, durationSource: string | null, certificateExcluded = false) {
   return prisma.$transaction(async tx => {
     await lockEditionState(tx, true);
     const activity = await tx.activity.findUnique({ where: { id }, include: { event: true } });
     if (!activity || activity.event?.year !== CERTIFICATE_YEAR) throw new ApiError("Atividade da XIV SECOMP não encontrada.", ErrorsCode.NOT_FOUND);
-    return tx.activity.update({ where: { id }, data: { durationMinutes, durationSource },
-      select: { id: true, durationMinutes: true, durationSource: true } });
+    return tx.activity.update({ where: { id }, data: { durationMinutes, durationSource, certificateExcluded },
+      select: { id: true, durationMinutes: true, durationSource: true, certificateExcluded: true } });
   });
 }
