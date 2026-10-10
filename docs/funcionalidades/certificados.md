@@ -10,6 +10,8 @@ Definição da organização em 09/10/2026: quando houver atividade imediatament
 
 `durationMinutes` e `durationSource` começam nulos. A migração não preenche horas nem habilita emissão. A fonte deve registrar a confirmação da organização ou os IDs/horários usados no intervalo aprovado. Evitar informações sigilosas na fonte, pois os endpoints existentes de atividades retornam esses campos.
 
+O [plano de durações](duracoes-certificados-xiv.md) registra os intervalos determinados e os casos que ainda aguardam resposta, sem alterar a programação ou o banco de produção.
+
 ## Contrato HTTP
 
 Prefixo `/api/v1/certificates`:
