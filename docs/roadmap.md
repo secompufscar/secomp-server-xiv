@@ -4,6 +4,8 @@
 
 ## Estado verificado
 
+Certificados individuais da XIV SECOMP implementados em branch separada em 09/10/2026, com migração aditiva, código único, snapshot persistente e validação pública. Verificação local: 131 testes ativos da API e 12 integrações MySQL isoladas aprovados, incluindo emissão concorrente/idempotente. Emissão de produção não liberada: faltam confirmações de durações, revisão/merge dos PRs e publicação ordenada API/app. [Regras e operação](funcionalidades/certificados.md).
+
 A API do [PR #33](https://github.com/secompufscar/secomp-server-xiv/pull/33), commit `dea590e2`, foi mergeada e depois publicada na Railway. A migração do instante de presença teve conclusão/checksum conferidos; consultas online validaram autorização ADMIN, todas as contas, busca, filtros e paginação. O app do [PR #21](https://github.com/secompufscar/secomp-app-xiv/pull/21), commit `96f1b712`, foi publicado automaticamente na Vercel após essa validação. Testes visuais no domínio publicado usaram API fictícia, sem registrar presenças ou excluir participantes reais. [Evidência de 06/10 e revisão de branches](historico/auditorias/participant-directory-release-2026-10-06.md).
 
 A garantia de horário no próprio banco está implementada por `20261007010000_require_attendance_timestamp`, com testes isolados de novas presenças e preservação do legado. Sua aplicação online deve ser conferida separadamente; [comportamento e requisitos](funcionalidades/presenca.md#horário-obrigatório-em-novas-presenças).

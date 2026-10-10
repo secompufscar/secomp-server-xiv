@@ -9,6 +9,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição atual, inscrições, capacidade, filas e cancelamento | [Inscrições](funcionalidades/inscricoes.md) |
 | Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
+| Certificados individuais, durações, QR e validação pública | [Certificados](funcionalidades/certificados.md) |
 | Todas as contas, busca, status e instante do credenciamento | [Diretório de participantes](contratos/participantes.md) |
 | Publicação da lista geral e revisão de branches/documentação | [Evidência de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
