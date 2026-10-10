@@ -1,0 +1,229 @@
+{
+  "year": 2026,
+  "source": "Organização SECOMP: regras confirmadas em 10/10/2026; plano versionado xiv-durations.json.",
+  "activities": [
+    {
+      "id": "0139a903-d5b2-42cf-b22d-fac1d789a9aa",
+      "name": "Como se constrói software sem dono? A história do desenvolvimento do Bitcoin",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "02f13352-af18-4c01-a674-fa107f2ad266",
+      "name": "Interfaces Líquidas: E se os contratos de integração fossem negociados por agentes em runtime?",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "0e1abe6c-f4b1-4fcf-9953-e04a36754965",
+      "name": "Empreendedorismo & Tecnologia",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "0e565043-6f60-4410-8f00-f0d13b57a252",
+      "name": "Desenvolvimento de Software com Spec-Driven Development (SDD) - Usando Spec Kit e Aplicando Arquitetura com Harness na Prática",
+      "minutes": 180,
+      "excluded": false
+    },
+    {
+      "id": "162687b3-d035-458a-b012-61ab5c2b01be",
+      "name": "Chatbots de apoio à saúde mental, design de interfaces de usuário apoiado por IAGen",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "2989d0c3-62ed-4342-a1c6-c927cf82852b",
+      "name": "Camisetas",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "321b17b1-e33c-43a4-955f-4de9d08fd323",
+      "name": "Camisetas",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "328f5378-e8e3-4caf-820f-8311c4b9034f",
+      "name": "Feira da Comp + Enterprise Day",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "359343bd-5535-4e48-94d8-2f2fbf311cd6",
+      "name": "Desenvolvimento de jogos e apps independentes [...]",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "3778060e-94df-4898-b9b2-c3284d8272ca",
+      "name": "Guerra de Chips: Arquiteturas Open-Source e o Futuro da Tecnologia Brasileira",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "383ce644-7adf-488f-a2ff-54cc9a59a25a",
+      "name": "Running Bitcoin",
+      "minutes": 180,
+      "excluded": false
+    },
+    {
+      "id": "3cedaffd-ecdb-4c63-a21f-d268960eadf5",
+      "name": "PET - Cibersegurança",
+      "minutes": 180,
+      "excluded": false
+    },
+    {
+      "id": "44e9ce79-02e8-4c0b-95dc-84d41abfb7f5",
+      "name": "Tendências e Inovações em computação com Monks",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "4b093374-4ec2-4d57-845f-c60e9ce1c531",
+      "name": "Comunidade e networking:  alavancando sua carreira  durante a graduação",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "50597ec2-6109-40c1-b83f-1275a7c533be",
+      "name": "Mesa-redonda: Curricularização da extensão e o papel da docência na computação",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "542db7d0-888f-407c-bbd3-0eabc45b8ea7",
+      "name": "Coffe",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "55150d70-b733-4676-af5f-67a77c857de5",
+      "name": "Segurança da informação e inteligência artificial: o que significa rackear o sistema?",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "57d36c80-a4bd-4371-9eed-b2506f8aedd2",
+      "name": "Arquitetura de soluções e produtos, Engenharia de prompts e contextos",
+      "minutes": 180,
+      "excluded": false
+    },
+    {
+      "id": "5a80d06b-ef36-4a1e-82aa-7a6fd3f435fa",
+      "name": "Mulheres em STEM: transformando desafios em oportunidades para a ciência e a tecnologia",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "7b5c5052-5353-4dd7-b971-c50c564edaf0",
+      "name": "Encerramento",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "90cf7dff-870b-435f-a270-958c77ae6703",
+      "name": "IA não vai substituir você",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "9fef1a7f-1c34-4dc0-b963-e07424b822f8",
+      "name": "Maratona M@U",
+      "minutes": 150,
+      "excluded": false
+    },
+    {
+      "id": "a248ab6e-5682-4827-83e1-8fb8fd2e830a",
+      "name": "Engenharia de Dados na Era da IA Generativa: Desafios e Tendências",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "a4c1f6ff-3d61-4438-bdae-51d4ff64d824",
+      "name": "Camisetas",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "b9f9c459-e735-4d84-8ca8-b927d62367e6",
+      "name": "Coffe",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "bd1b5996-7ae1-45e4-8266-afb12cdfb22d",
+      "name": "Computação Quântica por Ressonância Magnética Nuclear",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "c6b70ebf-ea81-491b-8eb0-e411ef851ee9",
+      "name": "Determinismo vs probabilistica. Coding agents com Java",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "dbdb4b6d-dbe1-4f4d-ae9f-7b1695103a8d",
+      "name": "Lual DAComp",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "dfac7ae9-d10a-41a6-824e-85e405b5abdf",
+      "name": "Mesa Monks",
+      "minutes": 90,
+      "source": "Regra de intervalo aprovada pela organização em 10/10/2026: Mesa Monks, 19h, seguida de Lual DAComp (dbdb4b6d-dbe1-4f4d-ae9f-7b1695103a8d), 20h30, no mesmo local; programação consultada em 09/10/2026.",
+      "excluded": false
+    },
+    {
+      "id": "e6809f0a-d9ad-40cf-9eb6-ed7dbbfab14b",
+      "name": "Inteligência Artificial aplicada à Qualidade de Software",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "ef2d9f85-77f9-4009-8cc2-aed0f9c3adb2",
+      "name": "A Nova Fronteira do Cyber é a Proteção Humana",
+      "minutes": 150,
+      "excluded": false
+    },
+    {
+      "id": "f1a2ef4f-58c2-4720-99fa-c56daa037331",
+      "name": "Desenvolvimento Java para Inteligência Artificial e Machine Learning",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "f346a8e3-085b-4507-8862-a33b0243d3e3",
+      "name": "Empreendedorismo e Soberania",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "f34cfd19-2875-4dbb-81f8-f3d6fe8ed605",
+      "name": "Coffe",
+      "minutes": null,
+      "excluded": true
+    },
+    {
+      "id": "f5b26bf6-f2bb-4024-bd06-af7e78bf5b5f",
+      "name": "Cibersegurança, regulação das plataformas digitais",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "f90885a7-03f7-46cf-bf01-bf7bf9a3aaf8",
+      "name": "Estatística e Ciência de Dados na Computação",
+      "minutes": 60,
+      "excluded": false
+    },
+    {
+      "id": "ff7f9a22-71e9-46ae-be71-d71006b78fa5",
+      "name": "Acessibilidade em ambientes digitais inclusivos",
+      "minutes": 60,
+      "excluded": false
+    }
+  ]
+}
