@@ -4,6 +4,7 @@
 
 | Conjunto | Referência |
 | --- | --- |
+| Certificados individuais: homologação e publicação | [Evidência de 10/10](auditorias/certificate-release-2026-10-10.md) |
 | Índice anterior com tabela de achados | [Acompanhamento de 30/09](correcoes/acompanhamento-2026-09-30.md) |
 | Segurança, integridade e desempenho | [Auditoria de 28/09](auditorias/security-performance-review-2026-09-28.md) |
 | Análise por blocos funcionais | [Auditoria de 29/09](auditorias/functional-block-review-2026-09-29.md) |
