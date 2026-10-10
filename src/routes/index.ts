@@ -15,10 +15,12 @@ import tagRoutes from "./tag";
 import appVersionRoutes from "./appVersion";
 import appVersionMiddleware from "../middlewares/appVersionMiddleware";
 import healthRoutes from "./health";
+import certificateRoutes from "./certificates";
 
 const routes = Router()
 
 routes.use('/health', healthRoutes);
+routes.use('/certificates', certificateRoutes);
 routes.use(appVersionMiddleware);
 routes.use('/app', appVersionRoutes);
 routes.use('/activities', activitiesRoutes);

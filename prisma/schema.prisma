@@ -40,6 +40,7 @@ model User {
   // Relação com notificações recebidas
   receivedNotifications NotificationHistory[] @relation("NotificationRecipients")
   refreshSessions       RefreshSession[]
+  certificates          Certificate[]
 
   @@map("users")
 }
@@ -73,6 +74,7 @@ model Event {
   // Relações
   userEvents UserEvent[]
   activities Activity[]
+  certificates Certificate[]
 
   @@map("events")
 }
@@ -116,6 +118,9 @@ model Activity {
   localLink       String?          @db.VarChar(2048)
   participantes   UserAtActivity[]
   points          Int              @default(0)
+  durationMinutes Int?
+  durationSource  String?          @db.VarChar(500)
+  certificateExcluded Boolean     @default(false)
 
   // Relacionamentos
   categoria Category @relation(fields: [categoriaId], references: [id])
@@ -125,6 +130,35 @@ model Activity {
 
   @@index([eventId])
   @@map("atividades")
+}
+
+model Certificate {
+  id              String   @id @default(uuid())
+  code            String   @unique @db.Char(32)
+  userId          String
+  eventId         String
+  participantName String   @db.VarChar(255)
+  totalMinutes    Int
+  snapshot        Json
+  validationUrl   String   @db.VarChar(2048)
+  issuedAt        DateTime @default(now()) @db.DateTime(6)
+  revision        Int      @default(1)
+  activeSlot      Int?     @default(1)
+  revokedAt       DateTime? @db.DateTime(6)
+  revokedBy       String?
+  revocationReason String? @db.VarChar(500)
+  replacesId      String?  @unique
+  reissuedBy      String?
+  reissueReason   String?  @db.VarChar(500)
+  replaces        Certificate? @relation("CertificateReplacement", fields: [replacesId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replacement     Certificate? @relation("CertificateReplacement")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, eventId, revision])
+  @@unique([userId, eventId, activeSlot])
+  @@index([eventId])
+  @@map("certificates")
 }
 
 model UserAtActivity {
