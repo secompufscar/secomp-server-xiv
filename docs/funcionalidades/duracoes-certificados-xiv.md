@@ -24,8 +24,11 @@ Após merge/publicação da API e aplicação das migrações, no ambiente autor
 ```sh
 node scripts/certificates/configure-durations.cjs --check
 node scripts/certificates/configure-durations.cjs --apply
+node scripts/certificates/configure-durations.cjs --verify-ready
 ```
 
 Sem argumento ou com `--check`, nenhuma escrita é realizada. A aplicação exige a edição 2026, todos os IDs/nomes do plano e valores vazios ou já idênticos ao plano. Se encontrar atividade removida, renomeada ou configuração divergente, recusa todas as alterações. A transação usa a barreira de edição/presença; execuções repetidas são idempotentes. Atividades fora do plano são relatadas para revisão e não recebem duração presumida.
 
 O plano não altera horário, categoria, pontuação, presença ou certificados já emitidos. As migrações apenas adicionam armazenamento/restrições. `CERTIFICATES_ENABLED` continua falso até a revisão e publicação da validação pública.
+
+`--check` retorna código 2 para IDs ausentes, nomes divergentes ou valores conflitantes; falhas de execução retornam 1. Código 0 no pré-check significa plano aplicável, não necessariamente aplicado. `--verify-ready` é somente leitura e retorna 2 também quando ainda há alterações por aplicar ou atividades fora do plano que não sejam credenciamento. Corrigir/revisar o plano antes de prosseguir; não forçar valores nem ignorar o resultado. Mesa Monks possui fonte individual no JSON com horários e ID da atividade seguinte, preservada no snapshot.

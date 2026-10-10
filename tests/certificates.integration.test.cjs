@@ -6,7 +6,7 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
   assert.match(url.pathname.slice(1), /^secomp_xiv_codex_test_[a-f0-9]{12}$/);
   assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(url.hostname));
   const { prisma } = require('../src/lib/prisma');
-  const { issueCertificate, findCertificate, setActivityDuration } = require('../src/repositories/certificateRepository');
+  const { issueCertificate, findCertificate, setActivityDuration, revokeCertificate, reissueCertificate } = require('../src/repositories/certificateRepository');
   const previous = process.env.CERTIFICATES_ENABLED;
   const eventIds = [], users = [], activities = [], categories = [];
   try {
@@ -34,9 +34,55 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
     assert.deepEqual(again, issued[0]); assert.deepEqual(await findCertificate(again.code), again);
     await assert.rejects(prisma.activity.update({ where: { id: activities[1] }, data: { durationMinutes: -1 } }));
     await assert.rejects(prisma.certificate.create({ data: { ...issued[0], id: randomUUID(), code: 'F'.repeat(32) } }));
+    const original = issued[0];
+    await assert.rejects(reissueCertificate(original.code, users[1], 'Nome corrigido'), e => e.statusCode === 409);
+    assert.equal((await findCertificate(original.code)).code, original.code);
+    process.env.CERTIFICATES_ENABLED = 'true';
+    await setActivityDuration(activities[1], null, null);
+    await assert.rejects(reissueCertificate(original.code, users[1], 'Nome corrigido'), e => e.statusCode === 409);
+    assert.equal((await findCertificate(original.code)).code, original.code);
+    await setActivityDuration(activities[1], 60, 'Correção posterior');
+    await prisma.$executeRawUnsafe('ALTER TABLE certificates ADD CONSTRAINT test_certificate_insert_failure CHECK (totalMinutes <> 60)');
+    try {
+      await assert.rejects(reissueCertificate(original.code, users[1], 'Falha simulada depois da revogação'));
+      assert.equal((await findCertificate(original.code)).code, original.code);
+      assert.equal(await prisma.certificate.count(), 1);
+    } finally { await prisma.$executeRawUnsafe('ALTER TABLE certificates DROP CHECK test_certificate_insert_failure'); }
+    const replacements = await Promise.all(Array.from({ length: 5 }, () => reissueCertificate(original.code, users[1], 'Nome e duração corrigidos')));
+    const replacement = replacements[0];
+    assert.equal(new Set(replacements.map(c => c.code)).size, 1);
+    assert.equal(replacement.revision, 2); assert.equal(replacement.replacesId, original.id);
+    assert.equal(replacement.totalMinutes, 60); assert.equal(replacement.participantName, 'Outro nome');
+    assert.equal(replacement.reissuedBy, users[1]); assert.equal(replacement.reissueReason, 'Nome e duração corrigidos');
+    const historical = await prisma.certificate.findUnique({ where: { code: original.code } });
+    assert.deepEqual(historical.snapshot, original.snapshot); assert.equal(historical.participantName, original.participantName);
+    assert.equal(historical.revokedBy, users[1]); assert.equal(historical.activeSlot, null);
+    await assert.rejects(findCertificate(original.code), e => e.statusCode === 410);
+    assert.equal((await issueCertificate(users[0])).code, replacement.code);
+    const revoked = await revokeCertificate(replacement.code, users[1], 'Presença incorreta');
+    assert.deepEqual(await revokeCertificate(replacement.code, users[0], 'Outro motivo'), revoked);
+    await assert.rejects(findCertificate(replacement.code), e => e.statusCode === 410);
+    await assert.rejects(issueCertificate(users[0]), e => e.statusCode === 410);
+    await assert.rejects(reissueCertificate(original.code, users[1], 'Não reativar versão antiga'), e => e.statusCode === 410);
+    const audit = await prisma.certificate.findUnique({ where: { code: replacement.code } });
+    assert.equal(audit.revokedBy, users[1]); assert.equal(audit.revocationReason, 'Presença incorreta');
+    await prisma.userAtActivity.updateMany({ where: { userId: users[0], activityId: activities[0] }, data: { presente: false } });
+    await assert.rejects(reissueCertificate(replacement.code, users[1], 'Sem credenciamento'), e => e.statusCode === 403);
+    assert.equal(await prisma.certificate.count(), 2);
+    await prisma.userAtActivity.updateMany({ where: { userId: users[0], activityId: activities[0] }, data: { presente: true } });
+    const third = await reissueCertificate(replacement.code, users[1], 'Credenciamento corrigido');
+    assert.equal(third.revision, 3); assert.equal(await prisma.certificate.count({ where: { activeSlot: 1 } }), 1);
+    await assert.rejects(prisma.certificate.update({ where: { id: third.id }, data: { activeSlot: null } }));
+    const start = performance.now();
+    const timings = await Promise.all(Array.from({ length: 100 }, async () => {
+      const at = performance.now(); assert.equal((await issueCertificate(users[0])).code, third.code); return performance.now() - at;
+    }));
+    timings.sort((a, b) => a - b);
+    console.log(JSON.stringify({ certificateRecoveryLoad: { requests: 100, elapsedMs: Math.round(performance.now() - start), p95Ms: Math.round(timings[94]), maxMs: Math.round(timings[99]) } }));
   } finally {
     if (previous === undefined) delete process.env.CERTIFICATES_ENABLED; else process.env.CERTIFICATES_ENABLED = previous;
-    await prisma.certificate.deleteMany({ where: { userId: { in: users } } });
+    const versions = await prisma.certificate.findMany({ where: { userId: { in: users } }, orderBy: { revision: 'desc' } });
+    for (const version of versions) await prisma.certificate.delete({ where: { id: version.id } });
     await prisma.userAtActivity.deleteMany({ where: { userId: { in: users } } });
     await prisma.activity.deleteMany({ where: { id: { in: activities } } });
     await prisma.category.deleteMany({ where: { id: { in: categories } } });

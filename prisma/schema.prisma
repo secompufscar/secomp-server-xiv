@@ -142,10 +142,21 @@ model Certificate {
   snapshot        Json
   validationUrl   String   @db.VarChar(2048)
   issuedAt        DateTime @default(now()) @db.DateTime(6)
+  revision        Int      @default(1)
+  activeSlot      Int?     @default(1)
+  revokedAt       DateTime? @db.DateTime(6)
+  revokedBy       String?
+  revocationReason String? @db.VarChar(500)
+  replacesId      String?  @unique
+  reissuedBy      String?
+  reissueReason   String?  @db.VarChar(500)
+  replaces        Certificate? @relation("CertificateReplacement", fields: [replacesId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replacement     Certificate? @relation("CertificateReplacement")
   user            User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   event           Event    @relation(fields: [eventId], references: [id], onDelete: Restrict)
 
-  @@unique([userId, eventId])
+  @@unique([userId, eventId, revision])
+  @@unique([userId, eventId, activeSlot])
   @@index([eventId])
   @@map("certificates")
 }

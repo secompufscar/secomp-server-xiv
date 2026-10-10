@@ -54,7 +54,7 @@ test('emissão persiste snapshot, soma e URL; é idempotente e flag desligada im
   prismaModule.prisma = { $transaction: fn => fn({
     $queryRaw: async () => [{ id: 1 }],
     event: { findUnique: async args => { assert.equal(args.where.year, 2026); return { id: 'xiv', year: 2026, startDate: new Date('2026-10-05'), endDate: new Date('2026-10-08') }; } },
-    certificate: { findUnique: async () => saved, create: async ({ data }) => { creates++; saved = { ...data, issuedAt: new Date() }; return saved; } },
+    certificate: { findFirst: async () => saved, create: async ({ data }) => { creates++; saved = { ...data, issuedAt: new Date() }; return saved; } },
     user: { findUnique: async () => ({ nome: 'Ana Silva' }) },
     userAtActivity: { findMany: async args => { assert.deepEqual(args.where, { userId: 'self', presente: true, activity: { eventId: 'xiv' } }); return [credential, row('talk')]; } },
   }) };
@@ -87,6 +87,8 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   t.mock.method(userRepository, 'findById', async () => ({ id: 'self', tipo: role, confirmed: true, authVersion: 0 }));
   const issue = t.mock.method(repository, 'issueCertificate', async () => { throw Object.assign(new Error('blocked'), { statusCode: 409 }); });
   const duration = t.mock.method(repository, 'setActivityDuration', async () => ({}));
+  const revoke = t.mock.method(repository, 'revokeCertificate', async () => ({ code: 'A'.repeat(32), revokedAt: new Date() }));
+  const reissue = t.mock.method(repository, 'reissueCertificate', async () => { throw Object.assign(new Error('blocked'), { statusCode: 409 }); });
   t.mock.method(repository, 'findCertificate', async () => { throw Object.assign(new Error('not found'), { statusCode: 404 }); });
   const app = express(); app.use(express.json()); app.use(require('../src/routes/certificates').default);
   app.use((error, _req, res, _next) => res.status(error.statusCode || 500).json({ message: error.message }));
@@ -100,7 +102,20 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   assert.deepEqual(issue.mock.calls[0].arguments, ['self']);
   const url = base + '/activities/af80c0cc-bb7d-4e71-8a7f-731562b0b270/duration';
   assert.equal((await fetch(url, { method: 'PUT', headers, body: '{}' })).status, 403);
+  for (const operation of ['revoke', 'reissue']) {
+    assert.equal((await fetch(base + '/' + 'A'.repeat(32) + '/' + operation, { method: 'POST', headers, body: '{"reason":"Correção"}' })).status, 403);
+  }
+  assert.equal(revoke.mock.callCount(), 0); assert.equal(reissue.mock.callCount(), 0);
   role = 'ADMIN';
+  for (const operation of ['revoke', 'reissue']) {
+    const correctionUrl = base + '/' + 'A'.repeat(32) + '/' + operation;
+    for (const body of [{}, { reason: ' ' }, { reason: 'x'.repeat(501) }, { reason: 'Correção', adminId: 'forged' }]) {
+      assert.equal((await fetch(correctionUrl, { method: 'POST', headers, body: JSON.stringify(body) })).status, 400);
+    }
+    assert.equal((await fetch(correctionUrl, { method: 'POST', headers, body: '{"reason":" Correção "}' })).status, operation === 'revoke' ? 200 : 409);
+  }
+  assert.deepEqual(revoke.mock.calls[0].arguments, ['A'.repeat(32), 'self', 'Correção']);
+  assert.deepEqual(reissue.mock.calls[0].arguments, ['A'.repeat(32), 'self', 'Correção']);
   for (const body of [{ durationMinutes: 30 }, { durationMinutes: null, durationSource: 'ref' }, { durationMinutes: 0, durationSource: 'ref' }, { durationMinutes: 60, durationSource: 'ref', certificateExcluded: true }]) {
     assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) })).status, 400);
   }
@@ -108,4 +123,14 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ durationMinutes: 150, durationSource: 'Organização' }) })).status, 200);
   assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ durationMinutes: null, durationSource: null, certificateExcluded: true }) })).status, 200);
   assert.deepEqual(duration.mock.calls[1].arguments.slice(1), [null, null, true]);
+});
+
+test('pré-check falha com conflitos; readiness exige plano aplicado e revisão das atividades não previstas', () => {
+  const { reportExitCode } = require('../scripts/certificates/configure-durations.cjs');
+  for (const status of ['missing', 'name-conflict', 'value-conflict']) assert.equal(reportExitCode({ activities: [{ status }], changes: 0, unplanned: [] }), 2);
+  const pending = { activities: [{ status: 'apply' }], changes: 1, unplanned: [] };
+  assert.equal(reportExitCode(pending), 0); assert.equal(reportExitCode(pending, true), 2);
+  const ready = { activities: [{ status: 'unchanged' }], changes: 0, unplanned: [{ credential: true }] };
+  assert.equal(reportExitCode(ready, true), 0);
+  assert.equal(reportExitCode({ ...ready, unplanned: [{ credential: false }] }, true), 2);
 });

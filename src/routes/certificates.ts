@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
-import { findCertificate, issueCertificate, setActivityDuration } from "../repositories/certificateRepository";
+import { findCertificate, issueCertificate, setActivityDuration, revokeCertificate, reissueCertificate } from "../repositories/certificateRepository";
 import { CertificateSnapshot } from "../services/certificatePolicy";
 
 export async function certificateResponse(certificate: Certificate) {
@@ -38,4 +38,13 @@ routes.put("/activities/:id/duration", authMiddleware, isAdmin, async (req, res)
   }
   res.json(await setActivityDuration(req.params.id, data.data.durationMinutes, data.data.durationSource, data.data.certificateExcluded));
 });
+const correctionSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
+for (const operation of ["revoke", "reissue"] as const) {
+  routes.post(`/:code/${operation}`, authMiddleware, isAdmin, async (req, res) => {
+    const data = correctionSchema.safeParse(req.body);
+    if (!data.success) return res.status(400).json({ message: "Informe o motivo da correção (até 500 caracteres)." });
+    if (operation === "revoke") return res.json(await revokeCertificate(req.params.code, req.user.id!, data.data.reason));
+    res.json(await certificateResponse(await reissueCertificate(req.params.code, req.user.id!, data.data.reason)));
+  });
+}
 export default routes;
