@@ -173,6 +173,26 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
     const snapshot = certificateActivities(event.id, [credential, ...activities.map(activity => ({ presente: true, activity }))]);
     assert.equal(snapshot.length, 28);
     assert.equal(snapshot.reduce((sum, a) => sum + a.minutes, 0), plan.activities.reduce((sum, a) => sum + (a.minutes || 0), 0));
+    const { adminCertificatePreview } = require('../src/repositories/certificateAdminPreviewRepository');
+    const year = process.env.CERTIFICATE_YEAR, enabled = process.env.CERTIFICATES_ENABLED;
+    const recordsBefore = await prisma.certificate.findMany({ orderBy: { id: 'asc' } });
+    const attendanceBefore = await prisma.userAtActivity.findMany({ orderBy: { id: 'asc' } });
+    const activitiesBefore = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
+    try {
+      process.env.CERTIFICATE_YEAR = '2026'; process.env.CERTIFICATES_ENABLED = 'false';
+      const testDocument = await adminCertificatePreview();
+      assert.equal(testDocument.activities.length, 28);
+      assert.equal(testDocument.totalMinutes, snapshot.reduce((sum, a) => sum + a.minutes, 0));
+      assert.equal(testDocument.participantName, 'Certificado Admin [ TESTE ]');
+      await assert.rejects(require('../src/repositories/certificateRepository').findCertificate(testDocument.code), error => error.statusCode === 404);
+      assert.deepEqual(await prisma.certificate.findMany({ orderBy: { id: 'asc' } }), recordsBefore);
+      assert.deepEqual(await prisma.userAtActivity.findMany({ orderBy: { id: 'asc' } }), attendanceBefore);
+      assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), activitiesBefore);
+    } finally {
+      for (const [key, value] of [['CERTIFICATE_YEAR', year], ['CERTIFICATES_ENABLED', enabled]]) {
+        if (value === undefined) delete process.env[key]; else process.env[key] = value;
+      }
+    }
     const first = plan.activities[0], second = plan.activities[1];
     await prisma.activity.update({ where: { id: first.id }, data: { durationMinutes: null, durationSource: null } });
     await prisma.activity.update({ where: { id: second.id }, data: { durationMinutes: 75 } });

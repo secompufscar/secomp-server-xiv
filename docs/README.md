@@ -10,6 +10,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Certificados individuais, durações, QR e validação pública | [Certificados](funcionalidades/certificados.md) |
+| Gerar amostra ADMIN sem validade, sem emitir ou alterar presenças | [Contrato de teste administrativo](funcionalidades/certificados.md#contrato-http), [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/main/docs/my-certificates-web.md#certificado-de-teste-para-admin) |
 | Listar e recuperar certificados da própria conta por edição | [Contrato privado de certificados](funcionalidades/certificados.md#contrato-http), [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/main/docs/my-certificates-web.md) |
 | Publicação de Meus certificados e preservação histórica | [Evidência de 11/10](historico/auditorias/certificate-release-2026-10-11.md) |
 | Configurar próximas edições sem alterar certificados antigos | [Edições de certificados](funcionalidades/certificados-proximas-edicoes.md) |
