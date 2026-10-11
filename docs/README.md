@@ -1,6 +1,6 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 07/10/2026. A API `dea590e2`, do PR #33, está publicada na Railway; a migração do instante de presença foi aplicada e a lista geral administrativa foi validada online. O app `96f1b712`, do PR #21, foi publicado automaticamente na Vercel. [Evidência de publicação e revisão de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md). Os resultados anteriores de login, migrações e editor permanecem nas [evidências de 03/10](historico/auditorias/production-deployment-2026-10-03.md); cada rodada mantém seu escopo e limitações.
+Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 11/10/2026. Código funcional atual: API `28780cc3` (PR #40), publicada e validada na Railway antes do app `8337d569` (PR #35), publicado na Vercel. Meus certificados, histórico privado por edição e preservação dos modelos estão publicados, com 19 migrações existentes e sem migração adicional. [Evidência de 11/10](historico/auditorias/certificate-release-2026-10-11.md). Os resultados anteriores da lista geral estão na [evidência de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md); login, migrações e editor nas [evidências de 03/10](historico/auditorias/production-deployment-2026-10-03.md). Cada rodada mantém seu escopo e limitações.
 
 | O que você procura | Referência |
 | --- | --- |
@@ -11,6 +11,7 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Certificados individuais, durações, QR e validação pública | [Certificados](funcionalidades/certificados.md) |
 | Listar e recuperar certificados da própria conta por edição | [Contrato privado de certificados](funcionalidades/certificados.md#contrato-http), [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/main/docs/my-certificates-web.md) |
+| Publicação de Meus certificados e preservação histórica | [Evidência de 11/10](historico/auditorias/certificate-release-2026-10-11.md) |
 | Configurar próximas edições sem alterar certificados antigos | [Edições de certificados](funcionalidades/certificados-proximas-edicoes.md) |
 | Todas as contas, busca, status e instante do credenciamento | [Diretório de participantes](contratos/participantes.md) |
 | Publicação da lista geral e revisão de branches/documentação | [Evidência de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md) |

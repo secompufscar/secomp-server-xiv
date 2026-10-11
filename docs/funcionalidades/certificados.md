@@ -2,6 +2,8 @@
 
 Manutenção de edições e preservação histórica: [próximas edições](certificados-proximas-edicoes.md). O modelo e seus pontos de ajuste estão no [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/main/docs/certificate-maintenance.md).
 
+Estado em 11/10/2026: contrato privado e snapshots por edição publicados na API `28780cc3`, após merge do PR #40 e CI aprovada. App do PR #35 publicado depois. Foram verificadas leituras próprias, recusa de outra conta, revogação e preservação dos cinco registros existentes, sem emissão ou alteração administrativa. Sem migração adicional. [Evidência atual e limitações](../historico/auditorias/certificate-release-2026-10-11.md).
+
 ## Regras
 
 A edição de emissão é selecionada por `CERTIFICATE_YEAR` (padrão 2026), independentemente do calendário e de qual evento está marcado como atual. Somente anos aprovados em `src/services/certificateEditions.ts` são aceitos. A presença no credenciamento dessa edição comprova a doação, inclusive registros legados sem `checkedInAt`. Inscrição, lista de espera sem presença e credenciamento de outro ano não comprovam elegibilidade.

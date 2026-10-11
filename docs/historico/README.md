@@ -1,9 +1,10 @@
 # Histórico e evidências
 
-Última organização: 07/10/2026. Os relatos conservam evidências e limitações de suas rodadas. Pendências atuais estão somente no [roadmap](../roadmap.md); comportamento atual nos [guias do índice](../README.md).
+Última organização: 11/10/2026. Os relatos conservam evidências e limitações de suas rodadas. Pendências atuais estão somente no [roadmap](../roadmap.md); comportamento atual nos [guias do índice](../README.md).
 
 | Conjunto | Referência |
 | --- | --- |
+| Meus certificados, histórico por edição e modelos preservados: publicação | [Evidência de 11/10](auditorias/certificate-release-2026-10-11.md) |
 | Certificados individuais: homologação e publicação | [Evidência de 10/10](auditorias/certificate-release-2026-10-10.md) |
 | Índice anterior com tabela de achados | [Acompanhamento de 30/09](correcoes/acompanhamento-2026-09-30.md) |
 | Segurança, integridade e desempenho | [Auditoria de 28/09](auditorias/security-performance-review-2026-09-28.md) |
