@@ -17,6 +17,23 @@ A regra final de palestras de 60 minutos substitui a estimativa anterior de 80 m
 
 ## Aplicação controlada
 
+### Nomes aprovados em 10/10/2026
+
+A organização aprovou os títulos do [cronograma público](https://www.secompufscar.com.br/cronograma) nas dez divergências restantes, incluindo o acento de `probabilística`. Os títulos de Segurança da informação (inclusive `rackear`) e de SDD (inclusive o complemento sobre Spec Kit/Harness) permanecem integralmente como estavam. Rótulos separados de tipo, como `Minicurso:`, não são incorporados ao nome. Presenças, IDs, categorias, horários, fontes de duração e minutos não mudam.
+
+O campo `previousName` registra o único nome anterior aceito nas dez correções. Após merge e publicação do plano, antes de verificar durações, executar:
+
+```sh
+node scripts/certificates/rename-titles.cjs --check
+node scripts/certificates/rename-titles.cjs --apply
+node scripts/certificates/rename-titles.cjs --verify-ready
+node scripts/certificates/configure-durations.cjs --verify-ready
+```
+
+A prévia é somente leitura. A aplicação valida todos os 37 IDs/nomes da edição antes de escrever, inclusive os nomes preservados; recusa qualquer nome que não seja o anterior aprovado ou o definitivo. Atualiza apenas `nome` (e o `updatedAt` automático), numa transação com a barreira global de edição; falhas desfazem todas as mudanças. A repetição não escreve novamente. Código 2 indica conflito ou, em `--verify-ready`, alterações ainda pendentes.
+
+Certificados emitidos não são reescritos nem revogados por esse comando. Novas emissões usam os nomes corrigidos; recuperação de um certificado anterior mantém seu snapshot. Para corrigir um certificado existente, solicitar autorização específica e usar a reemissão administrativa auditada descrita em [certificados](certificados.md), com novo código. Nenhuma reemissão em lote foi autorizada nesta correção.
+
 O arquivo [xiv-durations.json](../../scripts/certificates/xiv-durations.json) contém os 37 IDs e nomes conferidos, com 28 atividades certificáveis e nove registros excluídos (três Camisetas, três Coffee, Feira, Lual e Encerramento). Credenciamento tem regra própria de exclusão. Abertura não tinha registro separado na consulta; caso exista com o nome `Abertura`, a política a exclui independentemente de duração, ignorando caixa/espaços externos. Outros nomes de abertura devem receber marcação explícita de exclusão.
 
 Após merge/publicação da API e aplicação das migrações, no ambiente autorizado:
