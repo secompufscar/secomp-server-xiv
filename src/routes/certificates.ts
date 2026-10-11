@@ -56,4 +56,6 @@ for (const operation of ["revoke", "reissue"] as const) {
     res.json(await certificateResponse(await reissueCertificate(req.params.code, req.user.id!, data.data.reason)));
   });
 }
+// Do not let unknown certificate paths reach the application's generic 200 banner.
+routes.use((_req, res) => { res.status(404).json({ message: "Rota de certificados não encontrada." }); });
 export default routes;
