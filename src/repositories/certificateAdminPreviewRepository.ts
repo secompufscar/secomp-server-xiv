@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 import { prisma } from "../lib/prisma";
 import { lockEditionState } from "./editionState";
-import { certifiableActivities } from "../services/certificatePolicy";
+import { adminPreviewActivities } from "../services/certificateAdminPreviewPolicy";
 import { certificateYear, editionPresentation } from "../services/certificateEditions";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 
@@ -12,9 +12,9 @@ export async function adminCertificatePreview() {
     await lockEditionState(tx);
     const event = await tx.event.findUnique({ where: { year: certificateYear() } });
     if (!event) throw new ApiError("Edição de certificados não encontrada.", ErrorsCode.NOT_FOUND);
-    const activities = certifiableActivities(event.id, await tx.activity.findMany({
+    const activities = adminPreviewActivities(event.id, event.year, await tx.activity.findMany({
       where: { eventId: event.id }, include: { categoria: true },
-    }), "edition");
+    }));
     return { kind: "admin-test" as const, code: ADMIN_TEST_CODE, participantName: "Certificado Admin [ TESTE ]",
       issuedAt: new Date().toISOString(), totalMinutes: activities.reduce((sum, activity) => sum + activity.minutes, 0),
       event: { year: event.year, startDate: event.startDate.toISOString(), endDate: event.endDate.toISOString() },
