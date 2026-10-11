@@ -6,8 +6,9 @@ import { certificateYear, editionPresentation } from "../services/certificateEdi
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 
 export const ADMIN_TEST_CODE = "TESTE-ADMIN-SEM-VALIDADE";
+export const ADMIN_EXAMPLE_CODE = "0000000000000000000000000000000G";
 
-export async function adminCertificatePreview() {
+export async function adminCertificatePreview(example = false) {
   const data = await prisma.$transaction(async tx => {
     await lockEditionState(tx);
     const event = await tx.event.findUnique({ where: { year: certificateYear() } });
@@ -15,7 +16,8 @@ export async function adminCertificatePreview() {
     const activities = adminPreviewActivities(event.id, event.year, await tx.activity.findMany({
       where: { eventId: event.id }, include: { categoria: true },
     }));
-    return { kind: "admin-test" as const, code: ADMIN_TEST_CODE, participantName: "Certificado Admin [ TESTE ]",
+    return { kind: "admin-test" as const, code: example ? ADMIN_EXAMPLE_CODE : ADMIN_TEST_CODE,
+      participantName: example ? "Nome de Exemplo" : "Certificado Admin [ TESTE ]",
       issuedAt: new Date().toISOString(), totalMinutes: activities.reduce((sum, activity) => sum + activity.minutes, 0),
       event: { year: event.year, startDate: event.startDate.toISOString(), endDate: event.endDate.toISOString() },
       presentation: editionPresentation(event.year),
@@ -26,7 +28,7 @@ export async function adminCertificatePreview() {
     throw new ApiError("Endereço de validação não configurado corretamente.", ErrorsCode.INTERNAL_ERROR);
   }
   // This marker can never match the public validator's 32-character hexadecimal code.
-  url.searchParams.set("codigo", ADMIN_TEST_CODE);
+  url.searchParams.set("codigo", data.code);
   return { ...data, validationUrl: url.toString(),
     qrCode: await QRCode.toDataURL(url.toString(), { errorCorrectionLevel: "M", width: 300, margin: 4 }) };
 }

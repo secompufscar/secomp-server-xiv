@@ -191,6 +191,12 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
       }
       assert.equal(testDocument.participantName, 'Certificado Admin [ TESTE ]');
       await assert.rejects(require('../src/repositories/certificateRepository').findCertificate(testDocument.code), error => error.statusCode === 404);
+      const example = await adminCertificatePreview(true);
+      assert.equal(example.participantName, 'Nome de Exemplo');
+      assert.equal(example.code, '0000000000000000000000000000000G');
+      assert.deepEqual(example.activities, testDocument.activities); assert.equal(example.totalMinutes, 1680);
+      assert.equal(new URL(example.validationUrl).searchParams.get('codigo'), example.code);
+      await assert.rejects(require('../src/repositories/certificateRepository').findCertificate(example.code), error => error.statusCode === 404);
       assert.deepEqual(await prisma.certificate.findMany({ orderBy: { id: 'asc' } }), recordsBefore);
       assert.deepEqual(await prisma.userAtActivity.findMany({ orderBy: { id: 'asc' } }), attendanceBefore);
       assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), activitiesBefore);

@@ -42,6 +42,14 @@ test('previa somente leitura inclui apenas SDD no bloco simultaneo; exclui contr
   assert.equal(new URL(data.validationUrl).searchParams.get('codigo'), data.code);
   assert.equal(data.activities[0].source, undefined); assert.equal(data.activities[0].id, undefined);
   await assert.rejects(findCertificate(data.code), error => error.statusCode === 404);
+  const example = await preview.adminCertificatePreview(true);
+  assert.equal(example.participantName, 'Nome de Exemplo'); assert.equal(example.code, preview.ADMIN_EXAMPLE_CODE);
+  assert.equal(example.code.length, 32); assert.equal(CERTIFICATE_CODE.test(example.code), false);
+  assert.deepEqual(example.activities, data.activities); assert.equal(example.totalMinutes, data.totalMinutes);
+  assert.deepEqual(example.event, data.event); assert.deepEqual(example.presentation, data.presentation);
+  assert.equal(new URL(example.validationUrl).searchParams.get('codigo'), example.code);
+  assert.match(example.qrCode, /^data:image\/png;base64,/);
+  await assert.rejects(findCertificate(example.code), error => error.statusCode === 404);
   rows.push(activity('Pendente', { durationMinutes: null }));
   await assert.rejects(preview.adminCertificatePreview(), error => error.statusCode === 409);
   rows = []; await assert.rejects(preview.adminCertificatePreview(), error => error.statusCode === 409);
@@ -68,7 +76,7 @@ test('rota exige ADMIN confirmado no banco para qualquer conta; JWT tipo forjado
   const express = require('express'), jwt = require('jsonwebtoken');
   const users = require('../src/repositories/usersRepository').default;
   t.mock.method(users, 'findById', async id => ({ id, tipo: id.startsWith('admin') ? 'ADMIN' : 'USER', confirmed: true, authVersion: 0 }));
-  const call = t.mock.method(preview, 'adminCertificatePreview', async () => ({ kind: 'admin-test', code: preview.ADMIN_TEST_CODE }));
+  const call = t.mock.method(preview, 'adminCertificatePreview', async example => ({ kind: 'admin-test', code: example ? preview.ADMIN_EXAMPLE_CODE : preview.ADMIN_TEST_CODE }));
   const app = express(); app.use(require('../src/routes/certificates').default);
   app.use((error, _req, res, _next) => res.status(error.statusCode || 500).json({ message: error.message }));
   const server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve));
@@ -82,7 +90,11 @@ test('rota exige ADMIN confirmado no banco para qualquer conta; JWT tipo forjado
     const response = await fetch(base + '/admin/preview?userId=other&year=2027', { headers: headers(id) });
     assert.equal(response.status, 200); assert.equal(response.headers.get('cache-control'), 'no-store');
     assert.equal((await response.json()).code, preview.ADMIN_TEST_CODE);
+    const example = await fetch(base + '/admin/preview?format=example&userId=other&year=2027', { headers: headers(id) });
+    assert.equal(example.status, 200); assert.equal((await example.json()).code, preview.ADMIN_EXAMPLE_CODE);
   }
-  assert.equal(call.mock.callCount(), 2); assert.deepEqual(call.mock.calls[0].arguments, []);
+  assert.equal(call.mock.callCount(), 4); assert.deepEqual(call.mock.calls[0].arguments, [false]);
+  assert.deepEqual(call.mock.calls[1].arguments, [true]);
   assert.equal((await fetch(base + '/validate/' + preview.ADMIN_TEST_CODE)).status, 404);
+  assert.equal((await fetch(base + '/validate/' + preview.ADMIN_EXAMPLE_CODE)).status, 404);
 });
