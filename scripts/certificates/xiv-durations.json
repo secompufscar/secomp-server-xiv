@@ -1,7 +1,7 @@
 {
   "year": 2026,
   "source": "Organização SECOMP: regras confirmadas em 10/10/2026; plano versionado xiv-durations.json.",
-  "titleSource": "Cronograma https://www.secompufscar.com.br/cronograma, consultado em 10/10/2026; nomes aprovados pela organização, exceto Segurança da informação e SDD, preservados integralmente.",
+  "titleSource": "Cronograma https://www.secompufscar.com.br/cronograma, consultado em 10/10/2026; aprovação da organização. Segurança da informação preserva a redação, corrigindo rackear para hackear; SDD preservado integralmente; PET - Cibersegurança restaurado.",
   "activities": [
     {
       "id": "0139a903-d5b2-42cf-b22d-fac1d789a9aa",
@@ -74,8 +74,8 @@
     },
     {
       "id": "3cedaffd-ecdb-4c63-a21f-d268960eadf5",
-      "previousName": "PET - Cibersegurança",
-      "name": "Cibersegurança",
+      "previousName": "Cibersegurança",
+      "name": "PET - Cibersegurança",
       "minutes": 180,
       "excluded": false
     },
@@ -88,7 +88,8 @@
     },
     {
       "id": "4b093374-4ec2-4d57-845f-c60e9ce1c531",
-      "name": "Comunidade e networking:  alavancando sua carreira  durante a graduação",
+      "previousName": "Comunidade e networking:  alavancando sua carreira  durante a graduação",
+      "name": "Comunidade e networking: alavancando sua carreira durante a graduação",
       "minutes": 60,
       "excluded": false
     },
@@ -107,7 +108,8 @@
     },
     {
       "id": "55150d70-b733-4676-af5f-67a77c857de5",
-      "name": "Segurança da informação e inteligência artificial: o que significa rackear o sistema?",
+      "previousName": "Segurança da informação e inteligência artificial: o que significa rackear o sistema?",
+      "name": "Segurança da informação e inteligência artificial: o que significa hackear o sistema?",
       "minutes": 60,
       "excluded": false
     },
