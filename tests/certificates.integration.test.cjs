@@ -173,38 +173,6 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
     const snapshot = certificateActivities(event.id, [credential, ...activities.map(activity => ({ presente: true, activity }))]);
     assert.equal(snapshot.length, 28);
     assert.equal(snapshot.reduce((sum, a) => sum + a.minutes, 0), plan.activities.reduce((sum, a) => sum + (a.minutes || 0), 0));
-    const { adminCertificatePreview } = require('../src/repositories/certificateAdminPreviewRepository');
-    const year = process.env.CERTIFICATE_YEAR, enabled = process.env.CERTIFICATES_ENABLED;
-    const recordsBefore = await prisma.certificate.findMany({ orderBy: { id: 'asc' } });
-    const attendanceBefore = await prisma.userAtActivity.findMany({ orderBy: { id: 'asc' } });
-    const activitiesBefore = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
-    try {
-      process.env.CERTIFICATE_YEAR = '2026'; process.env.CERTIFICATES_ENABLED = 'false';
-      const testDocument = await adminCertificatePreview();
-      assert.equal(testDocument.activities.length, 24);
-      assert.equal(testDocument.totalMinutes, 1680);
-      const sdd = plan.activities.find(a => a.id === '0e565043-6f60-4410-8f00-f0d13b57a252');
-      assert.equal(testDocument.activities.filter(a => a.name === sdd.name).length, 1);
-      for (const id of ['383ce644-7adf-488f-a2ff-54cc9a59a25a', '3cedaffd-ecdb-4c63-a21f-d268960eadf5',
-        '57d36c80-a4bd-4371-9eed-b2506f8aedd2', 'ef2d9f85-77f9-4009-8cc2-aed0f9c3adb2']) {
-        assert.ok(!testDocument.activities.some(a => a.name === plan.activities.find(row => row.id === id).name));
-      }
-      assert.equal(testDocument.participantName, 'Certificado Admin [ TESTE ]');
-      await assert.rejects(require('../src/repositories/certificateRepository').findCertificate(testDocument.code), error => error.statusCode === 404);
-      const example = await adminCertificatePreview(true);
-      assert.equal(example.participantName, 'Nome de Exemplo');
-      assert.equal(example.code, '0000000000000000000000000000000G');
-      assert.deepEqual(example.activities, testDocument.activities); assert.equal(example.totalMinutes, 1680);
-      assert.equal(new URL(example.validationUrl).searchParams.get('codigo'), example.code);
-      await assert.rejects(require('../src/repositories/certificateRepository').findCertificate(example.code), error => error.statusCode === 404);
-      assert.deepEqual(await prisma.certificate.findMany({ orderBy: { id: 'asc' } }), recordsBefore);
-      assert.deepEqual(await prisma.userAtActivity.findMany({ orderBy: { id: 'asc' } }), attendanceBefore);
-      assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), activitiesBefore);
-    } finally {
-      for (const [key, value] of [['CERTIFICATE_YEAR', year], ['CERTIFICATES_ENABLED', enabled]]) {
-        if (value === undefined) delete process.env[key]; else process.env[key] = value;
-      }
-    }
     const first = plan.activities[0], second = plan.activities[1];
     await prisma.activity.update({ where: { id: first.id }, data: { durationMinutes: null, durationSource: null } });
     await prisma.activity.update({ where: { id: second.id }, data: { durationMinutes: 75 } });

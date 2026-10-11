@@ -78,7 +78,7 @@ test('emissão persiste snapshot, soma e URL; é idempotente e flag desligada im
 test('códigos inválidos não consultam banco; código desconhecido retorna 404', async t => {
   const original = prismaModule.prisma; t.after(() => { prismaModule.prisma = original; });
   let calls = 0; prismaModule.prisma = { certificate: { findUnique: async () => { calls++; return null; } } };
-  for (const code of ['', 'bad', 'a'.repeat(32), 'A'.repeat(33), '../users']) await assert.rejects(repository.findCertificate(code), e => e.statusCode === 404);
+  for (const code of ['', 'bad', 'a'.repeat(32), 'A'.repeat(33), '../users', 'TESTE-ADMIN-SEM-VALIDADE', '0000000000000000000000000000000G']) await assert.rejects(repository.findCertificate(code), e => e.statusCode === 404);
   assert.equal(calls, 0);
   await assert.rejects(repository.findCertificate('A'.repeat(32)), e => e.statusCode === 404); assert.equal(calls, 1);
 });
@@ -98,6 +98,11 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   t.after(() => { server.closeAllConnections(); return new Promise(resolve => server.close(resolve)); });
   const base = `http://127.0.0.1:${server.address().port}`;
   const headers = { authorization: `Bearer ${jwt.sign({ userId: 'self', authVersion: 0 }, process.env.JWT_SECRET)}`, 'content-type': 'application/json' };
+  for (const suffix of ['', '?format=example']) {
+    const response = await fetch(base + '/admin/preview' + suffix);
+    assert.equal(response.status, 404); assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal((await fetch(base + '/admin/preview' + suffix, { headers })).status, 404);
+  }
   assert.equal((await fetch(base + '/mine', { method: 'POST' })).status, 401);
   assert.equal((await fetch(base + '/validate/bad')).status, 404);
   assert.equal((await fetch(base + '/mine', { method: 'POST', headers, body: JSON.stringify({ userId: 'someone-else' }) })).status, 409);
@@ -109,6 +114,7 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   }
   assert.equal(revoke.mock.callCount(), 0); assert.equal(reissue.mock.callCount(), 0);
   role = 'ADMIN';
+  for (const suffix of ['', '?format=example']) assert.equal((await fetch(base + '/admin/preview' + suffix, { headers })).status, 404);
   for (const operation of ['revoke', 'reissue']) {
     const correctionUrl = base + '/' + 'A'.repeat(32) + '/' + operation;
     for (const body of [{}, { reason: ' ' }, { reason: 'x'.repeat(501) }, { reason: 'Correção', adminId: 'forged' }]) {

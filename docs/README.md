@@ -1,7 +1,5 @@
 # Documentação da API SECOMP XIV
 
-Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estados de implementação, integração e produção. Última revisão: 11/10/2026. Código funcional atual: API `5bc02005` (PR #44), publicada e validada na Railway antes do app `5b547076` (PR #39), publicado na Vercel. A amostra ADMIN da XIV inclui somente SDD no bloco simultâneo: 24 atividades/1680 minutos (28 horas), sem validade ou persistência. Histórico privado, certificados reais, modelos e 19 migrações preservados. [Evidência da correção atual](historico/auditorias/admin-certificate-single-course-2026-10-11.md), [publicação inicial da amostra](historico/auditorias/admin-certificate-test-release-2026-10-11.md), [evidência anterior de certificados](historico/auditorias/certificate-release-2026-10-11.md). Os resultados anteriores da lista geral estão na [evidência de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md); login, migrações e editor nas [evidências de 03/10](historico/auditorias/production-deployment-2026-10-03.md). Cada rodada mantém seu escopo e limitações.
-
 | O que você procura | Referência |
 | --- | --- |
 | Cadastro, login, recuperação e edição de contas | [Contas](funcionalidades/contas.md) |
@@ -10,7 +8,6 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Certificados individuais, durações, QR e validação pública | [Certificados](funcionalidades/certificados.md) |
-| Gerar amostra ADMIN sem validade, sem emitir ou alterar presenças | [Contrato de teste administrativo](funcionalidades/certificados.md#contrato-http), [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/main/docs/my-certificates-web.md#certificado-de-teste-para-admin) |
 | Listar e recuperar certificados da própria conta por edição | [Contrato privado de certificados](funcionalidades/certificados.md#contrato-http), [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/main/docs/my-certificates-web.md) |
 | Publicação de Meus certificados e preservação histórica | [Evidência de 11/10](historico/auditorias/certificate-release-2026-10-11.md) |
 | Configurar próximas edições sem alterar certificados antigos | [Edições de certificados](funcionalidades/certificados-proximas-edicoes.md) |
@@ -45,3 +42,5 @@ O [índice anterior](historico/correcoes/acompanhamento-2026-09-30.md) foi prese
 ## Compatibilidade com o aplicativo
 
 Consulte o [guia atual de compatibilidade](contratos/compatibilidade.md) e o [procedimento de publicação](operacao/publicacao.md). Este título preserva a âncora do README anterior.
+
+Revisão de certificados em 11/10/2026: retirada da amostra ADMIN, reforço da validação/download e limpeza de artefatos obsoletos. Consultar [balanço técnico](historico/auditorias/certificate-review-2026-10-11.md) para distinguir código, testes, integração e produção. Guias atuais: [certificados](funcionalidades/certificados.md) e preservação das próximas edições.

@@ -4,8 +4,6 @@
 
 | Conjunto | Referência |
 | --- | --- |
-| Amostra ADMIN com um minicurso: correção publicada, 24 atividades/28 horas | [Correção de 11/10](auditorias/admin-certificate-single-course-2026-10-11.md) |
-| Amostra ADMIN inicial: publicação histórica com simultâneas | [Publicação inicial de 11/10](auditorias/admin-certificate-test-release-2026-10-11.md) |
 | Meus certificados, histórico por edição e modelos preservados: publicação | [Evidência de 11/10](auditorias/certificate-release-2026-10-11.md) |
 | Certificados individuais: homologação e publicação | [Evidência de 10/10](auditorias/certificate-release-2026-10-10.md) |
 | Índice anterior com tabela de achados | [Acompanhamento de 30/09](correcoes/acompanhamento-2026-09-30.md) |
@@ -27,3 +25,7 @@
 | Presença, agendamento e edição | [Correções do evento](correcoes/event-critical-fixes.md), [edições](correcoes/edition-registration-consistency.md) |
 
 Os demais documentos de implementação ficam em [correções](correcoes); auditorias em [auditorias](auditorias). Encaminhamentos Markdown e cópias JSON da raiz foram retirados por escolha do responsável. Os documentos completos e snapshots originais permanecem aqui; o [mapa de caminhos](caminhos-antigos.md) indica seus destinos e a versão Git que conserva os endereços antigos.
+
+| Revisão do fluxo real e retirada da amostra ADMIN | [Balanço técnico de 11/10](auditorias/certificate-review-2026-10-11.md) |
+
+As duas auditorias da amostra retirada foram removidas do checkout; continuam recuperáveis pelo histórico Git. Certificados reais, auditorias de produção e backups permanecem preservados.
