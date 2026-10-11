@@ -7,6 +7,7 @@ import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 import { findCertificate, issueCertificate, setActivityDuration, revokeCertificate, reissueCertificate, listMyCertificates, findMyCertificate } from "../repositories/certificateRepository";
 import { CertificateSnapshot } from "../services/certificatePolicy";
 import { snapshotPresentation } from "../services/certificateEditions";
+import { adminCertificatePreview } from "../repositories/certificateAdminPreviewRepository";
 
 export async function certificateResponse(certificate: Certificate) {
   const snapshot = certificate.snapshot as unknown as CertificateSnapshot;
@@ -19,6 +20,10 @@ export async function certificateResponse(certificate: Certificate) {
 
 const routes = Router();
 routes.use((_req, res, next) => { res.setHeader("Cache-Control", "no-store"); next(); });
+routes.get("/admin/preview", authMiddleware, isAdmin, rateLimit({ windowMs: 60000, limit: 10,
+  standardHeaders: "draft-8", legacyHeaders: false, keyGenerator: req => req.user.id! }), async (_req, res) => {
+  res.json(await adminCertificatePreview());
+});
 routes.get("/validate/:code", rateLimit({ windowMs: 60000, limit: 120, standardHeaders: "draft-8", legacyHeaders: false }), async (req, res) => {
   res.json(await certificateResponse(await findCertificate(req.params.code)));
 });
