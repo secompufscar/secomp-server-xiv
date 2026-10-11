@@ -1,14 +1,30 @@
 const { PrismaClient } = require('@prisma/client');
-const plan = require('./xiv-durations.json');
+const fs = require('node:fs'), path = require('node:path');
+const defaultPlan = require('./xiv-durations.json');
 
-async function configureDurations(prisma, apply = false) {
+function validatePlan(plan) {
+  if (!plan || !Number.isInteger(plan.year) || plan.year < 1900 || plan.year > 9999
+    || typeof plan.source !== 'string' || !plan.source.trim() || plan.source.length > 500
+    || !Array.isArray(plan.activities) || !plan.activities.length
+    || new Set(plan.activities.map(a => a?.id)).size !== plan.activities.length
+    || plan.activities.some(a => !a || typeof a.id !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(a.id)
+      || typeof a.name !== 'string' || !a.name.trim() || typeof a.excluded !== 'boolean'
+      || (a.excluded ? a.minutes !== null : !Number.isInteger(a.minutes) || a.minutes <= 0 || a.minutes > 10080)
+      || (a.source !== undefined && (typeof a.source !== 'string' || !a.source.trim() || a.source.length > 500)))) {
+    throw new Error('Plano de duracoes invalido; nenhum dado foi alterado');
+  }
+  return plan;
+}
+
+async function configureDurations(prisma, apply = false, plan = defaultPlan) {
+  validatePlan(plan);
   return prisma.$transaction(async tx => {
     const locks = apply
       ? await tx.$queryRaw`SELECT id FROM editionStateLock WHERE id = 1 FOR UPDATE`
       : await tx.$queryRaw`SELECT id FROM editionStateLock WHERE id = 1 LOCK IN SHARE MODE`;
     if (locks.length !== 1) throw new Error('Controle de edição indisponível');
     const event = await tx.event.findUnique({ where: { year: plan.year } });
-    if (!event) throw new Error('Edição 2026 não encontrada');
+    if (!event) throw new Error(`Edição ${plan.year} não encontrada`);
     const activities = await tx.activity.findMany({ where: { eventId: event.id },
       select: { id: true, nome: true, durationMinutes: true, durationSource: true, certificateExcluded: true,
         categoria: { select: { nome: true, slug: true } } } });
@@ -47,15 +63,18 @@ function reportExitCode(report, verifyReady = false) {
   return 0;
 }
 
-module.exports = { configureDurations, reportExitCode };
+module.exports = { configureDurations, reportExitCode, validatePlan };
 if (require.main === module) {
   const args = process.argv.slice(2);
-  if (args.length > 1 || (args.length && !['--check', '--apply', '--verify-ready'].includes(args[0]))) {
-    throw new Error('Use --check (somente leitura, padrão), --verify-ready ou --apply');
+  const operation = args[0] || '--check';
+  if (!['--check', '--apply', '--verify-ready'].includes(operation)
+    || ![0, 1, 3].includes(args.length) || (args.length === 3 && (args[1] !== '--plan' || !args[2]))) {
+    throw new Error('Use --check (padrao), --verify-ready ou --apply, opcionalmente seguido de --plan caminho.json');
   }
+  const plan = validatePlan(args.length === 3 ? JSON.parse(fs.readFileSync(path.resolve(args[2]), 'utf8')) : defaultPlan);
   const prisma = new PrismaClient();
-  configureDurations(prisma, args[0] === '--apply')
-    .then(result => { console.log(JSON.stringify(result, null, 2)); process.exitCode = reportExitCode(result, args[0] === '--verify-ready'); })
+  configureDurations(prisma, operation === '--apply', plan)
+    .then(result => { console.log(JSON.stringify(result, null, 2)); process.exitCode = reportExitCode(result, operation === '--verify-ready'); })
     .catch(error => { console.error(error.message); process.exitCode = 1; })
     .finally(() => prisma.$disconnect());
 }

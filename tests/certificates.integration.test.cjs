@@ -6,19 +6,24 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
   assert.match(url.pathname.slice(1), /^secomp_xiv_codex_test_[a-f0-9]{12}$/);
   assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(url.hostname));
   const { prisma } = require('../src/lib/prisma');
-  const { issueCertificate, findCertificate, setActivityDuration, revokeCertificate, reissueCertificate } = require('../src/repositories/certificateRepository');
+  const { issueCertificate, findCertificate, setActivityDuration, revokeCertificate, reissueCertificate, listMyCertificates, findMyCertificate } = require('../src/repositories/certificateRepository');
+  const { certificateEditions, legacyXivPresentation } = require('../src/services/certificateEditions');
+  const { certificateResponse } = require('../src/routes/certificates');
   const previous = process.env.CERTIFICATES_ENABLED;
+  const previousYear = process.env.CERTIFICATE_YEAR;
   const eventIds = [], users = [], activities = [], categories = [];
   try {
-    for (const year of [2026, 2025]) eventIds.push((await prisma.event.create({ data: { year, isCurrent: false, startDate: new Date(`${year}-10-05`), endDate: new Date(`${year}-10-08`) } })).id);
+    process.env.CERTIFICATE_YEAR = '2026';
+    for (const year of [2026, 2025, 2027]) eventIds.push((await prisma.event.create({ data: { year, isCurrent: false, startDate: new Date(`${year}-10-05`), endDate: new Date(`${year}-10-08`) } })).id);
     for (const nome of ['Credenciamento', 'Palestras']) categories.push((await prisma.category.create({ data: { nome, slug: `${nome.toLowerCase()}-${randomUUID()}` } })).id);
     for (let i = 0; i < 2; i++) users.push((await prisma.user.create({ data: { nome: 'Ana Teste', email: `${randomUUID()}@example.invalid`, senha: 'unused' } })).id);
-    for (const [eventId, categoriaId, minutes] of [[eventIds[0], categories[0], null], [eventIds[0], categories[1], null], [eventIds[1], categories[0], null]]) {
+    for (const [eventId, categoriaId, minutes] of [[eventIds[0], categories[0], null], [eventIds[0], categories[1], null], [eventIds[1], categories[0], null], [eventIds[2], categories[0], null], [eventIds[2], categories[1], null]]) {
       activities.push((await prisma.activity.create({ data: { nome: 'Atividade', eventId, categoriaId, palestranteNome: 'Equipe', local: 'Teste', durationMinutes: minutes } })).id);
     }
     const presence = async (userId, activityId) => prisma.userAtActivity.create({ data: { userId, activityId, presente: true, inscricaoPrevia: false, listaEspera: false } });
     await presence(users[0], activities[0]); await presence(users[0], activities[1]);
     await presence(users[1], activities[2]); await presence(users[1], activities[1]);
+    await presence(users[0], activities[3]); await presence(users[0], activities[4]);
     process.env.CERTIFICATES_ENABLED = 'true';
     await assert.rejects(issueCertificate(users[1]), e => e.statusCode === 403);
     await assert.rejects(issueCertificate(users[0]), e => e.statusCode === 409);
@@ -27,6 +32,8 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
     const issued = await Promise.all(Array.from({ length: 5 }, () => issueCertificate(users[0])));
     assert.equal(new Set(issued.map(c => c.code)).size, 1);
     assert.equal(await prisma.certificate.count(), 1); assert.equal(issued[0].totalMinutes, 150);
+    assert.equal(issued[0].snapshot.version, 2);
+    assert.equal(issued[0].snapshot.presentation.edition, 'XIV');
     await setActivityDuration(activities[1], 60, 'Correção posterior');
     await prisma.activity.update({ where: { id: activities[1] }, data: { nome: 'Título corrigido' } });
     await prisma.user.update({ where: { id: users[0] }, data: { nome: 'Outro nome' } });
@@ -82,8 +89,37 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
     }));
     timings.sort((a, b) => a - b);
     console.log(JSON.stringify({ certificateRecoveryLoad: { requests: 100, elapsedMs: Math.round(performance.now() - start), p95Ms: Math.round(timings[94]), maxMs: Math.round(timings[99]) } }));
+    certificateEditions[2027] = { ...legacyXivPresentation, edition: 'XV' };
+    process.env.CERTIFICATE_YEAR = '2027';
+    await setActivityDuration(activities[4], 90, 'Programa sintetico da proxima edicao');
+    const future = await issueCertificate(users[0]);
+    assert.equal(future.eventId, eventIds[2]); assert.equal(future.totalMinutes, 90);
+    assert.equal(future.snapshot.presentation.edition, 'XV');
+    certificateEditions[2027].edition = 'XVI';
+    assert.equal((await certificateResponse(await findCertificate(future.code))).presentation.edition, 'XV');
+    assert.equal((await certificateResponse(await findCertificate(third.code))).presentation.edition, 'XIV');
+    const historicalCorrection = await reissueCertificate(third.code, users[1], 'Correcao historica com outra edicao ativa');
+    assert.equal(historicalCorrection.eventId, eventIds[0]);
+    assert.equal(historicalCorrection.snapshot.presentation.edition, 'XIV');
+    assert.equal(historicalCorrection.snapshot.event.year, 2026);
+    assert.equal(await prisma.certificate.count({ where: { activeSlot: 1 } }), 2);
+    process.env.CERTIFICATES_ENABLED = 'false';
+    const history = await listMyCertificates(users[0]);
+    assert.deepEqual(history.map(item => item.year), [2027, 2026]);
+    assert.equal(history[0].code, future.code); assert.equal(history[0].edition, 'XV');
+    assert.equal(history[1].code, historicalCorrection.code); assert.equal(history[1].revision, 4);
+    assert.deepEqual(await listMyCertificates(users[1]), []);
+    assert.equal((await findMyCertificate(users[0], future.code)).code, future.code);
+    await assert.rejects(findMyCertificate(users[1], future.code), e => e.statusCode === 404);
+    await assert.rejects(findMyCertificate(users[0], original.code), e => e.statusCode === 410);
+    await revokeCertificate(historicalCorrection.code, users[1], 'Teste de lista revogada');
+    const revokedHistory = await listMyCertificates(users[0]);
+    assert.equal(revokedHistory.length, 2); assert.equal(revokedHistory[1].status, 'revoked');
+    assert.equal(revokedHistory[1].code, historicalCorrection.code);
   } finally {
     if (previous === undefined) delete process.env.CERTIFICATES_ENABLED; else process.env.CERTIFICATES_ENABLED = previous;
+    if (previousYear === undefined) delete process.env.CERTIFICATE_YEAR; else process.env.CERTIFICATE_YEAR = previousYear;
+    delete certificateEditions[2027];
     const versions = await prisma.certificate.findMany({ where: { userId: { in: users } }, orderBy: { revision: 'desc' } });
     for (const version of versions) await prisma.certificate.delete({ where: { id: version.id } });
     await prisma.userAtActivity.deleteMany({ where: { userId: { in: users } } });

@@ -1,5 +1,6 @@
 import { isCredentialingCategory } from "../repositories/participantDirectoryRepository";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
+import type { CertificatePresentation } from "./certificateEditions";
 
 export interface CertificateActivity {
   id: string;
@@ -13,7 +14,8 @@ export interface CertificateActivity {
 }
 
 export interface CertificateSnapshot {
-  version: 1;
+  version: 1 | 2;
+  presentation?: CertificatePresentation;
   event: { year: number; startDate: string; endDate: string };
   activities: { id: string; name: string; category: string; startsAt: string | null; minutes: number; source: string }[];
 }
