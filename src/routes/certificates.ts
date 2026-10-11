@@ -22,7 +22,7 @@ const routes = Router();
 routes.use((_req, res, next) => { res.setHeader("Cache-Control", "no-store"); next(); });
 routes.get("/admin/preview", authMiddleware, isAdmin, rateLimit({ windowMs: 60000, limit: 10,
   standardHeaders: "draft-8", legacyHeaders: false, keyGenerator: req => req.user.id! }), async (_req, res) => {
-  res.json(await adminCertificatePreview());
+  res.json(await adminCertificatePreview(_req.query.format === "example"));
 });
 routes.get("/validate/:code", rateLimit({ windowMs: 60000, limit: 120, standardHeaders: "draft-8", legacyHeaders: false }), async (req, res) => {
   res.json(await certificateResponse(await findCertificate(req.params.code)));
