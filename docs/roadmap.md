@@ -1,8 +1,10 @@
 # Roadmap técnico da API XIV
 
-Última revisão: 10/10/2026. Esta é a lista consolidada de prioridades e estados. Guias de comportamento e operação estão no [índice](README.md); achados/resultados anteriores no [histórico](historico/README.md).
+Última revisão: 11/10/2026. Esta é a lista consolidada de prioridades e estados. Guias de comportamento e operação estão no [índice](README.md); achados/resultados anteriores no [histórico](historico/README.md).
 
 ## Estado verificado
+
+Evolução local de certificados em 11/10/2026: identidade e modelo persistidos por edição, preservação dos snapshots legados e endpoints autenticados de listagem/detalhe para Meus certificados. A área web seleciona a última revisão já emitida por edição, sem emissão automática nem primeira emissão retroativa. Testes locais, build e MySQL isolado aprovados; sem nova migração, acesso ao banco real ou emissão real nesta rodada. PRs, CI remota, merge e publicação deste incremento permanecem pendentes. [Contrato](funcionalidades/certificados.md), [próximas edições e evidências locais](funcionalidades/certificados-proximas-edicoes.md).
 
 Certificados individuais da XIV SECOMP integrados e publicados em 10/10/2026, API antes do app, em PRs separados. Produção confirmou 19 migrações, plano pronto de 37 atividades (28 incluídas/9 excluídas) e emissão habilitada no deployment ativo. Conta real sorteada e ensaiada em cópia isolada: 11 atividades, 780 minutos, registro único em concorrência. Emissão controlada, recuperação autenticada, página pública sem login em 320/1280 px, PDF baixado com três páginas e QR/link/anexo conferidos. Conta sem credenciamento recebeu 403 sem criar certificado. CI da API/app aprovada; revogação/reemissão e rollback continuam comprovados por testes isolados, sem revogar documento real apenas para ensaio. Login interativo por senha e capacidade sob carga da Railway não foram comprovados nesta rodada. [Regras e operação](funcionalidades/certificados.md), [evidências e balanço técnico](historico/auditorias/certificate-release-2026-10-10.md).
 

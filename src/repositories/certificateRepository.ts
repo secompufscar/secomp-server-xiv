@@ -4,8 +4,8 @@ import { prisma } from "../lib/prisma";
 import { lockEditionState } from "./editionState";
 import { certificateActivities, CertificateSnapshot } from "../services/certificatePolicy";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
+import { certificateYear, editionPresentation, snapshotPresentation, CertificatePresentation } from "../services/certificateEditions";
 
-export const CERTIFICATE_YEAR = 2026;
 export const CERTIFICATE_CODE = /^[A-F0-9]{32}$/;
 
 function requireActive(certificate: Certificate) {
@@ -13,7 +13,7 @@ function requireActive(certificate: Certificate) {
   return certificate;
 }
 
-async function certificateData(tx: Prisma.TransactionClient, userId: string, event: { id: string; year: number; startDate: Date; endDate: Date }) {
+async function certificateData(tx: Prisma.TransactionClient, userId: string, event: { id: string; year: number; startDate: Date; endDate: Date }, presentation: CertificatePresentation) {
   if (process.env.CERTIFICATES_ENABLED !== "true") {
     throw new ApiError("A emissão de certificados ainda não foi liberada pela organização.", ErrorsCode.CONFLICT);
   }
@@ -24,7 +24,7 @@ async function certificateData(tx: Prisma.TransactionClient, userId: string, eve
     include: { activity: { include: { categoria: true } } },
   });
   const activities = certificateActivities(event.id, rows);
-  const snapshot: CertificateSnapshot = { version: 1,
+  const snapshot: CertificateSnapshot = { version: 2, presentation: { ...presentation },
     event: { year: event.year, startDate: event.startDate.toISOString(), endDate: event.endDate.toISOString() }, activities };
   const totalMinutes = activities.reduce((sum, a) => sum + a.minutes, 0);
   const code = randomBytes(16).toString("hex").toUpperCase();
@@ -41,17 +41,49 @@ export async function issueCertificate(userId: string) {
   return prisma.$transaction(async tx => {
     // Serialize issuance against attendance/edition writes and concurrent retries.
     await lockEditionState(tx, true);
-    const event = await tx.event.findUnique({ where: { year: CERTIFICATE_YEAR } });
-    if (!event) throw new ApiError("Edição XIV não encontrada.", ErrorsCode.NOT_FOUND);
+    const event = await tx.event.findUnique({ where: { year: certificateYear() } });
+    if (!event) throw new ApiError("Edição de certificados não encontrada.", ErrorsCode.NOT_FOUND);
     const existing = await tx.certificate.findFirst({ where: { userId, eventId: event.id }, orderBy: { revision: "desc" } });
     if (existing) return requireActive(existing);
-    return tx.certificate.create({ data: await certificateData(tx, userId, event) });
+    return tx.certificate.create({ data: await certificateData(tx, userId, event, editionPresentation(event.year)) });
   }, { maxWait: 10000, timeout: 10000 });
 }
 
 export async function findCertificate(code: string) {
   if (!CERTIFICATE_CODE.test(code)) throw new ApiError("Certificado não encontrado.", ErrorsCode.NOT_FOUND);
   const certificate = await prisma.certificate.findUnique({ where: { code } });
+  if (!certificate) throw new ApiError("Certificado não encontrado.", ErrorsCode.NOT_FOUND);
+  return requireActive(certificate);
+}
+
+export async function listMyCertificates(userId: string) {
+  const certificates = await prisma.certificate.findMany({
+    where: { userId }, distinct: ["eventId"], orderBy: [{ revision: "desc" }, { eventId: "asc" }],
+    select: { code: true, totalMinutes: true, issuedAt: true, revokedAt: true, revision: true, snapshot: true, eventId: true },
+  });
+  return certificates.map(certificate => {
+    const snapshot = certificate.snapshot as unknown as CertificateSnapshot;
+    const year = Number.isInteger(snapshot?.event?.year) && snapshot.event.year >= 1900 && snapshot.event.year <= 9999 ? snapshot.event.year : null;
+    let edition: string | null = null, templateId: string | null = null;
+    try {
+      const presentation = snapshotPresentation(snapshot);
+      if (typeof presentation.edition === "string" && /^[IVXLCDM]{1,20}$/.test(presentation.edition)
+        && typeof presentation.templateId === "string" && presentation.templateId.trim()) {
+        edition = presentation.edition; templateId = presentation.templateId;
+      }
+    } catch (error) {
+      // An unsupported historical record must not hide other editions.
+      if (!(error instanceof ApiError)) throw error;
+    }
+    const status = certificate.revokedAt ? "revoked" : year && edition && templateId ? "active" : "unavailable";
+    return { code: certificate.code, year, edition, templateId, status, revision: certificate.revision,
+      issuedAt: certificate.issuedAt, totalMinutes: certificate.totalMinutes };
+  }).sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.issuedAt.getTime() - a.issuedAt.getTime());
+}
+
+export async function findMyCertificate(userId: string, code: string) {
+  if (!CERTIFICATE_CODE.test(code)) throw new ApiError("Certificado não encontrado.", ErrorsCode.NOT_FOUND);
+  const certificate = await prisma.certificate.findFirst({ where: { userId, code } });
   if (!certificate) throw new ApiError("Certificado não encontrado.", ErrorsCode.NOT_FOUND);
   return requireActive(certificate);
 }
@@ -64,7 +96,7 @@ function correctionReason(reason: string) {
 async function correctionTarget(tx: Prisma.TransactionClient, code: string) {
   if (!CERTIFICATE_CODE.test(code)) throw new ApiError("Certificado não encontrado.", ErrorsCode.NOT_FOUND);
   const certificate = await tx.certificate.findUnique({ where: { code }, include: { event: true } });
-  if (!certificate || certificate.event.year !== CERTIFICATE_YEAR) throw new ApiError("Certificado não encontrado.", ErrorsCode.NOT_FOUND);
+  if (!certificate) throw new ApiError("Certificado não encontrado.", ErrorsCode.NOT_FOUND);
   return certificate;
 }
 
@@ -89,7 +121,7 @@ export async function reissueCertificate(code: string, adminId: string, reason: 
     const replacement = await tx.certificate.findUnique({ where: { replacesId: certificate.id } });
     if (replacement) return requireActive(replacement);
     // Prepare and validate first. A failed correction must leave the original valid.
-    const data = await certificateData(tx, certificate.userId, certificate.event);
+    const data = await certificateData(tx, certificate.userId, certificate.event, snapshotPresentation(certificate.snapshot as unknown as CertificateSnapshot));
     if (!certificate.revokedAt) await tx.certificate.update({ where: { id: certificate.id }, data: {
       activeSlot: null, revokedAt: new Date(), revokedBy: adminId, revocationReason: reissueReason,
     } });
@@ -102,7 +134,7 @@ export async function setActivityDuration(id: string, durationMinutes: number | 
   return prisma.$transaction(async tx => {
     await lockEditionState(tx, true);
     const activity = await tx.activity.findUnique({ where: { id }, include: { event: true } });
-    if (!activity || activity.event?.year !== CERTIFICATE_YEAR) throw new ApiError("Atividade da XIV SECOMP não encontrada.", ErrorsCode.NOT_FOUND);
+    if (!activity || !activity.event) throw new ApiError("Atividade vinculada a uma edição não encontrada.", ErrorsCode.NOT_FOUND);
     return tx.activity.update({ where: { id }, data: { durationMinutes, durationSource, certificateExcluded },
       select: { id: true, durationMinutes: true, durationSource: true, certificateExcluded: true } });
   });

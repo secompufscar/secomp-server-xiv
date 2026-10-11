@@ -67,7 +67,9 @@ test('emissão persiste snapshot, soma e URL; é idempotente e flag desligada im
   process.env.CERTIFICATES_ENABLED = 'false';
   assert.strictEqual(await repository.issueCertificate('self'), issued); assert.equal(creates, 1);
   const response = await certificateResponse(issued);
-  assert.deepEqual(Object.keys(response).sort(), ['activities', 'code', 'event', 'issuedAt', 'participantName', 'qrCode', 'totalMinutes', 'validationUrl']);
+  assert.deepEqual(Object.keys(response).sort(), ['activities', 'code', 'event', 'issuedAt', 'participantName', 'presentation', 'qrCode', 'totalMinutes', 'validationUrl']);
+  assert.equal(issued.snapshot.version, 2);
+  assert.equal(response.presentation.edition, 'XIV');
   assert.equal('source' in response.activities[0], false); assert.equal('id' in response.activities[0], false);
   assert.match(response.qrCode, /^data:image\/png;base64,/);
   const qr = require('qrcode');

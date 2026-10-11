@@ -10,6 +10,8 @@ Entrada da documentação. Use o [roadmap](roadmap.md) para prioridades e estado
 | Edição web de apresentação, foto, horário, local e vagas | [Atividades](funcionalidades/apresentacao-atividade.md) |
 | Check-in, pontos, nomes e total de presentes | [Presença](funcionalidades/presenca.md) |
 | Certificados individuais, durações, QR e validação pública | [Certificados](funcionalidades/certificados.md) |
+| Listar e recuperar certificados da própria conta por edição | [Contrato privado de certificados](funcionalidades/certificados.md#contrato-http), [guia do app](https://github.com/secompufscar/secomp-app-xiv/blob/main/docs/my-certificates-web.md) |
+| Configurar próximas edições sem alterar certificados antigos | [Edições de certificados](funcionalidades/certificados-proximas-edicoes.md) |
 | Todas as contas, busca, status e instante do credenciamento | [Diretório de participantes](contratos/participantes.md) |
 | Publicação da lista geral e revisão de branches/documentação | [Evidência de 06/10](historico/auditorias/participant-directory-release-2026-10-06.md) |
 | Migrações, publicação e recuperação operacional | [Publicação](operacao/publicacao.md) |
