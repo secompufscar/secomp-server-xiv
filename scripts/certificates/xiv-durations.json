@@ -1,6 +1,7 @@
 {
   "year": 2026,
   "source": "Organização SECOMP: regras confirmadas em 10/10/2026; plano versionado xiv-durations.json.",
+  "titleSource": "Cronograma https://www.secompufscar.com.br/cronograma, consultado em 10/10/2026; nomes aprovados pela organização, exceto Segurança da informação e SDD, preservados integralmente.",
   "activities": [
     {
       "id": "0139a903-d5b2-42cf-b22d-fac1d789a9aa",
@@ -16,7 +17,8 @@
     },
     {
       "id": "0e1abe6c-f4b1-4fcf-9953-e04a36754965",
-      "name": "Empreendedorismo & Tecnologia",
+      "previousName": "Empreendedorismo & Tecnologia",
+      "name": "Mesa Redonda: Empreendedorismo & Tecnologia - Transformando ideias em negócios",
       "minutes": 60,
       "excluded": false
     },
@@ -28,7 +30,8 @@
     },
     {
       "id": "162687b3-d035-458a-b012-61ab5c2b01be",
-      "name": "Chatbots de apoio à saúde mental, design de interfaces de usuário apoiado por IAGen",
+      "previousName": "Chatbots de apoio à saúde mental, design de interfaces de usuário apoiado por IAGen",
+      "name": "Cenários complexos para o design de tecnologias interativas - o caso dos chatbots de apoio à saúde mental",
       "minutes": 60,
       "excluded": false
     },
@@ -52,7 +55,8 @@
     },
     {
       "id": "359343bd-5535-4e48-94d8-2f2fbf311cd6",
-      "name": "Desenvolvimento de jogos e apps independentes [...]",
+      "previousName": "Desenvolvimento de jogos e apps independentes [...]",
+      "name": "Desenvolvimento de jogos e apps independentes",
       "minutes": 60,
       "excluded": false
     },
@@ -70,13 +74,15 @@
     },
     {
       "id": "3cedaffd-ecdb-4c63-a21f-d268960eadf5",
-      "name": "PET - Cibersegurança",
+      "previousName": "PET - Cibersegurança",
+      "name": "Cibersegurança",
       "minutes": 180,
       "excluded": false
     },
     {
       "id": "44e9ce79-02e8-4c0b-95dc-84d41abfb7f5",
-      "name": "Tendências e Inovações em computação com Monks",
+      "previousName": "Tendências e Inovações em computação com Monks",
+      "name": "Mutações silenciosas: o que a genética me ensinou sobre dados que quebram sem avisar",
       "minutes": 60,
       "excluded": false
     },
@@ -88,7 +94,8 @@
     },
     {
       "id": "50597ec2-6109-40c1-b83f-1275a7c533be",
-      "name": "Mesa-redonda: Curricularização da extensão e o papel da docência na computação",
+      "previousName": "Mesa-redonda: Curricularização da extensão e o papel da docência na computação",
+      "name": "Mesa Redonda: Docência em Computação",
       "minutes": 60,
       "excluded": false
     },
@@ -160,7 +167,8 @@
     },
     {
       "id": "c6b70ebf-ea81-491b-8eb0-e411ef851ee9",
-      "name": "Determinismo vs probabilistica. Coding agents com Java",
+      "previousName": "Determinismo vs probabilistica. Coding agents com Java",
+      "name": "Determinismo vs probabilística. Coding agents com Java",
       "minutes": 60,
       "excluded": false
     },
@@ -172,14 +180,16 @@
     },
     {
       "id": "dfac7ae9-d10a-41a6-824e-85e405b5abdf",
-      "name": "Mesa Monks",
+      "previousName": "Mesa Monks",
+      "name": "Mesa redonda MONKS",
       "minutes": 90,
       "source": "Regra de intervalo aprovada pela organização em 10/10/2026: Mesa Monks, 19h, seguida de Lual DAComp (dbdb4b6d-dbe1-4f4d-ae9f-7b1695103a8d), 20h30, no mesmo local; programação consultada em 09/10/2026.",
       "excluded": false
     },
     {
       "id": "e6809f0a-d9ad-40cf-9eb6-ed7dbbfab14b",
-      "name": "Inteligência Artificial aplicada à Qualidade de Software",
+      "previousName": "Inteligência Artificial aplicada à Qualidade de Software",
+      "name": "Testando o Futuro: Inteligência Artificial aplicada à Qualidade de Software e à Automação de Testes",
       "minutes": 60,
       "excluded": false
     },
@@ -209,7 +219,8 @@
     },
     {
       "id": "f5b26bf6-f2bb-4024-bd06-af7e78bf5b5f",
-      "name": "Cibersegurança, regulação das plataformas digitais",
+      "previousName": "Cibersegurança, regulação das plataformas digitais",
+      "name": "Cibersegurança e Controle: quem regula as tecnologias do futuro?",
       "minutes": 60,
       "excluded": false
     },

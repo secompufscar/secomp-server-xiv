@@ -39,12 +39,12 @@ test('plano aprovado: palestras de 60min, minicursos de 180min, Karina/Maratona 
   assert.equal(plan.activities.filter(a => a.excluded).length, 9);
   assert.equal(plan.activities.filter(a => a.minutes === 180).length, 4);
   assert.equal(plan.activities.filter(a => a.minutes === 150).length, 2);
-  for (const name of ['Empreendedorismo e Soberania', 'Tendências e Inovações em computação com Monks', 'Como se constrói software sem dono? A história do desenvolvimento do Bitcoin']) {
-    assert.equal(plan.activities.find(a => a.name === name).minutes, 60);
+  for (const id of ['f346a8e3-085b-4507-8862-a33b0243d3e3', '44e9ce79-02e8-4c0b-95dc-84d41abfb7f5', '0139a903-d5b2-42cf-b22d-fac1d789a9aa']) {
+    assert.equal(plan.activities.find(a => a.id === id).minutes, 60);
   }
   assert.equal(plan.activities.find(a => a.name.startsWith('Comunidade e networking')).minutes, 60);
-  assert.equal(plan.activities.find(a => a.name.startsWith('Mesa-redonda: Curricularização')).minutes, 60);
-  assert.equal(plan.activities.find(a => a.name === 'Mesa Monks').minutes, 90);
+  assert.equal(plan.activities.find(a => a.id === '50597ec2-6109-40c1-b83f-1275a7c533be').minutes, 60);
+  assert.equal(plan.activities.find(a => a.id === 'dfac7ae9-d10a-41a6-824e-85e405b5abdf').minutes, 90);
   for (const entry of plan.activities) assert.ok(entry.excluded ? entry.minutes === null : Number.isInteger(entry.minutes) && entry.minutes > 0);
 });
 test('emissão persiste snapshot, soma e URL; é idempotente e flag desligada impede novos certificados', async t => {

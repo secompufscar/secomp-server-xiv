@@ -28,6 +28,7 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
     assert.equal(new Set(issued.map(c => c.code)).size, 1);
     assert.equal(await prisma.certificate.count(), 1); assert.equal(issued[0].totalMinutes, 150);
     await setActivityDuration(activities[1], 60, 'Correção posterior');
+    await prisma.activity.update({ where: { id: activities[1] }, data: { nome: 'Título corrigido' } });
     await prisma.user.update({ where: { id: users[0] }, data: { nome: 'Outro nome' } });
     process.env.CERTIFICATES_ENABLED = 'false';
     const again = await issueCertificate(users[0]);
@@ -53,6 +54,8 @@ test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita q
     assert.equal(new Set(replacements.map(c => c.code)).size, 1);
     assert.equal(replacement.revision, 2); assert.equal(replacement.replacesId, original.id);
     assert.equal(replacement.totalMinutes, 60); assert.equal(replacement.participantName, 'Outro nome');
+    assert.equal(replacement.snapshot.activities[0].name, 'Título corrigido');
+    assert.equal(original.snapshot.activities[0].name, 'Atividade');
     assert.equal(replacement.reissuedBy, users[1]); assert.equal(replacement.reissueReason, 'Nome e duração corrigidos');
     const historical = await prisma.certificate.findUnique({ where: { code: original.code } });
     assert.deepEqual(historical.snapshot, original.snapshot); assert.equal(historical.participantName, original.participantName);
@@ -98,6 +101,7 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
   assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(url.hostname));
   const { prisma } = require('../src/lib/prisma');
   const { configureDurations } = require('../scripts/certificates/configure-durations.cjs');
+  const { renameTitles } = require('../scripts/certificates/rename-titles.cjs');
   const { certificateActivities } = require('../src/services/certificatePolicy');
   const plan = require('../scripts/certificates/xiv-durations.json');
   let event, category;
@@ -106,8 +110,21 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
     event = await prisma.event.create({ data: { year: 2026, isCurrent: false, startDate: new Date('2026-10-05'), endDate: new Date('2026-10-08') } });
     category = await prisma.category.create({ data: { nome: 'Palestras', slug: `test-${randomUUID()}` } });
     for (const entry of plan.activities) {
-      const activity = await prisma.activity.create({ data: { id: entry.id, nome: entry.name, eventId: event.id, categoriaId: category.id, palestranteNome: 'Equipe', local: 'Teste' } }); ids.push(activity.id);
+      const activity = await prisma.activity.create({ data: { id: entry.id, nome: entry.previousName || entry.name, eventId: event.id, categoriaId: category.id, palestranteNome: 'Equipe', local: 'Teste' } }); ids.push(activity.id);
     }
+    const beforeTitles = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
+    assert.equal((await renameTitles(prisma)).changes, 10);
+    assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
+    await prisma.$executeRawUnsafe("ALTER TABLE atividades ADD CONSTRAINT test_title_update_failure CHECK (nome <> 'Cibersegurança')");
+    try {
+      await assert.rejects(renameTitles(prisma, true));
+      assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
+    } finally { await prisma.$executeRawUnsafe('ALTER TABLE atividades DROP CHECK test_title_update_failure'); }
+    assert.equal((await renameTitles(prisma, true)).changes, 10);
+    assert.equal((await renameTitles(prisma, true)).changes, 0);
+    const afterTitles = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
+    const withoutTitle = rows => rows.map(({ nome, updatedAt, ...rest }) => rest);
+    assert.deepEqual(withoutTitle(afterTitles), withoutTitle(beforeTitles));
     const preview = await configureDurations(prisma);
     assert.equal(preview.applied, false); assert.equal(preview.changes, 37);
     assert.equal(await prisma.activity.count({ where: { eventId: event.id, durationMinutes: { not: null } } }), 0);
