@@ -19,9 +19,9 @@ A regra final de palestras de 60 minutos substitui a estimativa anterior de 80 m
 
 ### Nomes aprovados em 10/10/2026
 
-A organização aprovou os títulos do [cronograma público](https://www.secompufscar.com.br/cronograma) nas dez divergências restantes, incluindo o acento de `probabilística`. Os títulos de Segurança da informação (inclusive `rackear`) e de SDD (inclusive o complemento sobre Spec Kit/Harness) permanecem integralmente como estavam. Rótulos separados de tipo, como `Minicurso:`, não são incorporados ao nome. Presenças, IDs, categorias, horários, fontes de duração e minutos não mudam.
+A organização aprovou os títulos do [cronograma público](https://www.secompufscar.com.br/cronograma) nas divergências restantes, incluindo o acento de `probabilística`. Segurança da informação mantém a redação do título/subtítulo, com a correção posterior de `rackear` para `hackear`. SDD mantém integralmente o título e complemento sobre Spec Kit/Harness. Após a primeira aplicação, a organização solicitou restaurar `PET - Cibersegurança`, que passa a ser a terceira exceção ao título do site. Rótulos separados de tipo, como `Minicurso:`, não são incorporados ao nome. Presenças, IDs, categorias, horários, fontes de duração e minutos não mudam.
 
-O campo `previousName` registra o único nome anterior aceito nas dez correções. Após merge e publicação do plano, antes de verificar durações, executar:
+O campo `previousName` registra o único nome anterior aceito nas doze transições controladas (nove alinhamentos ao site, a restauração do PET, a correção de `hackear` e a remoção dos dois espaços duplicados de Comunidade e networking). Num banco que já recebeu a primeira aplicação, só essas três correções têm alterações pendentes; os outros títulos não são reescritos. Após merge e publicação do plano, antes de verificar durações, executar:
 
 ```sh
 node scripts/certificates/rename-titles.cjs --check

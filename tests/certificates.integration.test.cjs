@@ -113,14 +113,14 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
       const activity = await prisma.activity.create({ data: { id: entry.id, nome: entry.previousName || entry.name, eventId: event.id, categoriaId: category.id, palestranteNome: 'Equipe', local: 'Teste' } }); ids.push(activity.id);
     }
     const beforeTitles = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
-    assert.equal((await renameTitles(prisma)).changes, 10);
+    assert.equal((await renameTitles(prisma)).changes, 12);
     assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
-    await prisma.$executeRawUnsafe("ALTER TABLE atividades ADD CONSTRAINT test_title_update_failure CHECK (nome <> 'Cibersegurança')");
+    await prisma.$executeRawUnsafe("ALTER TABLE atividades ADD CONSTRAINT test_title_update_failure CHECK (nome <> 'Mesa redonda MONKS')");
     try {
       await assert.rejects(renameTitles(prisma, true));
       assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
     } finally { await prisma.$executeRawUnsafe('ALTER TABLE atividades DROP CHECK test_title_update_failure'); }
-    assert.equal((await renameTitles(prisma, true)).changes, 10);
+    assert.equal((await renameTitles(prisma, true)).changes, 12);
     assert.equal((await renameTitles(prisma, true)).changes, 0);
     const afterTitles = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
     const withoutTitle = rows => rows.map(({ nome, updatedAt, ...rest }) => rest);
