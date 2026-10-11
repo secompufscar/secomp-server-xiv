@@ -181,8 +181,14 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
     try {
       process.env.CERTIFICATE_YEAR = '2026'; process.env.CERTIFICATES_ENABLED = 'false';
       const testDocument = await adminCertificatePreview();
-      assert.equal(testDocument.activities.length, 28);
-      assert.equal(testDocument.totalMinutes, snapshot.reduce((sum, a) => sum + a.minutes, 0));
+      assert.equal(testDocument.activities.length, 24);
+      assert.equal(testDocument.totalMinutes, 1680);
+      const sdd = plan.activities.find(a => a.id === '0e565043-6f60-4410-8f00-f0d13b57a252');
+      assert.equal(testDocument.activities.filter(a => a.name === sdd.name).length, 1);
+      for (const id of ['383ce644-7adf-488f-a2ff-54cc9a59a25a', '3cedaffd-ecdb-4c63-a21f-d268960eadf5',
+        '57d36c80-a4bd-4371-9eed-b2506f8aedd2', 'ef2d9f85-77f9-4009-8cc2-aed0f9c3adb2']) {
+        assert.ok(!testDocument.activities.some(a => a.name === plan.activities.find(row => row.id === id).name));
+      }
       assert.equal(testDocument.participantName, 'Certificado Admin [ TESTE ]');
       await assert.rejects(require('../src/repositories/certificateRepository').findCertificate(testDocument.code), error => error.statusCode === 404);
       assert.deepEqual(await prisma.certificate.findMany({ orderBy: { id: 'asc' } }), recordsBefore);
