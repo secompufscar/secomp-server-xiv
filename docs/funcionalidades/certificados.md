@@ -4,7 +4,9 @@ Manutenção de edições e preservação histórica: [próximas edições](cert
 
 Estado em 11/10/2026: contrato privado e snapshots por edição publicados na API `28780cc3`, após merge do PR #40 e CI aprovada. App do PR #35 publicado depois. Foram verificadas leituras próprias, recusa de outra conta, revogação e preservação dos cinco registros existentes, sem emissão ou alteração administrativa. Sem migração adicional. [Evidência atual e limitações](../historico/auditorias/certificate-release-2026-10-11.md).
 
-Incremento posterior publicado: amostra ADMIN na API `dd9085ae` (PR #42), validada antes do app `bd3a82a7` (PR #37). Dois ADMIN reais receberam 28 atividades/2370 minutos; USER 403, anônimo 401 e código de teste público 404. Nenhuma escrita em certificados, atividades ou presenças; [evidência atual](../historico/auditorias/admin-certificate-test-release-2026-10-11.md). O estado anterior acima é histórico, não o deployment atualmente servido.
+Publicação inicial da amostra ADMIN (histórica): API `dd9085ae` (PR #42), validada antes do app `bd3a82a7` (PR #37). Dois ADMIN reais receberam 28 atividades/2370 minutos; USER 403, anônimo 401 e código de teste público 404. Nenhuma escrita em certificados, atividades ou presenças; [evidência inicial](../historico/auditorias/admin-certificate-test-release-2026-10-11.md).
+
+Estado atual: API `5bc02005` (PR #44), Railway `84d93f23-498d-47b3-a97c-9ffd2c102c2d` SUCCESS, validada antes do app `5b547076` (PR #39), Vercel success. Amostra com 24 atividades/1680 minutos, incluindo somente SDD no bloco simultâneo. Dois ADMIN 200, USER 403, anônimo 401, marcador público 404; hashes dos cinco certificados, atividades e presenças inalterados. Sem migração ou alteração de flags. [Evidência atual e limitações](../historico/auditorias/admin-certificate-single-course-2026-10-11.md).
 
 ## Regras
 

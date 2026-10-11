@@ -4,6 +4,8 @@
 
 | Conjunto | Referência |
 | --- | --- |
+| Amostra ADMIN com um minicurso: correção publicada, 24 atividades/28 horas | [Correção de 11/10](auditorias/admin-certificate-single-course-2026-10-11.md) |
+| Amostra ADMIN inicial: publicação histórica com simultâneas | [Publicação inicial de 11/10](auditorias/admin-certificate-test-release-2026-10-11.md) |
 | Meus certificados, histórico por edição e modelos preservados: publicação | [Evidência de 11/10](auditorias/certificate-release-2026-10-11.md) |
 | Certificados individuais: homologação e publicação | [Evidência de 10/10](auditorias/certificate-release-2026-10-10.md) |
 | Índice anterior com tabela de achados | [Acompanhamento de 30/09](correcoes/acompanhamento-2026-09-30.md) |

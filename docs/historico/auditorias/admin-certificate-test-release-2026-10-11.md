@@ -1,5 +1,7 @@
 # Certificado ADMIN de teste: publicação de 11/10/2026
 
+Registro histórico da publicação inicial. A [correção posterior](admin-certificate-single-course-2026-10-11.md) seleciona somente SDD no bloco simultâneo e substitui a amostra de 28 atividades/39h30 por 24 atividades/28 horas, sem alterar certificados reais. As evidências abaixo permanecem como ocorreram nesta rodada inicial.
+
 ## Escopo e estado
 
 Opção publicada para todas as contas ADMIN na visão administrativa web de [Meus certificados](https://secomp-app-xiv.vercel.app/MyCertificates). Gera PDF transitório com nome **Certificado Admin [ TESTE ]**, todas as atividades certificáveis e avisos **TESTE - SEM VALIDADE** em todas as páginas. Não é emissão real, não altera presenças e não aparece no histórico.
