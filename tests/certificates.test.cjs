@@ -92,11 +92,19 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   const revoke = t.mock.method(repository, 'revokeCertificate', async () => ({ code: 'A'.repeat(32), revokedAt: new Date() }));
   const reissue = t.mock.method(repository, 'reissueCertificate', async () => { throw Object.assign(new Error('blocked'), { statusCode: 409 }); });
   t.mock.method(repository, 'findCertificate', async () => { throw Object.assign(new Error('not found'), { statusCode: 404 }); });
-  const app = express(); app.use(express.json()); app.use(require('../src/routes/certificates').default);
+  const app = express(); app.use(express.json()); app.use('/certificates', require('../src/routes/certificates').default);
+  // Match the production bootstrap: unmatched GETs otherwise fall through to a 200 banner.
+  app.get('/*', (_req, res) => res.status(200).json({ message: 'API SECOMP UFSCar XIV' }));
   app.use((error, _req, res, _next) => res.status(error.statusCode || 500).json({ message: error.message }));
   const server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve));
   t.after(() => { server.closeAllConnections(); return new Promise(resolve => server.close(resolve)); });
-  const base = `http://127.0.0.1:${server.address().port}`;
+  const root = `http://127.0.0.1:${server.address().port}`;
+  const base = root + '/certificates';
+  assert.equal((await fetch(root)).status, 200);
+  for (const method of ['GET', 'POST', 'PUT', 'DELETE']) {
+    assert.equal((await fetch(base + '/admin/preview', { method })).status, 404);
+    assert.equal((await fetch(base + '/not-a-route', { method })).status, 404);
+  }
   const headers = { authorization: `Bearer ${jwt.sign({ userId: 'self', authVersion: 0 }, process.env.JWT_SECRET)}`, 'content-type': 'application/json' };
   for (const suffix of ['', '?format=example']) {
     const response = await fetch(base + '/admin/preview' + suffix);
