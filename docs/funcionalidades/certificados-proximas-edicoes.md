@@ -1,6 +1,6 @@
 # Próximas edições de certificados
 
-Revisão: 11/10/2026. Guia da implementação local; não comprova publicação desta revisão em produção. O único cadastro aprovado hoje é XIV/2026. XV/2027 aparece somente em testes sintéticos, não é uma programação aprovada.
+Revisão: 11/10/2026. Snapshots por edição e histórico privado integrados no PR #40 e publicados na API `28780cc3`; Meus certificados publicado pelo app do PR #35. [Evidência de produção](../historico/auditorias/certificate-release-2026-10-11.md). O único cadastro aprovado hoje é XIV/2026. XV/2027 aparece somente em testes sintéticos, não é uma programação aprovada. Publicar o suporte a futuras edições não autoriza cadastrar/habilitar uma edição sem revisão oficial.
 
 ## Onde alterar
 
@@ -59,10 +59,10 @@ Rollback: desabilitar emissão primeiro. Restaurar a configuração anterior som
 
 Rodada posterior: 144 testes da API aprovados e 14 casos MySQL ignorados na suíte unitária; os 13 casos do runner de banco isolado passaram, incluindo última revisão por edição, preservação da identidade histórica, acesso exclusivo pelo proprietário, 404 para outra conta e 410 para código próprio revogado. Repetição focada dos sete casos de edições/histórico aprovada com acesso HTTP em loopback; a tentativa restrita foi bloqueada pelo sandbox com EACCES. Build da API aprovado. App: 105 testes, TypeScript, exportação web e E2E sintético em 320/1280 px aprovados.
 
-O novo datadir de ensaio foi preservado após desligar o MySQL temporário; o runner removeu somente seu schema aleatório. As 19 migrações existentes foram aplicadas apenas nessa base isolada. Sem nova migração, acesso ao banco real, emissão real ou alteração de produção. O caso de capacidade/inscrições fora do runner não foi reexecutado. PRs, CI remota, merge e deploy pendentes.
+O novo datadir de ensaio foi preservado após desligar o MySQL temporário; o runner removeu somente seu schema aleatório. As 19 migrações existentes foram aplicadas apenas nessa base isolada. Sem nova migração, acesso ao banco real, emissão real ou alteração de produção nessa fase local. O caso de capacidade/inscrições fora do runner não foi reexecutado. A integração/publicação posterior está registrada na [evidência de produção](../historico/auditorias/certificate-release-2026-10-11.md), sem confundir resultados locais com online.
 
 ### Versionamento de edições
 
 TypeScript e build aprovados. Suíte da API: 141 casos aprovados e 14 casos MySQL ignorados nessa execução; posteriormente, o runner de banco isolado executou seus 13 casos com sucesso, incluindo emissão futura e reemissão histórica mantendo XIV mesmo com outro ano configurado. O teste MySQL de capacidade/inscrições, que não integra esse runner, não foi reexecutado nesta rodada. O teste focado de edições e planos também passou após a validação estrita de IDs.
 
-Foi usado um datadir novo e um schema temporário aleatório no MySQL 8.4 local, com 19 migrações existentes aplicadas; o runner removeu apenas o schema criado para o ensaio. O servidor temporário foi desligado e seus arquivos locais preservados. Não foi adicionada migração, nem acessado/alterado o banco de produção. CI remota, merge e deploy desta revisão permanecem pendentes.
+Foi usado um datadir novo e um schema temporário aleatório no MySQL 8.4 local, com 19 migrações existentes aplicadas; o runner removeu apenas o schema criado para o ensaio. O servidor temporário foi desligado e seus arquivos locais preservados. Não foi adicionada migração, nem acessado/alterado o banco de produção nessa etapa local. CI remota, merge e deploy foram confirmados depois, na evidência de publicação indicada no início do guia.

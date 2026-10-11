@@ -1,6 +1,6 @@
 # Publicação e migrações
 
-Última revisão: 07/10/2026. Este guia descreve o procedimento operacional. A API `dea590e2` foi publicada após merge do PR #33 e CI aprovado, com a migração de instante de presença aplicada e a lista geral validada online. O app do PR #21 foi mergeado depois e publicado automaticamente na Vercel. [Evidência de 06/10](../historico/auditorias/participant-directory-release-2026-10-06.md). As [rodadas de 03/10](../historico/auditorias/production-deployment-2026-10-03.md) conservam as verificações anteriores de login e migrações. [Roadmap](../roadmap.md).
+Última revisão: 11/10/2026. Este guia descreve o procedimento operacional. Código funcional atual da API: `28780cc3` do PR #40, publicado na Railway com 19 migrações existentes e sem migração adicional; app `8337d569` do PR #35 publicado na Vercel após validação da API. Backup privado autorizado, restauração isolada, leituras privadas/públicas e preservação dos certificados foram conferidos na [evidência de 11/10](../historico/auditorias/certificate-release-2026-10-11.md). As evidências anteriores de [06/10](../historico/auditorias/participant-directory-release-2026-10-06.md) e [03/10](../historico/auditorias/production-deployment-2026-10-03.md) conservam seus próprios escopos. [Roadmap](../roadmap.md).
 
 ## Preparação
 
