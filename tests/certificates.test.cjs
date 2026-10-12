@@ -25,6 +25,24 @@ test('exemplo usa duracoes e exclusoes reais, com um unico minicurso e sem works
   assert.equal(fallback.filter(a => a.minutes === 180).length, 1);
 });
 
+test('mesas-redondas aprovadas usam categoria por ID mesmo com titulo sem prefixo e sem mudar o cadastro', () => {
+  const plan = require('../scripts/certificates/xiv-durations.json');
+  const ids = ['0e1abe6c-f4b1-4fcf-9953-e04a36754965', '50597ec2-6109-40c1-b83f-1275a7c533be', 'dfac7ae9-d10a-41a6-824e-85e405b5abdf'];
+  const rows = ids.map(id => {
+    const entry = plan.activities.find(activity => activity.id === id);
+    return row(id, { nome: entry.name, durationMinutes: entry.minutes, categoria: { nome: 'Outros', slug: 'outros' } });
+  });
+  const unrelated = row('unapproved', { nome: 'Mesa Redonda: Outro assunto', categoria: { nome: 'Outros', slug: 'outros' } });
+  const original = JSON.parse(JSON.stringify(rows));
+  const result = certificateActivities('xiv', [credential, ...rows, unrelated]);
+  for (const id of ids) assert.equal(result.find(activity => activity.id === id).category, 'Mesa-redonda');
+  assert.equal(result.find(activity => activity.id === ids[1]).name, plan.activities.find(activity => activity.id === ids[1]).name);
+  assert.equal(result.find(activity => activity.id === 'unapproved').category, 'Outros');
+  assert.deepEqual(JSON.parse(JSON.stringify(rows)), original);
+  const example = certificateExampleActivities('xiv', 2026, [...rows.map(row => row.activity), row('0e565043-6f60-4410-8f00-f0d13b57a252', { durationMinutes: 180 }).activity]);
+  assert.equal(example.filter(activity => activity.category === 'Mesa-redonda').length, 3);
+});
+
 test('exemplo bloqueia edicao sem selecao aprovada, minicurso ausente e duracao oficial incompleta', () => {
   const mini = row('0e565043-6f60-4410-8f00-f0d13b57a252', { durationMinutes: 180 }).activity;
   for (const [year, rows] of [[2027, [mini]], [2026, [row('talk').activity]], [2026, [mini, row('talk', { durationMinutes: null }).activity]]]) {

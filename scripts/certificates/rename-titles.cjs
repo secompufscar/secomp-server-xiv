@@ -16,7 +16,7 @@ async function renameTitles(prisma, apply = false) {
       let status = 'unchanged';
       if (!activity) status = 'missing';
       else if (activity.nome !== entry.name) {
-        status = entry.previousName && activity.nome === entry.previousName ? 'apply' : 'name-conflict';
+        status = [entry.previousName, ...(entry.previousNames ?? [])].includes(activity.nome) ? 'apply' : 'name-conflict';
       }
       report.push({ id: entry.id, before: activity?.nome ?? null, name: entry.name, status });
       if (status === 'apply') changes.push({ id: entry.id, name: entry.name });

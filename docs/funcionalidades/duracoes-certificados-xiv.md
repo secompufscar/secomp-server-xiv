@@ -21,7 +21,7 @@ A regra final de palestras de 60 minutos substitui a estimativa anterior de 80 m
 
 A organização aprovou os títulos do [cronograma público](https://www.secompufscar.com.br/cronograma) nas divergências restantes, incluindo o acento de `probabilística`. Segurança da informação mantém a redação do título/subtítulo, com a correção posterior de `rackear` para `hackear`. SDD mantém integralmente o título e complemento sobre Spec Kit/Harness. Após a primeira aplicação, a organização solicitou restaurar `PET - Cibersegurança`, que passa a ser a terceira exceção ao título do site. Rótulos separados de tipo, como `Minicurso:`, não são incorporados ao nome. Presenças, IDs, categorias, horários, fontes de duração e minutos não mudam.
 
-O campo `previousName` registra o único nome anterior aceito nas doze transições controladas (nove alinhamentos ao site, a restauração do PET, a correção de `hackear` e a remoção dos dois espaços duplicados de Comunidade e networking). Num banco que já recebeu a primeira aplicação, só essas três correções têm alterações pendentes; os outros títulos não são reescritos. Após merge e publicação do plano, antes de verificar durações, executar:
+O campo `previousName` registra o nome anterior aprovado nas doze transições controladas (nove alinhamentos ao site, a restauração do PET, a correção de `hackear` e a remoção dos dois espaços duplicados de Comunidade e networking). A lista opcional `previousNames` mantém outros nomes intermediários explicitamente aprovados, sem aceitar divergências arbitrárias. As três correções da primeira revisão já foram aplicadas; a prévia indica o que ainda precisa mudar no cadastro atual. Após merge e publicação do plano, antes de verificar durações, executar:
 
 ```sh
 node scripts/certificates/rename-titles.cjs --check
@@ -29,6 +29,10 @@ node scripts/certificates/rename-titles.cjs --apply
 node scripts/certificates/rename-titles.cjs --verify-ready
 node scripts/certificates/configure-durations.cjs --verify-ready
 ```
+
+Correção aprovada em 12/10/2026: a atividade `50597ec2-6109-40c1-b83f-1275a7c533be` passa a se chamar `Da Sala de Aula à Comunidade: Desafios e Práticas da Curricularização da Extensão na Docência Universitária`, mantendo 60 minutos. O plano aceita somente os nomes anteriores explicitamente aprovados em `previousName`/`previousNames`; não autoriza substituir um título inesperado. A alteração do cadastro alimenta novos certificados e o exemplo ADMIN, sem regravar snapshots históricos.
+
+`certificatePolicy.ts` identifica por IDs as três mesas-redondas da XIV (empreendedorismo, curricularização e MONKS) e entrega `Mesa-redonda` no documento. O agrupamento `Outros` do cadastro e dos filtros do app permanece inalterado. Outros IDs não são reclassificados por semelhança de título na API. Minutos, presenças e critérios de elegibilidade não mudam.
 
 A prévia é somente leitura. A aplicação valida todos os 37 IDs/nomes da edição antes de escrever, inclusive os nomes preservados; recusa qualquer nome que não seja o anterior aprovado ou o definitivo. Atualiza apenas `nome` (e o `updatedAt` automático), numa transação com a barreira global de edição; falhas desfazem todas as mudanças. A repetição não escreve novamente. Código 2 indica conflito ou, em `--verify-ready`, alterações ainda pendentes.
 

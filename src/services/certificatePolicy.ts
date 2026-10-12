@@ -2,6 +2,13 @@ import { isCredentialingCategory } from "../repositories/participantDirectoryRep
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import type { CertificatePresentation } from "./certificateEditions";
 
+// Approved XIV roundtables; app grouping can remain "Outros" without losing the certificate type.
+const roundTableActivityIds = new Set([
+  "0e1abe6c-f4b1-4fcf-9953-e04a36754965",
+  "50597ec2-6109-40c1-b83f-1275a7c533be",
+  "dfac7ae9-d10a-41a6-824e-85e405b5abdf",
+]);
+
 export interface CertificateActivity {
   id: string;
   nome: string;
@@ -48,6 +55,6 @@ function certifiableActivities(eventId: string, rows: CertificateActivity[]) {
     throw new ApiError("A organização ainda precisa definir a duração oficial de todas as suas atividades com presença.", ErrorsCode.CONFLICT);
   }
   return activities.sort((a, b) => (a.data?.getTime() ?? 0) - (b.data?.getTime() ?? 0) || a.id.localeCompare(b.id))
-    .map(a => ({ id: a.id, name: a.nome, category: a.categoria.nome, startsAt: a.data?.toISOString() ?? null,
+    .map(a => ({ id: a.id, name: a.nome, category: roundTableActivityIds.has(a.id) ? "Mesa-redonda" : a.categoria.nome, startsAt: a.data?.toISOString() ?? null,
       minutes: a.durationMinutes!, source: a.durationSource!.trim() }));
 }
