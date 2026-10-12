@@ -4,11 +4,11 @@ import QRCode from "qrcode";
 import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
-import { findCertificate, issueCertificate, setActivityDuration, revokeCertificate, reissueCertificate, listMyCertificates, findMyCertificate } from "../repositories/certificateRepository";
+import { findCertificate, issueCertificate, setActivityDuration, revokeCertificate, reissueCertificate, listMyCertificates, findMyCertificate, certificateExample } from "../repositories/certificateRepository";
 import { CertificateSnapshot } from "../services/certificatePolicy";
 import { snapshotPresentation } from "../services/certificateEditions";
 
-export async function certificateResponse(certificate: Certificate) {
+export async function certificateResponse(certificate: Pick<Certificate, "code" | "participantName" | "totalMinutes" | "issuedAt" | "validationUrl"> & { snapshot: unknown }) {
   const snapshot = certificate.snapshot as unknown as CertificateSnapshot;
   return { code: certificate.code, participantName: certificate.participantName, totalMinutes: certificate.totalMinutes,
     issuedAt: certificate.issuedAt, event: snapshot.event, presentation: snapshotPresentation(snapshot),
@@ -33,6 +33,10 @@ routes.get("/mine/:code", authMiddleware, rateLimit({ windowMs: 60000, limit: 60
 routes.post("/mine", authMiddleware, rateLimit({ windowMs: 60000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false,
   keyGenerator: req => req.user.id! }), async (req, res) => {
   res.json(await certificateResponse(await issueCertificate(req.user.id!)));
+});
+routes.get("/admin/example", authMiddleware, isAdmin, rateLimit({ windowMs: 60000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false,
+  keyGenerator: req => req.user.id! }), async (_req, res) => {
+  res.json(await certificateResponse(await certificateExample()));
 });
 const durationSchema = z.object({
   durationMinutes: z.number().int().min(1).max(10080).nullable(),

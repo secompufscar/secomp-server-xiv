@@ -1,6 +1,45 @@
 const assert = require('node:assert/strict'), { test } = require('node:test');
 const { randomUUID } = require('node:crypto');
 
+test('MySQL: exemplo ADMIN compartilha contrato, rejeita codigo publico e nao grava dados', { skip: process.env.RUN_DATABASE_INTEGRATION !== '1' }, async () => {
+  const url = new URL(process.env.DATABASE_URL || '');
+  assert.match(url.pathname.slice(1), /^secomp_xiv_codex_test_[a-f0-9]{12}$/);
+  assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(url.hostname));
+  const { prisma } = require('../src/lib/prisma');
+  const { certificateExample, findCertificate } = require('../src/repositories/certificateRepository');
+  const { certificateResponse } = require('../src/routes/certificates');
+  const previousYear = process.env.CERTIFICATE_YEAR, previousEnabled = process.env.CERTIFICATES_ENABLED;
+  const ids = [], event = await prisma.event.create({ data: { year: 2026, isCurrent: false, startDate: new Date('2026-10-05'), endDate: new Date('2026-10-08') } });
+  const category = await prisma.category.create({ data: { nome: 'Minicursos', slug: `example-${randomUUID()}` } });
+  try {
+    process.env.CERTIFICATE_YEAR = '2026'; process.env.CERTIFICATES_ENABLED = 'false';
+    for (const [id, minutes] of [['0e565043-6f60-4410-8f00-f0d13b57a252', 180], ['383ce644-7adf-488f-a2ff-54cc9a59a25a', 180], ['ef2d9f85-77f9-4009-8cc2-aed0f9c3adb2', 150]]) {
+      ids.push((await prisma.activity.create({ data: { id, nome: 'Atividade exemplo', eventId: event.id, categoriaId: category.id, palestranteNome: 'Equipe', local: 'Teste', durationMinutes: minutes, durationSource: 'Oficial' } })).id);
+    }
+    const counts = async () => [await prisma.certificate.count(), await prisma.user.count(), await prisma.userAtActivity.count()];
+    const before = await counts(), activities = await prisma.activity.findMany({ where: { eventId: event.id } });
+    const examples = await Promise.all([certificateExample(), certificateExample()]);
+    for (const example of examples) {
+      const response = await certificateResponse(example);
+      assert.equal(response.participantName, 'Nome de Exemplo'); assert.equal(response.totalMinutes, 180);
+      assert.equal(response.activities.length, 1);
+      await assert.rejects(findCertificate(response.code), e => e.statusCode === 404);
+    }
+    assert.deepEqual(await counts(), before);
+    assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id } }), activities);
+    await prisma.activity.update({ where: { id: ids[0] }, data: { durationMinutes: null, durationSource: null } });
+    await assert.rejects(certificateExample(), e => e.statusCode === 409);
+    assert.deepEqual(await counts(), before);
+  } finally {
+    if (previousYear === undefined) delete process.env.CERTIFICATE_YEAR; else process.env.CERTIFICATE_YEAR = previousYear;
+    if (previousEnabled === undefined) delete process.env.CERTIFICATES_ENABLED; else process.env.CERTIFICATES_ENABLED = previousEnabled;
+    await prisma.activity.deleteMany({ where: { id: { in: ids } } });
+    await prisma.category.delete({ where: { id: category.id } });
+    await prisma.event.delete({ where: { id: event.id } });
+    await prisma.$disconnect();
+  }
+});
+
 test('MySQL: emissão concorrente única, snapshot imutável e nenhuma escrita quando inelegível', { skip: process.env.RUN_DATABASE_INTEGRATION !== '1' }, async () => {
   const url = new URL(process.env.DATABASE_URL || '');
   assert.match(url.pathname.slice(1), /^secomp_xiv_codex_test_[a-f0-9]{12}$/);

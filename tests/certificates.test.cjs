@@ -2,12 +2,57 @@ const assert = require('node:assert/strict');
 const { test } = require('node:test');
 require('express-async-errors');
 process.env.JWT_SECRET = 'certificate-test-secret-at-least-32-characters';
-const { certificateActivities } = require('../src/services/certificatePolicy');
+const { certificateActivities, certificateExampleActivities } = require('../src/services/certificatePolicy');
 const repository = require('../src/repositories/certificateRepository');
 const { certificateResponse } = require('../src/routes/certificates');
 const prismaModule = require('../src/lib/prisma');
 const row = (id, options = {}) => ({ presente: true, activity: { id, nome: id, eventId: 'xiv', data: null, durationMinutes: 60, durationSource: 'Programa aprovado', categoria: { nome: 'Palestra', slug: 'palestra' }, ...options } });
 const credential = row('credential', { durationMinutes: null, durationSource: null, categoria: { nome: 'Credenciamento', slug: 'credenciamento' } });
+
+test('exemplo usa duracoes e exclusoes reais, com um unico minicurso e sem workshop simultaneo', () => {
+  const plan = require('../scripts/certificates/xiv-durations.json');
+  const activities = plan.activities.map(a => row(a.id, { nome: a.name, durationMinutes: a.minutes, certificateExcluded: a.excluded }).activity);
+  const before = JSON.parse(JSON.stringify(activities));
+  const result = certificateExampleActivities('xiv', 2026, [...activities, activities[0], credential.activity, row('other-edition', { eventId: 'old' }).activity]);
+  assert.equal(result.filter(a => a.minutes === 180).length, 1);
+  assert.equal(result.find(a => a.minutes === 180).id, '0e565043-6f60-4410-8f00-f0d13b57a252');
+  assert.ok(!result.some(a => a.id === 'ef2d9f85-77f9-4009-8cc2-aed0f9c3adb2'));
+  assert.equal(result.reduce((sum, a) => sum + a.minutes, 0), 1680);
+  assert.equal(new Set(result.map(a => a.id)).size, result.length);
+  assert.ok(!result.some(a => ['credential', 'other-edition'].includes(a.id)));
+  assert.deepEqual(JSON.parse(JSON.stringify(activities)), before);
+  const fallback = certificateExampleActivities('xiv', 2026, activities.filter(a => a.id !== '0e565043-6f60-4410-8f00-f0d13b57a252'));
+  assert.equal(fallback.filter(a => a.minutes === 180).length, 1);
+});
+
+test('exemplo bloqueia edicao sem selecao aprovada, minicurso ausente e duracao oficial incompleta', () => {
+  const mini = row('0e565043-6f60-4410-8f00-f0d13b57a252', { durationMinutes: 180 }).activity;
+  for (const [year, rows] of [[2027, [mini]], [2026, [row('talk').activity]], [2026, [mini, row('talk', { durationMinutes: null }).activity]]]) {
+    assert.throws(() => certificateExampleActivities('xiv', year, rows), e => e.statusCode === 409);
+  }
+});
+
+test('exemplo consulta somente edicao e atividades, sem participante, presenca ou certificado persistido', async t => {
+  const original = prismaModule.prisma, enabled = process.env.CERTIFICATES_ENABLED;
+  t.after(() => { prismaModule.prisma = original; if (enabled === undefined) delete process.env.CERTIFICATES_ENABLED; else process.env.CERTIFICATES_ENABLED = enabled; });
+  process.env.CERTIFICATES_ENABLED = 'false';
+  prismaModule.prisma = { $transaction: fn => fn({
+    $queryRaw: async () => [{ id: 1 }],
+    event: { findUnique: async args => { assert.deepEqual(args.where, { year: 2026 }); return { id: 'xiv', year: 2026, startDate: new Date('2026-10-05'), endDate: new Date('2026-10-08') }; } },
+    activity: { findMany: async args => { assert.deepEqual(args.where, { eventId: 'xiv' }); return [row('0e565043-6f60-4410-8f00-f0d13b57a252', { durationMinutes: 180 }).activity, row('talk').activity]; } },
+  }) };
+  const example = await repository.certificateExample();
+  const response = await certificateResponse(example);
+  assert.equal(response.code, '0000000000000000000000000000000G');
+  assert.equal(response.participantName, 'Nome de Exemplo');
+  assert.equal(response.totalMinutes, 240);
+  assert.equal(response.presentation.edition, 'XIV');
+  assert.equal('source' in response.activities[0], false);
+  assert.equal('id' in response.activities[0], false);
+  assert.ok(!repository.CERTIFICATE_CODE.test(response.code));
+  assert.equal(new URL(response.validationUrl).searchParams.get('codigo'), response.code);
+  assert.deepEqual(Object.keys(response).sort(), ['activities', 'code', 'event', 'issuedAt', 'participantName', 'presentation', 'qrCode', 'totalMinutes', 'validationUrl']);
+});
 
 test('credenciamento da mesma edição é obrigatório; check-in legado sem horário é suficiente', () => {
   for (const rows of [[row('talk')], [{ ...credential, presente: false }, row('talk')], [row('old', { ...credential.activity, eventId: 'old' }), row('talk')]]) {
@@ -88,6 +133,9 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   let role = 'USER';
   t.mock.method(userRepository, 'findById', async () => ({ id: 'self', tipo: role, confirmed: true, authVersion: 0 }));
   const issue = t.mock.method(repository, 'issueCertificate', async () => { throw Object.assign(new Error('blocked'), { statusCode: 409 }); });
+  const example = t.mock.method(repository, 'certificateExample', async () => ({ code: '0000000000000000000000000000000G', participantName: 'Nome de Exemplo', totalMinutes: 60, issuedAt: new Date(),
+    validationUrl: 'https://app.example/certificados?codigo=0000000000000000000000000000000G',
+    snapshot: { version: 1, event: { year: 2026 }, activities: [{ id: 'talk', name: 'Palestra', category: 'Palestras', startsAt: null, minutes: 60, source: 'Oficial' }] } }));
   const duration = t.mock.method(repository, 'setActivityDuration', async () => ({}));
   const revoke = t.mock.method(repository, 'revokeCertificate', async () => ({ code: 'A'.repeat(32), revokedAt: new Date() }));
   const reissue = t.mock.method(repository, 'reissueCertificate', async () => { throw Object.assign(new Error('blocked'), { statusCode: 409 }); });
@@ -112,6 +160,9 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
     assert.equal((await fetch(base + '/admin/preview' + suffix, { headers })).status, 404);
   }
   assert.equal((await fetch(base + '/mine', { method: 'POST' })).status, 401);
+  assert.equal((await fetch(base + '/admin/example')).status, 401);
+  assert.equal((await fetch(base + '/admin/example', { headers })).status, 403);
+  assert.equal(example.mock.callCount(), 0);
   assert.equal((await fetch(base + '/validate/bad')).status, 404);
   assert.equal((await fetch(base + '/mine', { method: 'POST', headers, body: JSON.stringify({ userId: 'someone-else' }) })).status, 409);
   assert.deepEqual(issue.mock.calls[0].arguments, ['self']);
@@ -122,6 +173,12 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   }
   assert.equal(revoke.mock.callCount(), 0); assert.equal(reissue.mock.callCount(), 0);
   role = 'ADMIN';
+  const exampleResponse = await fetch(base + '/admin/example', { headers });
+  assert.equal(exampleResponse.status, 200); assert.equal(exampleResponse.headers.get('cache-control'), 'no-store');
+  assert.equal((await exampleResponse.json()).participantName, 'Nome de Exemplo');
+  assert.deepEqual(example.mock.calls[0].arguments, []);
+  assert.equal(issue.mock.callCount(), 1);
+  assert.equal((await fetch(base + '/admin/example', { method: 'POST', headers })).status, 404);
   for (const suffix of ['', '?format=example']) assert.equal((await fetch(base + '/admin/preview' + suffix, { headers })).status, 404);
   for (const operation of ['revoke', 'reissue']) {
     const correctionUrl = base + '/' + 'A'.repeat(32) + '/' + operation;

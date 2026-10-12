@@ -28,6 +28,16 @@ export function certificateActivities(eventId: string, rows: { presente: boolean
   return certifiableActivities(eventId, present.map(row => row.activity));
 }
 
+export function certificateExampleActivities(eventId: string, year: number, rows: CertificateActivity[]) {
+  // Approved XIV simultaneous block: one minicourse, without Karina's workshop.
+  const minicourses = ["0e565043-6f60-4410-8f00-f0d13b57a252", "383ce644-7adf-488f-a2ff-54cc9a59a25a", "3cedaffd-ecdb-4c63-a21f-d268960eadf5", "57d36c80-a4bd-4371-9eed-b2506f8aedd2"];
+  if (year !== 2026) throw new ApiError("Seleção de atividades do exemplo não configurada para esta edição.", ErrorsCode.CONFLICT);
+  const selected = minicourses.find(id => rows.some(a => a.id === id && a.eventId === eventId && !a.certificateExcluded));
+  if (!selected) throw new ApiError("Não há minicurso do bloco simultâneo disponível para o exemplo.", ErrorsCode.CONFLICT);
+  return certifiableActivities(eventId, rows.filter(a => a.id !== "ef2d9f85-77f9-4009-8cc2-aed0f9c3adb2"
+    && (!minicourses.includes(a.id) || a.id === selected)));
+}
+
 function certifiableActivities(eventId: string, rows: CertificateActivity[]) {
   const activities = [...new Map(rows.filter(activity => activity.eventId === eventId
     && !isCredentialingCategory(activity.categoria) && !activity.certificateExcluded
