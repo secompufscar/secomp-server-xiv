@@ -10,7 +10,7 @@ Definições finais da organização recebidas em 10/10/2026, sobre a programaç
 | Maratona M@U | 150 |
 | Mesa-redonda de curricularização da extensão | 60 |
 | Empreendedorismo & Tecnologia | 60 |
-| Mesa Monks | 90, intervalo 19h–20h30 no mesmo local, conforme regra anterior |
+| Mesa MONKS | 90, intervalo 19h–20h30 no mesmo local, conforme regra anterior |
 | Credenciamento, Feira da Comp, Camisetas, Coffee, Lual, abertura e encerramento | Excluídos da soma e do anexo |
 
 A regra final de palestras de 60 minutos substitui a estimativa anterior de 80 minutos da palestra de Bitcoin. Intervalos de almoço não são contabilizados. Os quatro minicursos ocorreram simultaneamente ao workshop, mas cada atividade mantém sua duração aprovada. O credenciamento continua obrigatório para comprovar a doação.
@@ -31,6 +31,8 @@ node scripts/certificates/configure-durations.cjs --verify-ready
 ```
 
 Correção aprovada em 12/10/2026: a atividade `50597ec2-6109-40c1-b83f-1275a7c533be` passa a se chamar `Da Sala de Aula à Comunidade: Desafios e Práticas da Curricularização da Extensão na Docência Universitária`, mantendo 60 minutos. O plano aceita somente os nomes anteriores explicitamente aprovados em `previousName`/`previousNames`; não autoriza substituir um título inesperado. A alteração do cadastro alimenta novos certificados e o exemplo ADMIN, sem regravar snapshots históricos.
+
+Na mesma data, a organização aprovou `Mesa MONKS` como nome da atividade `dfac7ae9-d10a-41a6-824e-85e405b5abdf`, antes publicada como `Mesa redonda MONKS`. O cadastro compartilhado fornece o nome ao cronograma, detalhes, ferramentas administrativas, novas emissões e exemplo ADMIN. Permanecem 90 minutos e a categoria `Mesa-redonda` no certificado; documentos históricos conservam o snapshot original.
 
 `certificatePolicy.ts` identifica por IDs as três mesas-redondas da XIV (empreendedorismo, curricularização e MONKS) e entrega `Mesa-redonda` no documento. O agrupamento `Outros` do cadastro e dos filtros do app permanece inalterado. Outros IDs não são reclassificados por semelhança de título na API. Minutos, presenças e critérios de elegibilidade não mudam.
 

@@ -1,7 +1,7 @@
 {
   "year": 2026,
   "source": "Organização SECOMP: regras confirmadas em 10/10/2026; plano versionado xiv-durations.json.",
-  "titleSource": "Cronograma https://www.secompufscar.com.br/cronograma, consultado em 10/10/2026; aprovação da organização. Segurança da informação preserva a redação, corrigindo rackear para hackear; SDD preservado integralmente; PET - Cibersegurança restaurado. Organização, 12/10/2026: título completo da mesa de curricularização da extensão corrigido.",
+  "titleSource": "Cronograma https://www.secompufscar.com.br/cronograma, consultado em 10/10/2026; aprovação da organização. Segurança da informação preserva a redação, corrigindo rackear para hackear; SDD preservado integralmente; PET - Cibersegurança restaurado. Organização, 12/10/2026: título completo da mesa de curricularização da extensão corrigido; Mesa MONKS é o nome aprovado da atividade dfac7ae9-d10a-41a6-824e-85e405b5abdf.",
   "activities": [
     {
       "id": "0139a903-d5b2-42cf-b22d-fac1d789a9aa",
@@ -184,7 +184,8 @@
     {
       "id": "dfac7ae9-d10a-41a6-824e-85e405b5abdf",
       "previousName": "Mesa Monks",
-      "name": "Mesa redonda MONKS",
+      "previousNames": ["Mesa redonda MONKS"],
+      "name": "Mesa MONKS",
       "minutes": 90,
       "source": "Regra de intervalo aprovada pela organização em 10/10/2026: Mesa Monks, 19h, seguida de Lual DAComp (dbdb4b6d-dbe1-4f4d-ae9f-7b1695103a8d), 20h30, no mesmo local; programação consultada em 09/10/2026.",
       "excluded": false

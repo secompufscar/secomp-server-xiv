@@ -42,6 +42,10 @@ test('plano de títulos: doze transições controladas, grafia/espaços corrigid
   assert.equal(extension.name, 'Da Sala de Aula à Comunidade: Desafios e Práticas da Curricularização da Extensão na Docência Universitária');
   assert.deepEqual(extension.previousNames, ['Mesa Redonda: Docência em Computação']);
   assert.equal(extension.minutes, 60);
+  const monks = plan.activities.find(entry => entry.id === 'dfac7ae9-d10a-41a6-824e-85e405b5abdf');
+  assert.equal(monks.name, 'Mesa MONKS');
+  assert.deepEqual(monks.previousNames, ['Mesa redonda MONKS']);
+  assert.equal(monks.minutes, 90);
   for (const entry of plan.activities) assert.ok(entry.name.length <= 255);
 });
 
@@ -70,6 +74,17 @@ test('títulos: corrige somente a mesa de extensao em cadastro ja atualizado e p
   assert.equal((await renameTitles(prisma, true)).changes, 1);
   assert.equal(writes.length, 1);
   assert.deepEqual(writes[0].data, { nome: 'Da Sala de Aula à Comunidade: Desafios e Práticas da Curricularização da Extensão na Docência Universitária' });
+  assert.equal((await renameTitles(prisma, true)).changes, 0);
+});
+
+test('títulos: renomeia a Mesa MONKS a partir do título publicado sem alterar outras atividades', async () => {
+  const { prisma, state, writes } = fixture();
+  for (const entry of plan.activities) state.find(row => row.id === entry.id).nome = entry.name;
+  state.find(row => row.id === 'dfac7ae9-d10a-41a6-824e-85e405b5abdf').nome = 'Mesa redonda MONKS';
+  assert.equal((await renameTitles(prisma)).changes, 1);
+  assert.equal(writes.length, 0);
+  assert.equal((await renameTitles(prisma, true)).changes, 1);
+  assert.deepEqual(writes, [{ where: { id: 'dfac7ae9-d10a-41a6-824e-85e405b5abdf' }, data: { nome: 'Mesa MONKS' } }]);
   assert.equal((await renameTitles(prisma, true)).changes, 0);
 });
 

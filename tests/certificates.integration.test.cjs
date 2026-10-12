@@ -190,7 +190,7 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
     const beforeTitles = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
     assert.equal((await renameTitles(prisma)).changes, 12);
     assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
-    await prisma.$executeRawUnsafe("ALTER TABLE atividades ADD CONSTRAINT test_title_update_failure CHECK (nome <> 'Mesa redonda MONKS')");
+    await prisma.$executeRawUnsafe("ALTER TABLE atividades ADD CONSTRAINT test_title_update_failure CHECK (nome <> 'Mesa MONKS')");
     try {
       await assert.rejects(renameTitles(prisma, true));
       assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
