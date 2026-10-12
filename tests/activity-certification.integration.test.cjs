@@ -72,7 +72,8 @@ test('MySQL: CRUD de atividades mantém horas, presenças, imagens e revisões h
   } finally {
     if (previousEnabled === undefined) delete process.env.CERTIFICATES_ENABLED; else process.env.CERTIFICATES_ENABLED = previousEnabled;
     if (previousYear === undefined) delete process.env.CERTIFICATE_YEAR; else process.env.CERTIFICATE_YEAR = previousYear;
-    await prisma.certificate.deleteMany({ where: { eventId: { in: eventIds } } });
+    const versions = await prisma.certificate.findMany({ where: { eventId: { in: eventIds } }, orderBy: { revision: 'desc' } });
+    for (const version of versions) await prisma.certificate.delete({ where: { id: version.id } });
     await prisma.userAtActivity.deleteMany({ where: { activityId: { in: activityIds } } });
     await prisma.activity.deleteMany({ where: { id: { in: activityIds } } });
     await prisma.user.deleteMany({ where: { id: { in: userIds } } });
