@@ -1,6 +1,7 @@
 import { isCredentialingCategory } from "../repositories/participantDirectoryRepository";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import type { CertificatePresentation } from "./certificateEditions";
+import { isAlwaysNonCertifiable } from "./activityCertification";
 
 // Approved XIV roundtables; app grouping can remain "Outros" without losing the certificate type.
 const roundTableActivityIds = new Set([
@@ -47,8 +48,7 @@ export function certificateExampleActivities(eventId: string, year: number, rows
 
 function certifiableActivities(eventId: string, rows: CertificateActivity[]) {
   const activities = [...new Map(rows.filter(activity => activity.eventId === eventId
-    && !isCredentialingCategory(activity.categoria) && !activity.certificateExcluded
-    && !["abertura", "encerramento"].includes(activity.nome.trim().toLocaleLowerCase("pt-BR")))
+    && !activity.certificateExcluded && !isAlwaysNonCertifiable(activity))
     .map(activity => [activity.id, activity])).values()];
   if (!activities.length) throw new ApiError("Não há atividades com presença registrada para certificar.", ErrorsCode.CONFLICT);
   if (activities.some(a => !Number.isInteger(a.durationMinutes) || a.durationMinutes! <= 0 || a.durationMinutes! > 10080 || !a.durationSource?.trim())) {

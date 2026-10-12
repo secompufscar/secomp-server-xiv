@@ -35,7 +35,7 @@ export default {
     return activities;
   },
 
-  async create({ nome, data, palestranteNome, palestranteTitulo, categoriaId, eventId, vagas, detalhes, local, localLink, points }: CreateActivityDTOS): Promise<ActivityDTOS> {
+  async create({ nome, data, palestranteNome, palestranteTitulo, categoriaId, eventId, vagas, detalhes, local, localLink, points, durationMinutes, durationSource, certificateExcluded }: CreateActivityDTOS): Promise<ActivityDTOS> {
     const newData = data ? new Date(data) : null;
     const resolvedEventId = await resolveEventId(eventId);
 
@@ -51,6 +51,7 @@ export default {
       local,
       ...(localLink === undefined ? {} : { localLink }),
       points,
+      durationMinutes, durationSource, certificateExcluded,
     });
 
     schedulerService.scheduleNotificationsForActivity(newAtividade as Activity);
@@ -60,7 +61,7 @@ export default {
 
   async update(
     id: string,
-    { nome, data, palestranteNome, palestranteTitulo, vagas, categoriaId, eventId, detalhes, local, localLink, points }: UpdateActivityDTOS,
+    { nome, data, palestranteNome, palestranteTitulo, vagas, categoriaId, eventId, detalhes, local, localLink, points, durationMinutes, durationSource, certificateExcluded }: UpdateActivityDTOS,
   ): Promise<ActivityDTOS> {
     const existingAtividade = await activitiesRepository.findById(id);
 
@@ -84,6 +85,7 @@ export default {
       local,
       ...(localLink === undefined ? {} : { localLink }),
       points,
+      ...(durationMinutes === undefined ? {} : { durationMinutes, durationSource, certificateExcluded }),
     });
 
     schedulerService.scheduleNotificationsForActivity(updatedAtividade as Activity);

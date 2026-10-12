@@ -221,7 +221,9 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
     assert.equal((await prisma.activity.findUnique({ where: { id: first.id } })).durationMinutes, null);
     await prisma.activity.update({ where: { id: second.id }, data: { durationMinutes: second.minutes, nome: 'Nome alterado' } });
     await assert.rejects(configureDurations(prisma, true), /name-conflict/);
-    await assert.rejects(prisma.activity.update({ where: { id: first.id }, data: { certificateExcluded: true, durationMinutes: 60, durationSource: 'inválido' } }));
+    const excluded = await prisma.activity.update({ where: { id: first.id }, data: { certificateExcluded: true, durationMinutes: 60, durationSource: 'Duração oficial sem certificação' } });
+    assert.equal(excluded.durationMinutes, 60);
+    assert.equal(excluded.certificateExcluded, true);
   } finally {
     await prisma.activity.deleteMany({ where: { id: { in: ids } } });
     if (category) await prisma.category.delete({ where: { id: category.id } });

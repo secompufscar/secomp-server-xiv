@@ -105,7 +105,7 @@ routes.get("/:id", activitiesController.findById);
  * @swagger
  * /activities:
  *   post:
- *     summary: Cria uma nova atividade.
+ *     summary: Cria uma atividade com duração oficial e certificabilidade explícitas.
  *     tags:
  *       - Activities
  *     requestBody:
@@ -114,7 +114,19 @@ routes.get("/:id", activitiesController.findById);
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [nome, palestranteNome, categoriaId, local, durationMinutes, certificateExcluded]
  *             properties:
+ *               durationMinutes:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 10080
+ *               durationSource:
+ *                 type: string
+ *                 maxLength: 500
+ *                 description: Fonte oficial; quando omitida, registra informação da organização no cadastro.
+ *               certificateExcluded:
+ *                 type: boolean
+ *                 description: true exclui a atividade da carga horária, mantendo sua duração.
  *               nome:
  *                 type: string
  *               data:

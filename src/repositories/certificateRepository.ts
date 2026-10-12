@@ -5,6 +5,7 @@ import { lockEditionState } from "./editionState";
 import { certificateActivities, certificateExampleActivities, CertificateSnapshot } from "../services/certificatePolicy";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { certificateYear, editionPresentation, snapshotPresentation, CertificatePresentation } from "../services/certificateEditions";
+import { assertCertificationAllowed } from "../services/activityCertification";
 
 export const CERTIFICATE_CODE = /^[A-F0-9]{32}$/;
 
@@ -148,8 +149,9 @@ export async function reissueCertificate(code: string, adminId: string, reason: 
 export async function setActivityDuration(id: string, durationMinutes: number | null, durationSource: string | null, certificateExcluded = false) {
   return prisma.$transaction(async tx => {
     await lockEditionState(tx, true);
-    const activity = await tx.activity.findUnique({ where: { id }, include: { event: true } });
+    const activity = await tx.activity.findUnique({ where: { id }, include: { event: true, categoria: true } });
     if (!activity || !activity.event) throw new ApiError("Atividade vinculada a uma edição não encontrada.", ErrorsCode.NOT_FOUND);
+    assertCertificationAllowed({ ...activity, certificateExcluded });
     return tx.activity.update({ where: { id }, data: { durationMinutes, durationSource, certificateExcluded },
       select: { id: true, durationMinutes: true, durationSource: true, certificateExcluded: true } });
   });

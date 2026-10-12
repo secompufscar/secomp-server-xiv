@@ -287,15 +287,16 @@ test('MySQL: presença, pontos e fila são atômicos sob concorrência', {
     assert.equal(await prisma.userAtActivity.count({ where: { userId: movingUser, activityId: movingActivity.id } }), 0);
     assert.equal((await prisma.activity.findUniqueOrThrow({ where: { id: movingActivity.id } })).eventId, otherEventId);
 
-    // Opposite serialization: a completed move puts attendance outside the cancelled edition.
+    // Moving before cancellation is now blocked: attendance must retain its edition.
     const alreadyMovedActivity = await activity(eventId);
     const alreadyMovedUser = await user(eventId);
     await attendance.checkIn(alreadyMovedUser, alreadyMovedActivity.id);
     const alreadyMovedAnnual = await prisma.userEvent.findUniqueOrThrow({ where: { userId_eventId: { userId: alreadyMovedUser, eventId } } });
-    await activitiesRepository.update(alreadyMovedActivity.id, { eventId: otherEventId });
+    await assert.rejects(activitiesRepository.update(alreadyMovedActivity.id, { eventId: otherEventId }), error => error.statusCode === 409);
+    assert.equal((await prisma.activity.findUniqueOrThrow({ where: { id: alreadyMovedActivity.id } })).eventId, eventId);
     await registrations.deleteWithActivitiesAndWaitlist(alreadyMovedAnnual.id, alreadyMovedUser);
-    assert.equal(await points(alreadyMovedUser), 10);
-    assert.equal(await prisma.userAtActivity.count({ where: { userId: alreadyMovedUser, activityId: alreadyMovedActivity.id, presente: true, creditedPoints: 10 } }), 1);
+    assert.equal(await points(alreadyMovedUser), 0);
+    assert.equal(await prisma.userAtActivity.count({ where: { userId: alreadyMovedUser, activityId: alreadyMovedActivity.id } }), 0);
 
     // Annual cancellation and activity deletion contend on the same user lock.
     const concurrentActivity = await activity(eventId);
