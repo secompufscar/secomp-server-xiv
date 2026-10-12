@@ -207,13 +207,15 @@ test('rotas isolam emissão no usuário autenticado e duração no admin, valida
   }
   assert.deepEqual(revoke.mock.calls[0].arguments, ['A'.repeat(32), 'self', 'Correção']);
   assert.deepEqual(reissue.mock.calls[0].arguments, ['A'.repeat(32), 'self', 'Correção']);
-  for (const body of [{ durationMinutes: 30 }, { durationMinutes: null, durationSource: 'ref' }, { durationMinutes: 0, durationSource: 'ref' }, { durationMinutes: 60, durationSource: 'ref', certificateExcluded: true }]) {
+  for (const body of [{ durationMinutes: 30 }, { durationMinutes: null, durationSource: 'ref' }, { durationMinutes: 0, durationSource: 'ref' }]) {
     assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) })).status, 400);
   }
   assert.equal(duration.mock.callCount(), 0);
   assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ durationMinutes: 150, durationSource: 'Organização' }) })).status, 200);
   assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ durationMinutes: null, durationSource: null, certificateExcluded: true }) })).status, 200);
   assert.deepEqual(duration.mock.calls[1].arguments.slice(1), [null, null, true]);
+  assert.equal((await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ durationMinutes: 60, durationSource: 'ref', certificateExcluded: true }) })).status, 200);
+  assert.deepEqual(duration.mock.calls[2].arguments.slice(1), [60, 'ref', true]);
 });
 
 test('pré-check falha com conflitos; readiness exige plano aplicado e revisão das atividades não previstas', () => {

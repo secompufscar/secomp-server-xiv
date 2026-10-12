@@ -42,8 +42,7 @@ const durationSchema = z.object({
   durationMinutes: z.number().int().min(1).max(10080).nullable(),
   durationSource: z.string().trim().min(1).max(500).nullable(),
   certificateExcluded: z.boolean().default(false),
-}).strict().refine(value => (value.durationMinutes === null) === (value.durationSource === null))
-  .refine(value => !value.certificateExcluded || value.durationMinutes === null);
+}).strict().refine(value => (value.durationMinutes === null) === (value.durationSource === null));
 routes.put("/activities/:id/duration", authMiddleware, isAdmin, async (req, res) => {
   const data = durationSchema.safeParse(req.body);
   if (!z.string().uuid().safeParse(req.params.id).success || !data.success) {

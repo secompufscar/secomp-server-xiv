@@ -64,6 +64,7 @@ async function main() {
       'tests/attendance-timestamp.integration.test.cjs',
       'tests/participant-directory.integration.test.cjs',
       'tests/certificates.integration.test.cjs',
+      'tests/activity-certification.integration.test.cjs',
       'tests/edition-state-integrity.integration.test.cjs',
       'tests/signup-recovery.integration.test.cjs',
       'tests/verified-email-change.integration.test.cjs']);

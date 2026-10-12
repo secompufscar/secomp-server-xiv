@@ -12,21 +12,12 @@ export interface CreateActivityDTOS {
   local: string;
   localLink?: string | null;
   points: number;
+  durationMinutes: number;
+  durationSource: string;
+  certificateExcluded: boolean;
 }
 
-export interface UpdateActivityDTOS {
-  nome: string;
-  data: Date | null;
-  vagas: number | null;
-  palestranteNome: string;
-  palestranteTitulo?: SpeakerTitle;
-  categoriaId: string;
-  eventId?: string;
-  detalhes: string | null;
-  local: string;
-  localLink?: string | null;
-  points?: number;
-}
+export type UpdateActivityDTOS = Partial<CreateActivityDTOS>;
 
 export interface ActivityDTOS {
   id: string;
@@ -40,6 +31,9 @@ export interface ActivityDTOS {
   eventId: string | null;
   localLink?: string | null;
   points: number;
+  durationMinutes: number | null;
+  durationSource: string | null;
+  certificateExcluded: boolean;
   categoria?: {
     id: string;
     nome: string;

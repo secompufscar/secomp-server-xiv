@@ -1,0 +1,84 @@
+const assert = require('node:assert/strict');
+const { test } = require('node:test');
+const { randomUUID } = require('node:crypto');
+
+test('MySQL: CRUD de atividades mantém horas, presenças, imagens e revisões históricas', { skip: process.env.RUN_DATABASE_INTEGRATION !== '1' }, async t => {
+  const url = new URL(process.env.DATABASE_URL || '');
+  assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(url.hostname));
+  assert.match(url.pathname.slice(1), /^secomp_xiv_codex_test_[a-f0-9]{12}$/);
+  const { prisma } = require('../src/lib/prisma');
+  const activities = require('../src/services/activitiesService').default;
+  const scheduler = require('../src/services/schedulerService').default;
+  const certificates = require('../src/repositories/certificateRepository');
+  t.mock.method(scheduler, 'scheduleNotificationsForActivity', () => {});
+  t.mock.method(scheduler, 'cancelNotificationsForActivity', () => {});
+  const previousEnabled = process.env.CERTIFICATES_ENABLED, previousYear = process.env.CERTIFICATE_YEAR;
+  const eventIds = [], categoryIds = [], activityIds = [], userIds = [];
+  try {
+    process.env.CERTIFICATES_ENABLED = 'true'; process.env.CERTIFICATE_YEAR = '2026';
+    for (const year of [2026, 2091]) eventIds.push((await prisma.event.create({ data: { year, startDate: new Date(`${year}-10-05`), endDate: new Date(`${year}-10-08`), isCurrent: false } })).id);
+    for (const nome of ['Palestras', 'Credenciamento']) categoryIds.push((await prisma.category.create({ data: { nome, slug: `${nome.toLowerCase()}-${randomUUID()}` } })).id);
+    for (let i = 0; i < 2; i++) userIds.push((await prisma.user.create({ data: { nome: 'Pessoa fictícia', email: `${randomUUID()}@example.invalid`, senha: 'unused' } })).id);
+    const create = async (nome, durationMinutes, certificateExcluded, categoriaId = categoryIds[0]) => {
+      const result = await activities.create({ nome, palestranteNome: 'Equipe', categoriaId, eventId: eventIds[0], data: new Date('2026-10-05T12:00:00Z'), vagas: 20, detalhes: 'Teste', local: 'Teste', points: 0, durationMinutes, durationSource: 'Programação oficial', certificateExcluded });
+      activityIds.push(result.id); return result;
+    };
+    const credential = await create('Credenciamento', 30, true, categoryIds[1]);
+    const lecture = await create('Palestra', 60, false);
+    const second = await create('Minicurso', 180, false);
+    const coffee = await create('Coffee', 30, true);
+    await assert.rejects(create('Coffee Break', 30, false), error => error.statusCode === 400);
+    await assert.rejects(create('Credenciamento indevido', 30, false, categoryIds[1]), error => error.statusCode === 400);
+    assert.equal((await activities.findById(coffee.id)).durationMinutes, 30);
+    assert.equal((await activities.list()).find(activity => activity.id === coffee.id).certificateExcluded, true);
+    const present = async (userId, activityId) => prisma.userAtActivity.create({ data: { userId, activityId, presente: true, inscricaoPrevia: false, listaEspera: false } });
+    for (const userId of userIds) for (const activityId of activityIds) await present(userId, activityId);
+    const attendanceBefore = await prisma.userAtActivity.findMany({ where: { activityId: { in: activityIds } }, orderBy: { id: 'asc' } });
+    const original = await certificates.issueCertificate(userIds[0]);
+    assert.equal(original.totalMinutes, 240);
+    const image = await prisma.activityImage.create({ data: { activityId: lecture.id, typeOfImage: 'atividade', imageUrl: 'https://example.invalid/retained.jpg' } });
+    await activities.update(lecture.id, { nome: 'Palestra corrigida' });
+    assert.equal((await activities.findById(lecture.id)).durationSource, 'Programação oficial');
+    await activities.update(lecture.id, { durationMinutes: 90, durationSource: 'Correção oficial', certificateExcluded: false });
+    await activities.update(second.id, { durationMinutes: 180, durationSource: 'Programação oficial', certificateExcluded: true });
+    assert.deepEqual(await certificates.findCertificate(original.code), original);
+    const newCertificate = await certificates.issueCertificate(userIds[1]);
+    assert.equal(newCertificate.totalMinutes, 90);
+    assert.equal(newCertificate.snapshot.activities[0].name, 'Palestra corrigida');
+    await assert.rejects(activities.delete(lecture.id), error => error.statusCode === 409);
+    await assert.rejects(activities.delete(coffee.id), error => error.statusCode === 409);
+    await assert.rejects(activities.update(lecture.id, { eventId: eventIds[1] }), error => error.statusCode === 409);
+    await assert.rejects(activities.update(credential.id, { categoriaId: categoryIds[0] }), error => error.statusCode === 409);
+    assert.deepEqual(await prisma.activityImage.findUnique({ where: { id: image.id } }), image);
+    assert.deepEqual(await prisma.userAtActivity.findMany({ where: { activityId: { in: activityIds } }, orderBy: { id: 'asc' } }), attendanceBefore);
+    const replacement = await certificates.reissueCertificate(original.code, userIds[1], 'Correção solicitada');
+    assert.equal(replacement.totalMinutes, 90); assert.equal(replacement.revision, 2);
+    const historical = await prisma.certificate.findUniqueOrThrow({ where: { code: original.code } });
+    assert.deepEqual(historical.snapshot, original.snapshot);
+    // Mesmo sem presença atual, a referência da revisão revogada protege a atividade.
+    await prisma.userAtActivity.deleteMany({ where: { activityId: second.id } });
+    await assert.rejects(activities.delete(second.id), error => error.statusCode === 409);
+    await prisma.userAtActivity.deleteMany({ where: { activityId: credential.id } });
+    await assert.rejects(activities.delete(credential.id), error => error.statusCode === 409);
+    await assert.rejects(activities.update(credential.id, { eventId: eventIds[1] }), error => error.statusCode === 409);
+    const disposable = await create('Sem presença', 45, true);
+    await prisma.activityImage.create({ data: { activityId: disposable.id, typeOfImage: 'atividade', imageUrl: 'https://example.invalid/disposable.jpg' } });
+    await prisma.userAtActivity.create({ data: { activityId: disposable.id, userId: userIds[0], presente: false, inscricaoPrevia: true, listaEspera: false } });
+    await activities.delete(disposable.id);
+    assert.equal(await prisma.activity.findUnique({ where: { id: disposable.id } }), null);
+    assert.equal(await prisma.activityImage.count({ where: { activityId: disposable.id } }), 0);
+    assert.equal(await prisma.userAtActivity.count({ where: { activityId: disposable.id } }), 0);
+    await assert.rejects(activities.delete(disposable.id), error => error.statusCode === 404);
+  } finally {
+    if (previousEnabled === undefined) delete process.env.CERTIFICATES_ENABLED; else process.env.CERTIFICATES_ENABLED = previousEnabled;
+    if (previousYear === undefined) delete process.env.CERTIFICATE_YEAR; else process.env.CERTIFICATE_YEAR = previousYear;
+    const versions = await prisma.certificate.findMany({ where: { eventId: { in: eventIds } }, orderBy: { revision: 'desc' } });
+    for (const version of versions) await prisma.certificate.delete({ where: { id: version.id } });
+    await prisma.userAtActivity.deleteMany({ where: { activityId: { in: activityIds } } });
+    await prisma.activity.deleteMany({ where: { id: { in: activityIds } } });
+    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+    await prisma.category.deleteMany({ where: { id: { in: categoryIds } } });
+    await prisma.event.deleteMany({ where: { id: { in: eventIds } } });
+    await prisma.$disconnect();
+  }
+});

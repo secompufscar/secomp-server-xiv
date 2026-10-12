@@ -40,6 +40,7 @@ async function setup(t) {
 const activityBody = {
   nome: 'Palestra', palestranteNome: 'Pessoa', data: '2026-10-01T12:00:00.000Z',
   categoriaId: categoryId, eventId, vagas: 30, detalhes: 'Descrição', local: 'Auditório', points: 10,
+  durationMinutes: 60, durationSource: 'Programação oficial', certificateExcluded: false,
 };
 
 test('participante não escreve atividades mesmo com corpo malformado', async t => {
@@ -86,7 +87,8 @@ test('POST de atividade valida entrada e mantém o contrato de criação', async
   const valid = await request('/activities', 'POST', activityBody);
   assert.equal(valid.status, 201);
   assert.deepEqual(create.mock.calls[0].arguments[0], { ...activityBody, data: new Date(activityBody.data) });
-  for (const invalid of [{ vagas: -1 }, { vagas: 1.5 }, { points: -1 }, { categoriaId: 'invalid' }, { data: 'invalid' }]) {
+  for (const invalid of [{ vagas: -1 }, { vagas: 1.5 }, { points: -1 }, { categoriaId: 'invalid' }, { data: 'invalid' },
+    { durationMinutes: undefined }, { certificateExcluded: undefined }, { durationMinutes: 0 }, { durationMinutes: 1.5 }, { durationMinutes: 10081 }, { durationSource: ' ' }, { certificateExcluded: 'false' }]) {
     const response = await request('/activities', 'POST', { ...activityBody, ...invalid });
     assert.equal(response.status, 400);
   }
@@ -147,8 +149,9 @@ test('exclusão de atividade e inscrições usa a mesma transação e propaga fa
   const failure = new Error('delete failed');
   prismaModule.prisma = { $transaction: async action => action({
     $queryRaw: async () => { calls.push(['lock']); return [{ id }]; },
-    userAtActivity: { deleteMany: async args => { calls.push(['enrollments', args]); } },
-    activity: { delete: async args => { calls.push(['activity', args]); throw failure; } },
+    userAtActivity: { findFirst: async () => null, deleteMany: async args => { calls.push(['enrollments', args]); } },
+    certificate: { findFirst: async () => null },
+    activity: { findUniqueOrThrow: async () => ({ categoria: { nome: 'Palestras', slug: 'palestras' } }), delete: async args => { calls.push(['activity', args]); throw failure; } },
   }) };
   await assert.rejects(activities.delete(id), error => error === failure);
   assert.deepEqual(calls, [
