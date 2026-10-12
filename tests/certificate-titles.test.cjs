@@ -38,6 +38,10 @@ test('plano de títulos: doze transições controladas, grafia/espaços corrigid
   assert.equal(networking.name, 'Comunidade e networking: alavancando sua carreira durante a graduação');
   assert.equal(networking.previousName, 'Comunidade e networking:  alavancando sua carreira  durante a graduação');
   assert.equal(plan.activities.find(entry => entry.id === 'c6b70ebf-ea81-491b-8eb0-e411ef851ee9').name, 'Determinismo vs probabilística. Coding agents com Java');
+  const extension = plan.activities.find(entry => entry.id === '50597ec2-6109-40c1-b83f-1275a7c533be');
+  assert.equal(extension.name, 'Da Sala de Aula à Comunidade: Desafios e Práticas da Curricularização da Extensão na Docência Universitária');
+  assert.deepEqual(extension.previousNames, ['Mesa Redonda: Docência em Computação']);
+  assert.equal(extension.minutes, 60);
   for (const entry of plan.activities) assert.ok(entry.name.length <= 255);
 });
 
@@ -55,6 +59,18 @@ test('títulos: prévia sem escrita, somente nome na aplicação e repetição s
   assert.equal((await renameTitles(prisma, true)).changes, 0);
   assert.equal(writes.length, 12);
   assert.equal(reportExitCode(await renameTitles(prisma), true), 0);
+});
+
+test('títulos: corrige somente a mesa de extensao em cadastro ja atualizado e preserva o historico de nomes aprovados', async () => {
+  const { prisma, state, writes } = fixture();
+  for (const entry of plan.activities) state.find(row => row.id === entry.id).nome = entry.name;
+  state.find(row => row.id === '50597ec2-6109-40c1-b83f-1275a7c533be').nome = 'Mesa Redonda: Docência em Computação';
+  assert.equal((await renameTitles(prisma)).changes, 1);
+  assert.equal(writes.length, 0);
+  assert.equal((await renameTitles(prisma, true)).changes, 1);
+  assert.equal(writes.length, 1);
+  assert.deepEqual(writes[0].data, { nome: 'Da Sala de Aula à Comunidade: Desafios e Práticas da Curricularização da Extensão na Docência Universitária' });
+  assert.equal((await renameTitles(prisma, true)).changes, 0);
 });
 
 test('títulos: nome inesperado ou ID fora da edição bloqueia todas as escritas', async () => {

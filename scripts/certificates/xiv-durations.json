@@ -1,7 +1,7 @@
 {
   "year": 2026,
   "source": "Organização SECOMP: regras confirmadas em 10/10/2026; plano versionado xiv-durations.json.",
-  "titleSource": "Cronograma https://www.secompufscar.com.br/cronograma, consultado em 10/10/2026; aprovação da organização. Segurança da informação preserva a redação, corrigindo rackear para hackear; SDD preservado integralmente; PET - Cibersegurança restaurado.",
+  "titleSource": "Cronograma https://www.secompufscar.com.br/cronograma, consultado em 10/10/2026; aprovação da organização. Segurança da informação preserva a redação, corrigindo rackear para hackear; SDD preservado integralmente; PET - Cibersegurança restaurado. Organização, 12/10/2026: título completo da mesa de curricularização da extensão corrigido.",
   "activities": [
     {
       "id": "0139a903-d5b2-42cf-b22d-fac1d789a9aa",
@@ -96,7 +96,8 @@
     {
       "id": "50597ec2-6109-40c1-b83f-1275a7c533be",
       "previousName": "Mesa-redonda: Curricularização da extensão e o papel da docência na computação",
-      "name": "Mesa Redonda: Docência em Computação",
+      "previousNames": ["Mesa Redonda: Docência em Computação"],
+      "name": "Da Sala de Aula à Comunidade: Desafios e Práticas da Curricularização da Extensão na Docência Universitária",
       "minutes": 60,
       "excluded": false
     },
