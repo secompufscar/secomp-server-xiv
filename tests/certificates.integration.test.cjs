@@ -190,7 +190,9 @@ test('MySQL: plano de durações confere sem escrita, aplica exclusões, é idem
     const beforeTitles = await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } });
     assert.equal((await renameTitles(prisma)).changes, 12);
     assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
-    await prisma.$executeRawUnsafe("ALTER TABLE atividades ADD CONSTRAINT test_title_update_failure CHECK (nome <> 'Mesa MONKS')");
+    // MySQL's default collation equates the approved legacy "Mesa Monks" to "Mesa MONKS".
+    // Compare bytes so the injected failure happens during the rename, after adding the constraint.
+    await prisma.$executeRawUnsafe("ALTER TABLE atividades ADD CONSTRAINT test_title_update_failure CHECK (CAST(nome AS BINARY) <> CAST('Mesa MONKS' AS BINARY))");
     try {
       await assert.rejects(renameTitles(prisma, true));
       assert.deepEqual(await prisma.activity.findMany({ where: { eventId: event.id }, orderBy: { id: 'asc' } }), beforeTitles);
